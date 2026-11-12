@@ -1,0 +1,89 @@
+@media (max-width: 900px) {
+  .console {
+    grid-template-columns: 155px minmax(0, 1fr);
+  }
+  .rail {
+    padding-inline: 9px;
+  }
+  .rail .brand span {
+    display: none;
+  }
+}
+@media (max-width: 680px) {
+  .console {
+    display: block;
+  }
+  .rail {
+    height: auto;
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 12px 14px;
+    gap: 8px;
+  }
+  .rail > .brand {
+    margin: 0;
+  }
+  .rail .brand b {
+    font-size: 16px;
+  }
+  .rail-section {
+    display: none;
+  }
+  #platforms {
+    grid-column: 1 / -1;
+    min-width: 0;
+    overflow-x: auto;
+    display: flex;
+    gap: 4px;
+  }
+  .platform-nav {
+    flex: 0 0 auto;
+    width: auto;
+    white-space: nowrap;
+    padding: 6px;
+    gap: 2px;
+    margin: 0;
+    font-size: 12px;
+  }
+  .platform-nav small {
+    display: none;
+  }
+  .rail-foot {
+    grid-column: 1/-1;
+    display: flex;
+    margin: 0;
+    padding: 4px 0 0;
+  }
+  .rail-foot a,
+  .rail-foot button {
+    width: auto;
+    font-size: 11px;
+    padding: 3px 8px;
+    gap: 4px;
+  }
+  .content {
+    padding: 18px 12px 32px;
+  }
+  .topbar {
+    height: auto;
+    padding: 10px 12px;
+    gap: 6px;
+  }
+  .topbar > div:first-child {
+    font-size: 12px;
+  }
+  .topbar span {
+    margin: 0 2px;
+  }
+  .monitor-picker,
+  .monitor-picker select {
+    width: 100%;
+  }
+  .scope-filters,
+  .monitor-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

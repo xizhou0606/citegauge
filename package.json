@@ -3,19 +3,40 @@
   "version": "0.1.0",
   "description": "Evidence-first GEO monitoring on Cloudflare Workers",
   "scripts": {
-    "test": "node --test test/*.test.ts",
+    "test": "node --env-file-if-exists=.env --test test/*.test.ts",
     "dev": "wrangler dev",
-    "check": "tsc --noEmit",
-    "deploy": "wrangler deploy"
+    "check": "tsc --noEmit && npm run check:lines",
+    "deploy": "wrangler deploy",
+    "check:lines": "node scripts/check-lines.mjs",
+    "auth:admin": "node --env-file-if-exists=.env scripts/setup-admin.mjs",
+    "db:local": "node scripts/db/local.mjs",
+    "db:migrate": "node --env-file-if-exists=.env scripts/db/migrate.mjs"
   },
   "license": "MIT",
   "type": "module",
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261112.1",
+    "@types/pg": "^8.23.1",
     "typescript": "^7.0.2",
     "wrangler": "^4.160.1"
   },
   "repository": {
     "url": "https://github.com/xizhou0606/citegauge.git"
+  },
+  "dependencies": {
+    "@ai-sdk/alibaba": "2.0.88",
+    "@ai-sdk/anthropic": "4.0.102",
+    "@ai-sdk/deepseek": "3.0.84",
+    "@ai-sdk/google": "4.0.118",
+    "@ai-sdk/moonshotai": "3.0.90",
+    "@ai-sdk/openai": "4.0.115",
+    "@ai-sdk/perplexity": "5.0.31",
+    "ai": "7.0.170",
+    "better-auth": "^1.7.22",
+    "bootstrap": "^5.3.9",
+    "bootstrap-icons": "^1.13.2",
+    "chart.js": "^4.6.1",
+    "pg": "^8.23.1",
+    "zod": "4.6.7"
   }
 }

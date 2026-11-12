@@ -5,3 +5,6 @@ node_modules/
 .env*
 *.log
 .DS_Store
+public/vendor/
+
+.local-admin*.txt

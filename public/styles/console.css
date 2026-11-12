@@ -1,0 +1,131 @@
+@import url("./scope.css");
+@import url("./reports.css");
+@import url("./forms.css");
+.console {
+  display: grid;
+  grid-template-columns: 212px minmax(0, 1fr);
+  min-height: 100vh;
+}
+.rail {
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  padding: 27px 15px 17px;
+  background: #122e29;
+  color: #eff9f1;
+}
+.rail > .brand {
+  margin: 0 6px 52px;
+}
+.rail-section {
+  color: #a2baad;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 13px 10px;
+}
+.platform-nav,
+.rail-foot a,
+.rail-foot button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  padding: 10px 13px;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #cfdfd4;
+  text-align: left;
+}
+.platform-nav {
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+.platform-nav small {
+  margin-left: auto;
+  font: 12px monospace;
+}
+.platform-nav i {
+  width: 24px;
+  text-align: center;
+}
+.platform-nav[aria-pressed="true"] {
+  background: #ccedb9;
+  color: #193529;
+  font-weight: 650;
+}
+.platform-nav[aria-pressed="false"]:hover,
+.rail-foot a:hover,
+.rail-foot button:hover {
+  background: #24453d;
+  color: white;
+}
+.rail-foot {
+  margin-top: auto;
+  border-top: 1px solid #335148;
+  padding-top: 14px;
+  font-size: 13px;
+}
+.console-main {
+  min-width: 0;
+}
+.topbar {
+  height: 65px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  padding: 0 clamp(18px, 3vw, 46px);
+  background: white;
+  font-size: 13px;
+  color: var(--muted);
+}
+.topbar strong {
+  color: var(--ink);
+}
+.topbar span {
+  margin: 0 8px;
+  color: #8b9e93;
+}
+#tools,
+.sampling-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.content {
+  max-width: 1550px;
+  margin: auto;
+  padding: 25px clamp(18px, 3vw, 46px) 55px;
+}
+
+/* Carry the login panel's ink and chartreuse palette into the workspace. */
+.rail {
+  background: linear-gradient(165deg, #192923, #101a17 88%);
+}
+.rail .brand i,
+.platform-nav[aria-pressed="true"] {
+  background: #d9e7ab;
+}
+.console {
+  background: #f5f6f1;
+}
+.kpi.k0 {
+  background: #20362d;
+  color: #f8faee;
+  border-color: #20362d;
+}
+.kpi.k0 .kpi-title,
+.kpi.k0 small {
+  color: #d5e3d4;
+}
+.kpi.k0 .kpi-title i {
+  background: #d9e7ab;
+  color: #294030;
+}
+
+#platforms { min-height: 0; overflow-y: auto; }

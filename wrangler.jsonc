@@ -1,8 +1,11 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "citegauge",
+  "build": { "command": "node scripts/prepare-assets.mjs", "watch_dir": ["src", "scripts"] },
   "main": "src/index.ts",
   "compatibility_date": "2026-03-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "dev": {"port":8787},
   "workers_dev": true,
   "assets": { "directory": "./public", "binding": "ASSETS" },
   "durable_objects": {

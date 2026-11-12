@@ -1,0 +1,137 @@
+.scope-title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.scope-title h1 {
+  margin: 0;
+  font-size: clamp(25px, 2.3vw, 36px);
+}
+.scope-title p,
+.caption,
+.date-range,
+.brand-domain {
+  color: var(--muted);
+  font-size: 13px;
+}
+.scope-title p {
+  margin: 1px 0 0;
+}
+.platform-mark {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: var(--mint);
+  color: var(--accent);
+  font-size: 25px;
+}
+.scope-filters,
+.monitor-head,
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.scope-filters {
+  margin: 20px 0 0;
+  padding: 0 0 17px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.nav-pills {
+  background: #e6ece7;
+  padding: 3px;
+  border-radius: 9px;
+  gap: 3px;
+}
+.nav-pills .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #4e6459;
+  font-size: 13px;
+  padding: 6px 11px;
+  border: 0;
+}
+.nav-pills .nav-link.active {
+  background: white;
+  color: var(--accent);
+  box-shadow: 0 1px 3px #20352820;
+  font-weight: 650;
+}
+.monitor-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  max-width: 100%;
+  white-space: nowrap;
+}
+.monitor-picker select {
+  width: min(310px, 50vw);
+}
+.monitor-head {
+  margin: 20px 0 16px;
+}
+.monitor-head h2 {
+  font-size: clamp(19px, 1.65vw, 26px);
+  margin: 4px 0 6px;
+}
+.brand-domain {
+  margin: 0;
+  font-size: 12px;
+}
+.brand-domain span {
+  padding: 0 4px;
+}
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+}
+.surface {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: white;
+  min-width: 0;
+}
+.surface h2 {
+  font-size: 17px;
+  margin: 0;
+}
+.section-head {
+  margin-bottom: 10px;
+}
+.empty {
+  color: var(--muted);
+  padding: 18px 0;
+  font-size: 14px;
+}
+.empty-platform {
+  margin-top: 20px;
+  padding: 38px;
+  text-align: center;
+}
+.empty-platform > .bi {
+  font-size: 36px;
+  color: var(--accent);
+}
+.empty-platform h2 {
+  margin: 10px 0 18px;
+}
+#status:empty {
+  display: none;
+}
+#status:not(:empty),
+#dialog-note:not(:empty) {
+  padding: 10px 14px;
+  background: #fff5d6;
+  border-radius: 6px;
+  color: #594819;
+}

@@ -1,7 +1,8 @@
-import { json } from "./store.ts";
-import { page, articles } from "./pages.ts";
-import type { Env } from "./model.ts";
-export { Workspace } from "./store.ts";
+import { privateApi, hasWorkspaceSession } from "./auth/server.ts";
+import { page } from "./web/pages.ts";
+import { articles } from "./web/articles.ts";
+import type { Env } from "./runtime/env.ts";
+export { Workspace } from "./storage/workspace.ts";
 const text = (body: string, type: string) =>
   new Response(body, {
     headers: {
@@ -13,31 +14,23 @@ export default {
   async fetch(req: Request, env: Env) {
     const url = new URL(req.url),
       path = url.pathname;
-    if (path.startsWith("/api/")) {
-      if (!env.ADMIN_TOKEN || env.ADMIN_TOKEN.length < 24)
-        return json({ error: "管理员尚未设置工作台密钥" }, 503);
-      const digest = (s: string) =>
-        crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-      const [expected, received] = await Promise.all([
-        digest("Bearer " + env.ADMIN_TOKEN),
-        digest(req.headers.get("Authorization") || ""),
-      ]);
-      const bytes = new Uint8Array(received);
-      const difference = new Uint8Array(expected).reduce(
-        (acc, n, i) => acc | (n ^ bytes[i]),
-        0,
-      );
-      if (difference !== 0) return json({ error: "工作台密钥无效" }, 401);
-      if (req.method === "POST") {
-        if (!req.headers.get("content-type")?.includes("application/json"))
-          return json({ error: "需要 JSON" }, 415);
-        if ((await req.clone().arrayBuffer()).byteLength > 260000)
-          return json({ error: "样本过大" }, 413);
-      }
-      return env.WORKSPACE.get(env.WORKSPACE.idFromName("owner-v1")).fetch(req);
-    }
+    if (path.startsWith("/api/")) return privateApi(req, env);
     if (!["GET", "HEAD"].includes(req.method))
       return new Response(null, { status: 405 });
+    const restricted = path === "/workspace" || path === "/login";
+    if (restricted) {
+      const signedIn = await hasWorkspaceSession(req, env);
+      const destination = signedIn ? "/workspace" : "/login";
+      if (path !== destination)
+        return new Response(null, {
+          status: 303,
+          headers: {
+            Location: destination,
+            "Cache-Control": "private, no-store",
+            Vary: "Cookie",
+          },
+        });
+    }
     if (path === "/robots.txt")
       return text(
         "User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /workspace\nSitemap: " +
@@ -65,7 +58,7 @@ export default {
       );
     if (
       path === "/" ||
-      path === "/workspace" ||
+      restricted ||
       (path in articles && Object.hasOwn(articles, path))
     ) {
       return new Response(page(path, url.origin), {
@@ -73,6 +66,9 @@ export default {
           "Content-Type": "text/html; charset=utf-8",
           "X-Content-Type-Options": "nosniff",
           "Referrer-Policy": "no-referrer",
+          ...(restricted
+            ? { "Cache-Control": "private, no-store", Vary: "Cookie" }
+            : {}),
           "Content-Security-Policy":
             "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
         },

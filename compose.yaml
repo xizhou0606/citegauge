@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: citegauge
+      POSTGRES_USER: citegauge
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U citegauge -d citegauge"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+volumes:
+  pgdata:

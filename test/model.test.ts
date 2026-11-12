@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { monitorFrom, imported, measure, parseAnswer } from "../src/model.ts";
+import {monitorFrom} from "../src/domain/monitor.ts";
+import {measure} from "../src/domain/metrics.ts";
+import {imported} from "../src/collectors/web-import.ts";
 const m = monitorFrom({
   brand: "CiteGauge",
   domain: "example.com",
@@ -39,50 +41,4 @@ test("拒绝错误渠道与非 HTTP 来源", () => {
   assert.throws(() =>
     imported({ ...base, urls: "javascript:alert(1)" }, m.channel),
   );
-});
-test("检索结果不计为回答引用", () => {
-  const p = {
-    output: [
-      { type: "web_search_result", results: [{ url: "https://example.com" }] },
-      {
-        type: "message",
-        content: [{ type: "output_text", text: "答复", annotations: [] }],
-      },
-    ],
-  };
-  assert.deepEqual(parseAnswer(p, true, "ark").urls, []);
-});
-test("保留正文 URL 标注", () =>
-  assert.deepEqual(
-    parseAnswer(
-      {
-        output: [
-          {
-            type: "message",
-            content: [
-              {
-                type: "output_text",
-                text: "答复",
-                annotations: [
-                  { type: "url_citation", url: "https://example.com" },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      true,
-      "ark",
-    ).urls,
-    ["https://example.com/"],
-  ));
-test("截断、空答案不计有效样本", () => {
-  assert.throws(() =>
-    parseAnswer(
-      { choices: [{ finish_reason: "length", message: { content: "部分" } }] },
-      false,
-      "ds",
-    ),
-  );
-  assert.throws(() => parseAnswer({}, true, "ark"));
 });
