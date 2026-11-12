@@ -1,0 +1,21 @@
+{
+  "name": "citegauge",
+  "version": "0.1.0",
+  "description": "Evidence-first GEO monitoring on Cloudflare Workers",
+  "scripts": {
+    "test": "node --test test/*.test.ts",
+    "dev": "wrangler dev",
+    "check": "tsc --noEmit",
+    "deploy": "wrangler deploy"
+  },
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261112.1",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.160.1"
+  },
+  "repository": {
+    "url": "https://github.com/xizhou0606/citegauge.git"
+  }
+}
