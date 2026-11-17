@@ -1,4 +1,4 @@
-import type { Pool } from "pg";
+import type { Database } from "./d1.ts";
 import { platforms } from "../domain/platforms.ts";
 import { daily, history, report } from "./report.ts";
 import { modelCatalog } from "../collectors/ai/factory.ts";
@@ -9,7 +9,7 @@ import type { Env } from "../runtime/env.ts";
 export async function readWorkspace(
   req: Request,
   path: string,
-  db: Pool,
+  db: Database,
   env: Env,
 ) {
   const url = new URL(req.url),
@@ -22,7 +22,7 @@ export async function readWorkspace(
       ? []
       : (
           await db.query(`SELECT id,monitor,at,state,detail->>'matched' AS hits,
-      (detail->>'cited')::boolean::int AS cited FROM runs ORDER BY at DESC LIMIT 200`)
+      detail->>'cited' AS cited FROM runs ORDER BY at DESC LIMIT 200`)
         ).rows;
     const models = modelCatalog(env);
     return json({
@@ -36,7 +36,7 @@ export async function readWorkspace(
     });
   }
   if (path.startsWith("/api/report/") || path.startsWith("/api/history/")) {
-    const { rows } = await db.query("SELECT config FROM monitors WHERE id=$1", [
+    const { rows } = await db.query("SELECT config FROM monitors WHERE id=?1", [
       id,
     ]);
     if (!rows.length) return json({ error: "监测项不存在" }, 404);
@@ -57,7 +57,7 @@ export async function readWorkspace(
     return json(await daily(db, id!, Date.now() - 30 * 86400000, Date.now()));
   if (path.startsWith("/api/screenshot/")) {
     const { rows } = await db.query(
-      "SELECT mime,bytes FROM screenshots WHERE run=$1",
+      "SELECT mime,bytes FROM screenshots WHERE run=?1",
       [id],
     );
     return rows.length
@@ -72,7 +72,7 @@ export async function readWorkspace(
   }
   if (path.startsWith("/api/evidence/")) {
     const { rows } = await db.query(
-      'SELECT runs.*,EXISTS(SELECT 1 FROM screenshots WHERE run=runs.id)::int AS "hasScreenshot" FROM runs WHERE id=$1',
+      'SELECT runs.*,EXISTS(SELECT 1 FROM screenshots WHERE run=runs.id) AS "hasScreenshot" FROM runs WHERE id=?1',
       [id],
     );
     return rows.length ? json(rows[0]) : json({ error: "样本不存在" }, 404);

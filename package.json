@@ -10,7 +10,7 @@
     "check:lines": "node scripts/check-lines.mjs",
     "auth:admin": "node --env-file-if-exists=.env scripts/setup-admin.mjs",
     "db:local": "node scripts/db/local.mjs",
-    "db:migrate": "node --env-file-if-exists=.env scripts/db/migrate.mjs"
+    "db:migrate": "wrangler d1 migrations apply DB"
   },
   "license": "MIT",
   "type": "module",

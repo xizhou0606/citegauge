@@ -1,4 +1,4 @@
-import { fixture } from "./pg-fixture.ts";
+import { fixture } from "./d1-fixture.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { history, report } from "../src/storage/report.ts";
@@ -19,13 +19,13 @@ test("同一 UTC 窗口统计和下钻覆盖全部样本，包括被其他项目
     const end = Date.UTC(2026, 10, 12, 12),
       first = Date.UTC(2026, 9, 14);
     for (const id of [m.id, "other"])
-      await sql.query("INSERT INTO monitors(id,config) VALUES ($1,$2)", [
+      await sql.query("INSERT INTO monitors(id,config) VALUES (?1,?2)", [
         id,
         m,
       ]);
     const add = (...args: unknown[]) =>
       sql.query(
-        "INSERT INTO runs(id,monitor,at,state,detail) VALUES ($1,$2,$3,$4,$5)",
+        "INSERT INTO runs(id,monitor,at,state,detail) VALUES (?1,?2,?3,?4,?5)",
         args,
       );
     const detail = JSON.stringify({

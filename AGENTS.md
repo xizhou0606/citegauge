@@ -2,7 +2,7 @@
 
 ## 模型平台与数据
 
-- 认证和业务数据统一存 PostgreSQL，建表变更进入 migrations/postgres。Durable Object 负责定时唤醒。/login 独立渲染登录页面；/workspace 在服务端验证 Better Auth 会话。
+- 认证和业务数据统一存 Cloudflare D1，建表变更进入 migrations/d1。Durable Object 负责定时唤醒。/login 独立渲染登录页面；/workspace 在服务端验证 Better Auth 会话。
 
 - 工作台按平台、采样渠道、监测项三级导航。平台注册表维护在 `src/domain/platforms.ts`。API 通过 catalog 返回注册表；现有监测项继续使用原始渠道名。
 - 豆包网页和火山方舟 API 同属豆包平台。DeepSeek 网页和 DeepSeek API 同属 DeepSeek 平台。每个问题与渠道独立计算，保留可判定引用、有效回答和人工复核的各自分母。

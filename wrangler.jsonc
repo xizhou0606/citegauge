@@ -7,6 +7,13 @@
   "compatibility_flags": ["nodejs_compat"],
   "dev": {"port":8787},
   "workers_dev": true,
+  "vars": { "BETTER_AUTH_URL": "https://citegauge.liushurui0606.workers.dev" },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "citegauge-prod",
+    "database_id": "da1f451e-b39b-4de0-9499-54922fe21512",
+    "migrations_dir": "migrations/d1"
+  }],
   "assets": { "directory": "./public", "binding": "ASSETS" },
   "durable_objects": {
     "bindings": [{ "name": "WORKSPACE", "class_name": "Workspace" }],

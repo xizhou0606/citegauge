@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { fixture } from "./pg-fixture.ts";
+import { fixture } from "./d1-fixture.ts";
 import { randomBytes } from "node:crypto";
 import { hashPassword } from "better-auth/crypto";
 import { privateApi } from "../src/auth/server.ts";
@@ -15,7 +15,7 @@ test("工作台仅接受管理员用户名会话，退出后撤销原 Cookie", a
       now = new Date().toISOString();
     const password = randomBytes(18).toString("base64url");
     await db.query(
-      'INSERT INTO "user"(id,name,email,"emailVerified",username,"displayUsername","createdAt","updatedAt") VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
+      'INSERT INTO "user"(id,name,email,"emailVerified",username,"displayUsername","createdAt","updatedAt") VALUES (?1,?2,?3,?4,?5,?6,?7,?8)',
       [
         "workspace-admin",
         "admin",
@@ -28,7 +28,7 @@ test("工作台仅接受管理员用户名会话，退出后撤销原 Cookie", a
       ],
     );
     await db.query(
-      'INSERT INTO account(id,"accountId","providerId","userId",password,"createdAt","updatedAt") VALUES ($1,$2,$3,$4,$5,$6,$7)',
+      'INSERT INTO account(id,"accountId","providerId","userId",password,"createdAt","updatedAt") VALUES (?1,?2,?3,?4,?5,?6,?7)',
       [
         "credential",
         "workspace-admin",
@@ -40,7 +40,7 @@ test("工作台仅接受管理员用户名会话，退出后撤销原 Cookie", a
       ],
     );
     const env = {
-      DATABASE_URL: f.url,
+      DB: f.binding,
       BETTER_AUTH_SECRET: randomBytes(48).toString("hex"),
       BETTER_AUTH_URL: origin,
       WORKSPACE: {
