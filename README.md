@@ -33,7 +33,7 @@ CiteGauge is an MIT-licensed, self-hosted GEO monitor for Chinese and internatio
 
 ## 本地运行
 
-需要 Node.js 24、npm 和 Docker。依赖版本见 package-lock.json。
+需要 Node.js 24 和 npm。依赖版本见 package-lock.json。
 
 ```sh
 npm ci
@@ -42,7 +42,7 @@ npm run auth:admin
 npm run dev
 ```
 
-打开 http://127.0.0.1:8787/login。首次初始化会创建 PostgreSQL 表与管理员账号，默认账号为 `admin`，随机初始密码保存在项目目录的 `.local-admin.txt`。登录只需账号和密码。重复运行初始化会保留已有账号；忘记密码时运行 `npm run auth:admin -- --reset` 获取新密码，同时注销现有会话。工作台使用 Better Auth username 插件与 HttpOnly 会话 Cookie。管理账号通过部署脚本维护。
+打开 http://127.0.0.1:8787/login。首次初始化会创建 D1 表与管理员账号，默认账号为 `admin`，随机初始密码保存在项目目录的 `.local-admin.txt`。登录只需账号和密码。重复运行初始化会保留已有账号；忘记密码时运行 `npm run auth:admin -- --reset` 获取新密码，同时注销现有会话。工作台使用 Better Auth username 插件与 HttpOnly 会话 Cookie。管理账号通过部署脚本维护。
 
 网页人工取样无需供应商 API Key。配置自动采样时，将对应变量加入 .dev.vars，见下方部署说明。
 
@@ -54,7 +54,7 @@ npm run dev
 
 ## 代码与验证
 
-TypeScript Worker 提供路由和权限检查。PostgreSQL 保存认证、监测、证据和截图，Durable Object alarm 唤醒每日采样。公开页面返回可直接读取的 HTML 和 JSON-LD。私有 API 校验 Better Auth 管理员会话，响应禁止缓存。URL、问题和原始回答可能包含客户资料，请只将可公开的信息放入 GitHub。
+TypeScript Worker 提供路由和权限检查。D1 保存认证、监测、证据和截图，Durable Object alarm 唤醒每日采样。公开页面返回可直接读取的 HTML 和 JSON-LD。私有 API 校验 Better Auth 管理员会话，响应禁止缓存。URL、问题和原始回答可能包含客户资料，请只将可公开的信息放入 GitHub。
 
 ```sh
 npm test
@@ -68,7 +68,7 @@ npx wrangler deploy --dry-run
 | src/runtime/ | Worker 环境与 HTTP 响应 |
 | src/domain/ | 品牌、域名与指标计算 |
 | src/collectors/ | 网页样本导入和模型 API 采集 |
-| src/storage/ | PostgreSQL 存储、每日任务、历史趋势 |
+| src/storage/ | D1 存储、每日任务、历史趋势 |
 | public/scripts/、public/styles/ | 浏览器工作台交互和样式 |
 | deployment/ | Cloudflare 部署说明 |
 | test/ | 指标、渠道与证据解析回归测试 |

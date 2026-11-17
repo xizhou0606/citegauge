@@ -14,8 +14,7 @@ export type ModelCredentials = Partial<
 export interface Env extends ModelCredentials {
   WORKSPACE: DurableObjectNamespace;
   ASSETS: Fetcher;
-  DATABASE_URL?: string;
-  HYPERDRIVE?: Hyperdrive;
+  DB: D1Database;
   BETTER_AUTH_SECRET: string;
   BETTER_AUTH_URL: string;
 }

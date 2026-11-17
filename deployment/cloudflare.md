@@ -1,18 +1,18 @@
-# PostgreSQL 与 Cloudflare 部署
+# Cloudflare D1 与 Workers 部署
+
+认证、工作台记录和截图存放于 D1。Worker 提供页面与 API，原 WORKSPACE Durable Object 负责调度。生产与本地数据库独立。
 
 ## 本地
 
-`npm run db:local` 使用 Docker Compose 启动 PostgreSQL 18，绑定 127.0.0.1:55432。数据保存在 Docker 命名卷。脚本为首次运行生成数据库凭据和 Better Auth 本地设置；.env、.dev.vars 和管理员密码文件都在 Git 忽略列表中。
-
-`npm run auth:admin` 应用版本化迁移并初始化账号；现有账号会保留。重置时用 `npm run auth:admin -- --reset`。服务入口为 /login；/workspace 在服务端验证会话。
+使用 Node.js 24，运行 `npm ci`、`npm run db:local`、`npm run auth:admin`、`npm run dev`。本地管理员凭据位于 .local-admin.txt，复用已有账号时凭据保持有效。
 
 ## 生产
 
-1. 准备可从 Cloudflare 访问的 PostgreSQL 与独立的生产连接串。在操作环境设置 DATABASE_URL，运行 `npm run db:migrate`。
-2. 新部署运行 `npm run auth:admin -- --remote`。此选项使用生产凭据文件名；数据库目标始终由 DATABASE_URL 决定。
-3. 在 Cloudflare 创建连接该 PostgreSQL 的 Hyperdrive，关闭查询缓存以保证认证撤销和监测数据的时效性。在 wrangler 配置中添加绑定 `{"binding":"HYPERDRIVE","id":"实际配置 ID"}` 到 hyperdrive 数组。
-4. 设置 BETTER_AUTH_URL 为生产 HTTPS 源站、BETTER_AUTH_SECRET 为独立随机值，按下表设置需要的模型凭据。保留原 WORKSPACE 绑定和 Durable Object 迁移记录以延续定时唤醒。
-5. 执行 `npm run deploy`。验证 /workspace 未登录跳转、登录后历史样本、每日采样、退出后 API 返回 401。
+1. 创建 D1 数据库，把数据库名称、ID 和绑定 DB 写入 wrangler.jsonc，迁移目录为 migrations/d1。自托管副本须使用自己的数据库 ID 和 HTTPS 域名。
+2. 将 BETTER_AUTH_URL 指向最终访问域名，以 Wrangler Secret 设置独立的随机 BETTER_AUTH_SECRET（至少 32 个字符）。
+3. 新版本上线前运行 `npm run db:migrate -- --remote`。首次运行 `npm run auth:admin -- --remote` 初始化管理员，凭据保存在 .local-admin-production.txt。显式重置使用附加参数 --reset，并撤销之前的会话。
+4. 合并到 main 触发 Cloudflare Workers Builds。独立部署可用 `npm run deploy`。验证登录、工作台数据读取、退出后的会话撤销。
+5. 已有 PostgreSQL 部署应先备份并制定数据导入计划。更改绑定和初始化新库不会复制现有记录。
 
 ## 模型渠道
 
@@ -28,11 +28,3 @@
 | Claude | ANTHROPIC_API_KEY | ANTHROPIC_MODEL |
 | Gemini | GOOGLE_GENERATIVE_AI_API_KEY | GOOGLE_GENERATIVE_AI_MODEL |
 | Perplexity | PERPLEXITY_API_KEY | PERPLEXITY_MODEL |
-
-## 旧部署的数据迁移
-
-暂停原实例写入与定时采样，备份原认证库和工作台库。迁移工具接受两份标准 SQLite 数据库文件（认证库、业务库）。若拿到的是 SQL 导出，应先恢复到 SQLite 文件。持有本机 Wrangler 状态文件时，使用 SQLite backup API 做一致性备份，包含 WAL 中已提交的数据。
-
-将 DATABASE_URL 指向空的目标业务库，运行 `node --env-file-if-exists=.env scripts/db/import-sqlite.mjs 认证备份.sqlite 工作台备份.sqlite`。导入在事务内执行，迁移完成后记录标识；失败会回滚导入。迁移保留账号密码哈希、监测项、采样时间、原始响应、截图和每日调度时间。核对行数和抽样指标后切换应用。原数据库备份用于切换失败时恢复旧版本。
-
-PG 保存所有业务记录与 Better Auth 数据。Durable Object 只承接工作台请求与每日采样的唤醒，不再写入业务 SQLite 表。

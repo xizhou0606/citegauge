@@ -1,14 +1,14 @@
-import type { Pool } from "pg";
+import type { Database } from "./d1.ts";
 import { json } from "../runtime/response.ts";
 export async function reviewSample(
-  sql: Pool,
+  sql: Database,
   monitorId: string,
   b: Record<string, unknown>,
 ) {
   const id = String(b.run);
   const sample = (
     await sql.query(
-      "SELECT detail FROM runs WHERE id=$1 AND monitor=$2 AND state='ok'",
+      "SELECT detail FROM runs WHERE id=?1 AND monitor=?2 AND state='ok'",
       [id, monitorId],
     )
   ).rows[0];
@@ -44,6 +44,6 @@ export async function reviewSample(
       at: Date.now(),
     };
   }
-  await sql.query("UPDATE runs SET detail=$1 WHERE id=$2", [detail, id]);
+  await sql.query("UPDATE runs SET detail=?1 WHERE id=?2", [detail, id]);
   return json({ id });
 }
