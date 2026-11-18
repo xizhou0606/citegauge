@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { fixture } from "./d1-fixture.ts";
 import { compareIndustry, industryRows, mergeBrands } from "../src/site-review/industry.ts";
+import { reconcileChanges } from "../src/site-review/industry-store.ts";
 import { siteReview } from "../src/site-review/route.ts";
 import { readWorkspace } from "../src/storage/queries.ts";
 import { reviewDocument } from "../public/scripts/components/review-export.js";
@@ -86,4 +87,12 @@ test("按原文段落引用，扩展检索保留已核实的品牌", () => {
     [{...page, title: "演示丙与演示丁", snippet: "可以导出班表。"}], modules);
   assert.deepEqual(mergeBrands(original, found).map(r => r.name), ["演示乙", "演示丙"]);
   assert.equal(found[0].quote, "可以导出班表。");
+});
+
+test("重新分析同一行业保留品牌，并按新模块校验旧修改建议", () => {
+  const list = industryRows({rows: [row]}, identity, [page], modules);
+  assert.equal(reconcileChanges(list, [{name: "新模块", evidence: "新证据"}, ...modules])[0].change.module, 1);
+  const outdated = reconcileChanges(list, [{...modules[0], evidence: "已更新的首页"}])[0];
+  assert.equal(outdated.name, row.name);
+  assert.equal(outdated.change, null);
 });

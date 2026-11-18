@@ -25,6 +25,7 @@ export function Source({ row }) {
   return <details className="industry-source">
     <summary>对照依据</summary>
     <blockquote>{row.quote}</blockquote>
+    {row.provenance && <span>{row.provenance} · </span>}
     <a href={row.url} target="_blank" rel="noreferrer">{row.title || row.url} ↗</a>
   </details>;
 }

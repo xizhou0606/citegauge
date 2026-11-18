@@ -1,6 +1,6 @@
 import { sourcePreview } from "./industry-preview.ts";
-import { fillIndustry, saveIndustry } from "./industry-store.ts";
-import { compareIndustry } from "./industry.ts";
+import { fillIndustry, previousIndustry, reconcileChanges, saveIndustry } from "./industry-store.ts";
+import { compareIndustry, mergeBrands } from "./industry.ts";
 import { checkExamples } from "./claims.ts";
 import { expandAdvice } from "./expand.ts";
 import { json } from "../runtime/response.ts";
@@ -66,9 +66,15 @@ export async function siteReview(req: Request, env: Env) {
     const section = source === "原文" && snapshot.sections?.find(s => s.heading === evidence);
     return { name, evidence: section ? section.heading + "\n" + section.body.slice(0, 900) : evidence };
   });
+  const prior = review.identity && await previousIndustry(env.DB, snapshot.url, review.identity.category);
   const comparison = await compareIndustry(review.identity, modules, snapshot.url,
-    env.DASHSCOPE_API_KEY, env.BRAVE_SEARCH_API_KEY);
-  const industry = {...comparison, revision: Date.now(), preview: await sourcePreview(env.BROWSER, comparison.rows)};
+    env.DASHSCOPE_API_KEY, env.BRAVE_SEARCH_API_KEY, prior?.rows.map(r => r.name));
+  const checked = reconcileChanges(prior?.rows || [], modules);
+  const rows = mergeBrands(checked, comparison.rows);
+  const industry = {...comparison, rows, revision: Date.now(),
+    queries: [...new Set([...(prior?.queries || []), ...comparison.queries])],
+    preview: prior?.preview || await sourcePreview(env.BROWSER, comparison.rows)};
+
   const report = { ...review, industry, modules: checkExamples(review.modules), monitor, url: snapshot.url, title: snapshot.title,
     screenshot: snapshot.screenshot, at: Date.now() };
   const latest = env.DB.prepare(`INSERT INTO latest_site_review (id,started,report) VALUES (1,?1,?2)

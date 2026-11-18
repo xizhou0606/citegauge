@@ -6,6 +6,24 @@ import { compareIndustry, mergeBrands } from "./industry.ts";
 
 type Comparison = Awaited<ReturnType<typeof compareIndustry>> & {preview?: IndustryPreview | null; revision?: number};
 
+export async function previousIndustry(db: D1Database, url: string, category: string) {
+  const domain = new URL(url).hostname.replace(/^www\./, "");
+  const stored = await db.prepare("SELECT json_remove(report,'$.screenshot') AS data FROM industry_reviews WHERE domain=?1")
+    .bind(domain).first<{data: string}>();
+  if (!stored) return null;
+  const industry: Comparison = JSON.parse(stored.data);
+  return industry.category === category ? industry : null;
+}
+
+export function reconcileChanges(rows: Comparison["rows"], modules: {name: string; evidence: string}[]) {
+  return rows.map(row => {
+    if (!row.change) return row;
+    const change = row.change;
+    const index = modules.findIndex(m => m.name === change.target && m.evidence.includes(change.evidence));
+    return {...row, change: index < 0 ? null : {...change, module: index}};
+  });
+}
+
 export function saveIndustry(db: D1Database, url: string, started: number, at: number, industry: Comparison, screenshot?: string, guard?: number) {
   const domain = new URL(url).hostname.replace(/^www\./, "");
   return db.prepare(`INSERT INTO industry_reviews(domain,started,report) SELECT ?1,?2,?3 WHERE ?4 IS NULL OR EXISTS

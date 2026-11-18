@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,9 +6,9 @@ import { PageShot, Source } from "./industry-evidence.jsx";
 
 const rank = {高: 0, 中: 1, 低: 2};
 
-function Tasks({ groups }) {
+function Tasks({ groups, heading }) {
   return <section className="industry-block">
-    <header><h3>本站修改清单</h3><span>{groups.size} 个页面模块</span></header>
+    <header><h3 ref={heading} tabIndex={-1}>本站修改清单</h3><span>{groups.size} 个页面模块</span></header>
     {!groups.size && <p>现有证据尚不足以提出具体修改。</p>}
     {[...groups].map(([target, items]) => <article className="industry-module" key={target}>
       <h4>{target}<Badge variant="secondary">{items[0].change.priority}优先级</Badge></h4>
@@ -25,8 +25,9 @@ function Tasks({ groups }) {
 }
 
 export function Industry({ industry, screenshot, url, onAnalyze, onExpand }) {
+  const heading = useRef(null);
   const rows = industry?.rows || [];
-  const [selected, select] = useState("");
+  const [selected, select] = useState(industry?.preview?.name || "");
   const [sourceText, setSourceText] = useState("");
   const [working, setWorking] = useState(false);
   const [message, setMessage] = useState("");
@@ -51,6 +52,10 @@ export function Industry({ industry, screenshot, url, onAnalyze, onExpand }) {
     <header className="industry-intro">
       <div><h2>行业竞品与官网修改建议</h2><p>{industry?.category || "行业对比"}</p></div>
       <div className="industry-buttons">
+        {!!groups.size && <Button variant="outline" onClick={() => {
+          heading.current?.focus({preventScroll: true});
+          heading.current?.scrollIntoView({block: "start"});
+        }}>查看 {groups.size} 个模块的改法</Button>}
         {onExpand && <Button disabled={working} onClick={() => expand()}>{working ? "检索中…" : "扩展竞品清单"}</Button>}
         {onAnalyze && <Button variant="outline" onClick={onAnalyze}>重新分析官网</Button>}
       </div>
@@ -83,6 +88,6 @@ export function Industry({ industry, screenshot, url, onAnalyze, onExpand }) {
         {preview && <PageShot image={preview.image} url={preview.url} label={preview.name + " · 对照来源页"} />}
       </div>
     </section>}
-    {!!rows.length && <Tasks groups={groups} />}
+    {!!rows.length && <Tasks groups={groups} heading={heading} />}
   </section>;
 }
