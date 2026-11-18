@@ -31,7 +31,7 @@ test("拒绝上游错误页与不可用截图，保留跳转后的公开网址",
     }, result: { screenshot: image, markdown: "例子说明" } }),
   });
   assert.equal((await capture(get(200, "/9j/abcd"), "https://example.com")).url, "https://www.example.com/");
-  await assert.rejects(capture(get(403, "/9j/abcd"), "https://example.com"));
+  await assert.rejects(capture(get(403, "/9j/abcd"), "https://example.com"), /HTTP 403/);
   await assert.rejects(capture(get(200, ""), "https://example.com"));
 });
 
