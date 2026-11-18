@@ -1,0 +1,58 @@
+@keyframes surface-enter {
+  from { opacity: .78; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes control-enter {
+  from { opacity: .65; }
+  to { opacity: 1; }
+}
+@keyframes bar-enter {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes cell-enter {
+  from { transform: scale(.82); opacity: .55; }
+  to { transform: scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .public-main, .article, .login-page, .scope-title, .monitor-head,
+  .empty-platform, .kpi-grid, .plot-grid, .history, .sample-row,
+  .sample-detail[data-open="yes"], #model-field:not([hidden]) {
+    animation: surface-enter 180ms ease-out;
+  }
+  .platform-nav[aria-pressed="true"], .nav-pills .active,
+  .scope-filters, #history > .empty, #history > button, #login-error:not([hidden]) {
+    animation: control-enter 150ms ease-out;
+  }
+  .ranking-row progress {
+    transform-origin: left center;
+    animation: bar-enter 430ms cubic-bezier(.2,.7,.3,1);
+  }
+  .sample-grid i { animation: cell-enter 360ms ease-out backwards; }
+  .sample-grid i:nth-child(n+5) { animation-delay: 55ms; }
+  .sample-grid i:nth-child(n+9) { animation-delay: 110ms; }
+
+  .guide-card, .rail .nav-link, .rail-foot a, .rail-foot button {
+    transition: color 150ms ease, background-color 150ms ease;
+  }
+  details[open] > :not(summary) { animation: surface-enter 160ms ease-out; }
+  dialog[open] { animation: surface-enter 180ms ease-out; }
+  @supports (transition-behavior: allow-discrete) {
+    dialog {
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 150ms, transform 150ms, overlay 150ms allow-discrete,
+        display 150ms allow-discrete;
+    }
+    dialog[open] { opacity: 1; transform: none; animation: none; }
+    @starting-style {
+      dialog[open] { opacity: 0; transform: translateY(4px); }
+    }
+    dialog::backdrop {
+      opacity: 0;
+      transition: opacity 150ms, overlay 150ms allow-discrete, display 150ms allow-discrete;
+    }
+    dialog[open]::backdrop { opacity: 1; }
+    @starting-style { dialog[open]::backdrop { opacity: 0; } }
+  }
+}

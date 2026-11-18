@@ -1,4 +1,8 @@
-import { $, clean, icon } from "../core/ui.js";
+import { $, clean } from "../core/ui.js";
+function brandLogo(id) {
+  return `<img class="brand-logo" src="/vendor/brands/${encodeURIComponent(id)}.svg" width="20" height="20" alt="">`;
+}
+
 export function platformNav(platforms, monitors, platform, select) {
   const picker = $("platform-picker");
   picker.replaceChildren(...platforms.map((p) => new Option(p.name, p.id)));
@@ -10,7 +14,7 @@ export function platformNav(platforms, monitors, platform, select) {
         p.channels.includes(m.channel),
       ).length;
       return `<button class="nav-link platform-nav" aria-label="${clean(p.name)}，${count} 个监测项" data-platform="${clean(p.id)}" aria-pressed="${p.id === platform.id}">
-      <i>${icon(p.id === "doubao" ? "cloud" : "cpu")}</i>${clean(p.name)}<small>${count}</small></button>`;
+      ${brandLogo(p.id)}${clean(p.name)}<small>${count}</small></button>`;
     })
     .join("");
   for (const b of $("platforms").querySelectorAll("button"))
@@ -36,12 +40,12 @@ export function scopeSection({
     return `<option value="${clean(m.id)}" ${m.id === active ? "selected" : ""}>${clean(label(m) + suffix)}</option>`;
   };
   $("scope").innerHTML =
-    `<div class="scope-title"><div class="platform-mark">${icon(platform.id === "doubao" ? "cloud" : "cpu")}</div>
+    `<div class="scope-title"><div class="platform-mark">${brandLogo(platform.id)}</div>
     <div><h1>${clean(platform.name)}监测概览</h1><p>${items.length} 个监测项 · ${clean(channel)}</p></div></div>
     <div class="scope-filters"><nav class="nav nav-pills" aria-label="采样渠道">${platform.channels
       .map(
         (c) => `<button
-    data-channel="${clean(c)}" aria-pressed="${channel === c}" class="nav-link ${channel === c ? "active" : ""}">${icon(c.endsWith("API") ? "cpu" : "globe2")}${clean(c)}</button>`,
+    data-channel="${clean(c)}" aria-pressed="${channel === c}" class="nav-link ${channel === c ? "active" : ""}">${brandLogo(c === "火山方舟 API" ? "volcengine" : platform.id)}${clean(c)}</button>`,
       )
       .join("")}</nav>
     <label class="monitor-picker">监测项<select class="form-select form-select-sm" id="monitor" ${items.length ? "" : "disabled"}>

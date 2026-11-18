@@ -16,6 +16,7 @@
   "type": "module",
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261112.1",
+    "@lobehub/icons-static-svg": "1.103.0",
     "@types/pg": "^8.23.1",
     "typescript": "^7.0.2",
     "wrangler": "^4.160.1"

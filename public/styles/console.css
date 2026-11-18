@@ -49,13 +49,9 @@
   margin-left: auto;
   font: 12px monospace;
 }
-.platform-nav i {
-  width: 24px;
-  text-align: center;
-}
 .rail .platform-nav[aria-pressed="true"] {
-  background: var(--primary);
-  color: var(--primary-foreground);
+  background: var(--secondary);
+  color: var(--foreground);
   font-weight: 650;
 }
 .rail .platform-nav[aria-pressed="false"]:hover,
@@ -94,7 +90,7 @@
 }
 .topbar span {
   margin: 0 8px;
-  color: #8b9e93;
+  color: var(--muted-foreground);
 }
 #tools,
 .sampling-actions {
@@ -115,11 +111,7 @@
   min-height: 0;
   overflow-y: auto;
 }
-.kpi.k0 {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: white;
-}
-.k0 .kpi-title, .k0 small { color: #d2dfd3; }
-.k0 .kpi-title i { color: var(--signal); background: #ffffff12; }
 .k0 strong { color: var(--signal); }
+.brand-logo { flex: none; object-fit: contain; }
+.platform-mark .brand-logo { width: 28px; height: 28px; }
+.nav-pills .brand-logo { width: 16px; height: 16px; }
