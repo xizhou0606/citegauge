@@ -38,3 +38,13 @@ test("栏目分析必须覆盖输入的每一栏，按页面顺序回填真实�
   const modules = sectionResults(sections,{modules:[{index:1,...item},{index:0,...item}]});
   assert.deepEqual(modules.map(m => m.evidence),["简历评审","人工面试"]);
 });
+test("替换示例中的无依据业绩数字转为待核实模板，界面尺寸可正常保留", async () => {
+  const {checkExamples} = await import("../src/site-review/claims.ts");
+  const list = [ {...actions[0],example:"Reduce screening time by 70%."},
+    {...actions[0],example:"Trusted by 500+ hiring teams."},
+    {...actions[1],example:"将截图列宽调整至 40%"} ];
+  const result = checkExamples([{evidence:"Your next recruiting agent",actions:list}])[0].actions;
+  assert.ok(!result[0].example.includes("70%"));
+  assert.ok(!result[1].example.includes("500+"));
+  assert.equal(result[2],list[2]);
+});

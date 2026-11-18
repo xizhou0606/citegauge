@@ -1,3 +1,4 @@
+import { checkExamples } from "./claims.ts";
 import { expandAdvice } from "./expand.ts";
 import { json } from "../runtime/response.ts";
 import type { Env } from "../runtime/env.ts";
@@ -9,7 +10,9 @@ export async function siteReview(req: Request, env: Env) {
   if (req.method === "GET") {
     const row = await env.DB.prepare("SELECT report FROM latest_site_review WHERE id=1")
       .first<{ report: string }>();
-    return json({ report: row ? JSON.parse(row.report) : null });
+    const report = row ? JSON.parse(row.report) : null;
+    if (report?.modules) report.modules = checkExamples(report.modules);
+    return json({ report });
   }
   if (req.method !== "POST") return json({ error: "请求方法无效" }, 405);
   let url;
@@ -50,7 +53,7 @@ export async function siteReview(req: Request, env: Env) {
     if (!created.ok) return json({ error: "品牌已识别，监测项创建失败，请重新提交网址" }, 503);
     monitor = await created.json<Monitor>();
   }
-  const report = { ...review, monitor, url: snapshot.url, title: snapshot.title,
+  const report = { ...review, modules: checkExamples(review.modules), monitor, url: snapshot.url, title: snapshot.title,
     screenshot: snapshot.screenshot, at: Date.now() };
   await env.DB.prepare(`INSERT INTO latest_site_review (id,started,report) VALUES (1,?1,?2)
     ON CONFLICT (id) DO UPDATE SET started=excluded.started,report=excluded.report

@@ -1,3 +1,4 @@
+import { checkExamples } from "./claims.ts";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { qwen, qwenModel, qwenOptions } from "../collectors/ai/qwen.ts";
@@ -43,7 +44,7 @@ export async function expandAdvice(env: Env, at: number) {
   if (!row) return stale();
   const report: SavedReport = JSON.parse(row.report);
   if (report.at !== at) return stale();
-  if (report.modules.every((m) => m.actions?.length)) return json({ report });
+  if (report.modules.every((m) => m.actions?.length)) return json({ report: {...report, modules:checkExamples(report.modules)} });
   if (!env.DASHSCOPE_API_KEY) return json({ error: "详细建议需要配置千问模型密钥" }, 503);
   try {
     const { text } = await generateText({
@@ -75,7 +76,7 @@ ${adviceInstructions}`,
       maxOutputTokens: 14000,
       abortSignal: AbortSignal.timeout(110000),
     });
-    report.modules = applyAdvice(report.modules, JSON.parse(text));
+    report.modules = checkExamples(applyAdvice(report.modules, JSON.parse(text)));
   } catch {
     return json({ error: "详细建议生成未完成，原报告已保留，可稍后重试。" }, 502);
   }
