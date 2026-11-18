@@ -81,10 +81,12 @@ npx wrangler deploy --dry-run
 
 ### AI 爬虫访问统计
 
-登录工作台，打开「AI 爬虫」，选择所监测官网对应的监测项，在「导入访问日志」中上传 Cloudflare HTTP 请求日志。使用 JSONL 格式（每行一个对象），时间格式选 RFC 3339。大文件会按整行分批上传，中断后可重新导入。以下为字段示例，时间应取自实际请求。
+登录工作台，打开「AI 爬虫」，选择官网域名，在「导入访问日志」中上传 Cloudflare HTTP 请求日志。使用 JSONL 格式（每行一个对象），时间格式选 RFC 3339。大文件会按整行分批上传，中断后可重新导入。以下为字段示例，时间应取自实际请求。
 
 ```json
 {"RayID":"1234567890abcdef","EdgeStartTimestamp":"2026-11-01T08:30:00Z","ClientRequestHost":"www.example.com","ClientRequestPath":"/products","ClientRequestUserAgent":"GPTBot/1.3","EdgeResponseStatus":200}
 ```
 
-统计窗口为近 30 天。同一官网与其 www 域名按 RayID 去重，跨监测项共享。当前匹配 GPTBot、OAI-SearchBot、ClaudeBot、Claude-SearchBot、PerplexityBot 和 Bytespider。展开请求路径可核对时间、状态码、Ray ID 和原始 User-Agent。标识由请求方声明，访问次数只反映已导入的日志，独立于回答引用率。
+统计窗口为近 30 天。同一官网与其 www 域名按 RayID、毫秒时间、主机和路径去重，跨监测项共享。当前匹配 GPTBot、OAI-SearchBot、ClaudeBot、Claude-SearchBot、PerplexityBot 和 Bytespider。展开请求路径可核对时间、状态码、Ray ID 和原始 User-Agent。标识由请求方声明，访问次数只反映已导入的日志，独立于回答引用率。
+
+「全渠道文件请求」按官网合计所有来源访问 .xml（含 .xml.gz）和 .txt 的次数，分别显示 XML、TXT 和二者合计。点击对应范围可查看每条请求。文件类型取自路径后缀，忽略大小写和查询参数；同一条记录重复导入仍计一次。每类另列带已知 AI 爬虫标识的请求数，普通浏览器和身份不明的客户端也会访问这些文件。要还原实际流量，应导入覆盖所选时段的完整、未采样日志。旧版已保存的爬虫记录会参与汇总，重新导入原日志可补齐旧版跳过的其他来源。

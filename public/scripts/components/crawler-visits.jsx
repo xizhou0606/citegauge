@@ -5,6 +5,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { DataTable, FormDialog, Panel, SmallButton } from "./controls.jsx";
 import { api } from "../core/api.js";
 
+import { CrawlerFiles, fileTotals } from "./crawler-files.jsx";
 import { importCrawlerFile } from "../core/crawler-import.js";
 
 function LogImport({ monitor, imported }) {
@@ -13,7 +14,7 @@ function LogImport({ monitor, imported }) {
     const file = form.elements.log.files[0];
     if (!file) throw Error("请选择 JSONL 文件");
     const result = await importCrawlerFile(monitor.id, file, setProgress);
-    imported(`新增 ${result.added} 条，重复 ${result.duplicates} 条，其他域名或未匹配爬虫的请求 ${result.skipped} 条。`);
+    imported(`新增 ${result.added} 条，重复 ${result.duplicates} 条，范围外请求 ${result.skipped} 条。`);
   }}>
     <Label htmlFor="crawler-log">Cloudflare HTTP 请求日志（JSONL）</Label>
     <Input type="file" name="log" id="crawler-log" accept=".jsonl,.ndjson,.json,.txt" required />
@@ -24,7 +25,7 @@ function LogImport({ monitor, imported }) {
 }
 
 export function CrawlerVisits({ monitor }) {
-  const [query, setQuery] = useState({ page: 1 });
+  const [query, setQuery] = useState({ page: 1, detail: "files" });
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -37,17 +38,22 @@ export function CrawlerVisits({ monitor }) {
       .catch(e => { if (active) setError(e.message); });
     return () => { active = false; };
   }, [monitor.id, query]);
-  const total = data?.groups.reduce((sum, row) => sum + row.visits, 0);
+  const botTotal = data?.groups.reduce((sum, row) => sum + row.visits, 0);
+  const totals = fileTotals(data?.files ?? []);
+  const total = query.detail === "bots" ? botTotal : totals[query.detail].requests;
   return <Panel className="grid gap-4 p-5">
     <header className="flex flex-wrap items-center justify-between gap-3">
       <h2 className="break-all">{monitor.domain} · 近 30 天</h2>
-      <LogImport monitor={monitor} imported={text => { setMessage(text); setQuery({ page: 1 }); }} />
+      <LogImport monitor={monitor} imported={text => { setMessage(text); setQuery({ page: 1, detail: query.detail }); }} />
     </header>
     <p>按请求的 User-Agent 识别爬虫，来源身份未经验证。次数包含抓取失败的请求。</p>
     {message && <p role="status">{message}</p>}
     {error && <p role="alert">{error} <SmallButton onClick={() => setQuery({ ...query })}>重试</SmallButton></p>}
     {!data && !error && <p role="status">正在读取访问日志…</p>}
-    {data && (total === 0 ? <p>最近 30 天的已导入日志中暂无匹配记录。可导入官网日志查看抓取情况。</p> : <>
+    {data && <>
+      <CrawlerFiles totals={totals} hasData={data.observed || totals.files.requests > 0}
+        detail={query.detail} select={detail => setQuery({ page: 1, detail, end: data.end })} />
+      {query.detail === "bots" && botTotal > 0 && <>
       <h3>爬虫访问 · {total} 次请求</h3>
       <DataTable headings={["爬虫", "请求次数", "成功（2xx）", "最近访问"]}>
         {data.groups.map(row => <TableRow key={row.bot}>
@@ -55,21 +61,24 @@ export function CrawlerVisits({ monitor }) {
           <TableCell>{row.ok}</TableCell><TableCell>{new Date(row.latest).toLocaleString()}</TableCell>
         </TableRow>)}
       </DataTable>
-      <h3>请求明细</h3>
+      </>}
+      <h3>请求明细 · {total} 条</h3>
+      {total === 0 ? <p>近 30 天已导入的日志中暂无此类请求。</p> : <>
       <DataTable headings={["请求路径", "爬虫", "HTTP 状态", "访问时间"]}>
-        {data.records.map(row => <TableRow key={row.request_id}>
+        {data.records.map(row => <TableRow key={JSON.stringify([row.request_id, row.at, row.host, row.path])}>
           <TableCell className="whitespace-normal break-all"><details>
             <summary>{row.path}</summary><p>{row.host}</p><p>Ray ID · {row.request_id}</p><p>{row.agent}</p>
           </details></TableCell>
-          <TableCell>{row.bot}</TableCell><TableCell>{row.status}</TableCell>
+          <TableCell>{row.bot || "未识别为 AI 爬虫"}</TableCell><TableCell>{row.status}</TableCell>
           <TableCell>{new Date(row.at).toLocaleString()}</TableCell>
         </TableRow>)}
       </DataTable>
       {total > 20 && <nav aria-label="爬虫日志分页" className="flex flex-wrap items-center gap-2">
-        <SmallButton disabled={query.page === 1} onClick={() => setQuery({ page: query.page - 1, end: data.end })}>上一页</SmallButton>
+        <SmallButton disabled={query.page === 1} onClick={() => setQuery({ ...query, page: query.page - 1, end: data.end })}>上一页</SmallButton>
         <span>{query.page} / {Math.ceil(total / 20)}</span>
-        <SmallButton disabled={query.page * 20 >= total} onClick={() => setQuery({ page: query.page + 1, end: data.end })}>下一页</SmallButton>
+        <SmallButton disabled={query.page * 20 >= total} onClick={() => setQuery({ ...query, page: query.page + 1, end: data.end })}>下一页</SmallButton>
       </nav>}
-    </>)}
+      </>}
+    </>}
   </Panel>;
 }

@@ -9,7 +9,7 @@ import { Scope } from "./components/scope.jsx";
 import { renderDashboard } from "./components/dashboard.jsx";
 
 const scope = createRoot($("scope"));
-let catalog, platform, channel, active;
+let catalog, platform, channel, active, crawlerDomain;
 function showView() {
   const links = [...document.querySelectorAll(".feature-nav a")];
   const current = links.find((link) => link.hash === location.hash.split("?")[0]) || links[0];
@@ -36,6 +36,7 @@ async function select(p, c, id) {
   const matches = catalog.monitors.filter((m) => m.channel === channel);
   const monitor = matches.find((m) => m.id === id) || matches[0];
   active = monitor?.id;
+  if (monitor) crawlerDomain = monitor.domain;
   const route = readEvidenceRoute(location.hash);
   if (route && route.monitor !== active) history.replaceState(null, "", "#evidence");
   sessionStorage.setItem("cg-selection", JSON.stringify({ platform: p.id, channel, id: active }));
@@ -44,10 +45,19 @@ async function select(p, c, id) {
 async function refreshView() {
   const view = showView();
   if (!catalog || !platform) return;
+  const selected = catalog.monitors.find(m => m.id === active);
+  const monitor = view === "crawlers"
+    ? catalog.monitors.find(m => m.domain === crawlerDomain) ?? selected ?? catalog.monitors[0]
+    : selected;
   scope.render(
     createElement(Scope, {
       view,
       title: $("crumb").textContent,
+      domain: monitor?.domain,
+      onDomain: domain => {
+        crawlerDomain = domain;
+        refreshView().catch(e => status(e.message));
+      },
       platform,
       platforms: catalog.platforms,
       onPlatform: (platformId) => {
@@ -64,7 +74,7 @@ async function refreshView() {
   );
   await renderDashboard(
     view,
-    catalog.monitors.find((m) => m.id === active),
+    monitor,
     catalog.ready[channel],
     () => load(active),
     create,

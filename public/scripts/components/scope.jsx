@@ -17,12 +17,14 @@ const descriptions = {
   monitoring: "查看 AI 回答中品牌被提及、官网被引用和明确推荐的频率。",
   competitors: "对照同行官网找出可改进的模块，或比较 AI 回答中的品牌提及。",
   sources: "阅读模型回答，查看正文引用的网页及官网被引情况。",
-  crawlers: "查看官网访问日志中带有 AI 爬虫标识的请求。同一官网下的监测项共享统计。",
+  crawlers: "按官网汇总所有渠道的 XML 和 TXT 请求，查看带有 AI 爬虫标识的访问记录。",
   evidence: "阅读原始回答，核对引用，并标记 AI 是否明确推荐了品牌。",
 };
 export function Scope({
   view,
   title,
+  domain,
+  onDomain,
   platform,
   platforms,
   channel,
@@ -32,6 +34,17 @@ export function Scope({
   onChannel,
   onMonitor,
 }) {
+  if (view === "crawlers") {
+    const domains = [...new Set(monitors.map(m => m.domain))].sort();
+    return <>
+      <div className="scope-title"><div><h1 tabIndex={-1}>{title}</h1><p>{descriptions.crawlers}</p></div></div>
+      <div className="scope-filters"><div className="monitor-picker">
+        <Label htmlFor="crawler-domain">官网域名</Label>
+        <WorkspaceSelect id="crawler-domain" value={domain} onChange={onDomain} placeholder="暂无官网"
+          options={domains.map(value => ({ value, label: value }))} />
+      </div></div>
+    </>;
+  }
   const items = monitors.filter((m) => m.channel === channel);
   const label = (m) => [m.brand, m.model, m.question].filter(Boolean).join(" · ");
   const frequencies = new Map();

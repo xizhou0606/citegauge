@@ -9,10 +9,17 @@ export async function importCrawlerLogs(db: Database, domain: string, input: unk
   } catch (e) {
     return json({ error: (e as Error).message }, 400);
   }
-  const { rowCount } = await db.query(`INSERT INTO crawler_visits(domain, request_id, at, bot, host, path, status, agent)
+  const [saved] = await db.binding.batch([
+    db.statement(`INSERT INTO crawler_visits(domain, request_id, at, bot, host, path, status, agent)
     SELECT ?1, value->>'id', value->>'at', value->>'bot', value->>'host', value->>'path',
       value->>'status', value->>'agent' FROM json_each(?2) WHERE true
-    ON CONFLICT(domain, request_id) DO NOTHING`, [domain, parsed.visits]);
+    ON CONFLICT DO NOTHING`, [domain, parsed.visits]),
+    db.statement(`INSERT INTO crawler_log_days(domain, day, first_seen, last_seen)
+      SELECT ?1, value->>'day', value->>'first', value->>'last' FROM json_each(?2) WHERE true
+      ON CONFLICT(domain, day) DO UPDATE SET first_seen=min(first_seen, excluded.first_seen),
+      last_seen=max(last_seen, excluded.last_seen)`, [domain, parsed.days]),
+  ]);
+  const rowCount = saved.meta.changes;
   return json({ added: rowCount, duplicates: parsed.visits.length - rowCount, skipped: parsed.skipped });
 }
 
@@ -27,11 +34,26 @@ export async function crawlerReport(db: Database, monitor: string, params: URLSe
     return json({ error: "时间窗或页码无效" }, 400);
   const args = [row.domain, end - 30 * 86400000, end];
   const where = "FROM crawler_visits WHERE domain=?1 AND at BETWEEN ?2 AND ?3";
-  const [groups, records] = await db.binding.batch([
+  const detail = params.get("detail") ?? "bots";
+  const filters: Record<string, string> = {
+    bots: "bot <> ''",
+    files: "kind <> ''",
+    xml: "kind = 'xml'",
+    txt: "kind = 'txt'",
+  };
+  if (!Object.hasOwn(filters, detail)) return json({ error: "请求范围无效" }, 400);
+  const files = `WITH visits AS (SELECT *, CASE
+    WHEN path LIKE '%.xml' OR path LIKE '%.xml.gz' THEN 'xml'
+    WHEN path LIKE '%.txt' THEN 'txt' ELSE '' END AS kind ${where})`;
+  const [groups, counts, records, coverage] = await db.binding.batch([
     db.statement(`SELECT bot, count(*) AS visits, sum(status BETWEEN 200 AND 299) AS ok,
-      max(at) AS latest ${where} GROUP BY bot ORDER BY visits DESC, bot`, args),
-    db.statement(`SELECT request_id, bot, at, host, path, status, agent ${where}
-      ORDER BY at DESC, request_id LIMIT 20 OFFSET ?4`, [...args, (page - 1) * 20]),
+      max(at) AS latest ${where} AND bot <> '' GROUP BY bot ORDER BY visits DESC, bot`, args),
+    db.statement(`${files} SELECT kind, count(*) AS requests, count(nullif(bot,'')) AS ai
+      FROM visits WHERE kind <> '' GROUP BY kind`, args),
+    db.statement(`${files} SELECT request_id, bot, at, host, path, status, agent
+      FROM visits WHERE ${filters[detail]}
+      ORDER BY at DESC, request_id, host, path LIMIT 20 OFFSET ?4`, [...args, (page - 1) * 20]),
+    db.statement(`SELECT 1 FROM crawler_log_days WHERE domain=?1 AND last_seen>=?2 AND first_seen<=?3 LIMIT 1`, args),
   ]);
-  return json({ domain: row.domain, end, groups: groups.results, records: records.results });
+  return json({ observed: coverage.results.length > 0, domain: row.domain, end, groups: groups.results, files: counts.results, records: records.results });
 }
