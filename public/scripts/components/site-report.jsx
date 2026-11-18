@@ -1,3 +1,4 @@
+import { BrandQuestions } from "./brand-questions.jsx";
 import { Industry } from "./industry.jsx";
 import { useRef, useState } from "react";
 import { Tabs } from "radix-ui";
@@ -70,6 +71,7 @@ export function SiteReport({ report, actions, onAnalyze, onExpand, onIndustry })
               官网诊断
             </Tabs.Trigger>
             {!report.monitor && <Tabs.Trigger value="industry"><Layers size={16} />竞品对比</Tabs.Trigger>}
+            {report.monitor && <Tabs.Trigger value="questions">品牌提问</Tabs.Trigger>}
             <Tabs.Trigger value="prompt" data-reader="prompt">
               <CodeXml size={16} />
               AI 修改提示词
@@ -98,6 +100,7 @@ export function SiteReport({ report, actions, onAnalyze, onExpand, onIndustry })
           <ReviewModules modules={report.modules} showPrompt={showPrompt} onExpand={onExpand} />
           <Monitor report={report} actions={actions} />
         </Tabs.Content>
+        {report.monitor && <Tabs.Content value="questions"><BrandQuestions domain={report.monitor.domain} at={report.at} /></Tabs.Content>}
         <Tabs.Content value="industry">
           <Industry industry={report.industry} screenshot={report.screenshot} url={report.url}
             onExpand={report.identity ? onIndustry : undefined} />

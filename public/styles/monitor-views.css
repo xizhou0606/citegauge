@@ -19,3 +19,14 @@
 .report-follow { margin-top: 12px; align-self: flex-start; font-size: 14px; text-decoration: underline; }
 .evidence-origin { margin: 10px 0; font-size: 14px; }
 .evidence-origin a { text-decoration: underline; }
+
+.brand-questions { margin-block: 16px 24px; }
+.brand-questions > p, .brand-probe > p { margin-block: 6px; }
+.brand-questions > button { align-self: flex-start; margin-top: 8px; }
+.probe-rate { font-size: 30px; margin-top: 8px; }
+.brand-probe { padding-block: 14px; border-top: 1px solid var(--border); }
+.brand-probe header, .probe-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.brand-probe header span, .probe-actions small { font-size: 13px; color: var(--muted-foreground); }
+.probe-answer { margin-top: 12px; padding: 14px; background: var(--secondary); border-radius: 8px; overflow-wrap: anywhere; }
+.probe-answer p { white-space: pre-wrap; margin: 8px 0; }
+.probe-answer a { text-decoration: underline; }

@@ -1,3 +1,4 @@
+import { BrandQuestions } from "./brand-questions.jsx";
 import { Industry } from "./industry.jsx";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -38,7 +39,10 @@ function Dashboard({ view, m, report, industry, ready, refresh, onCreate, route 
           await refresh();
         } : undefined} />}
       {view === "competitors" && mentions && <Competitors m={m} report={report} filter={filter} />}
-      {view === "sources" && <Sources report={report} filter={filter} />}
+      {view === "sources" && <>
+        {m.channel === "通义千问 API" && <BrandQuestions domain={m.domain} />}
+        <Sources report={report} filter={filter} />
+      </>}
       {view === "evidence" && (
         <section aria-label="复核队列">
           {route?.origin && <p className="evidence-origin"><a href={route.origin.href}>← 返回{route.origin.label}</a></p>}

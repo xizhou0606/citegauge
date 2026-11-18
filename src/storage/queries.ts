@@ -1,3 +1,4 @@
+import { brandQuestionStats } from "./brand-question-stats.ts";
 import { destinations } from "../delivery/chat.ts";
 import type { Database } from "./d1.ts";
 import { platforms } from "../domain/platforms.ts";
@@ -15,6 +16,7 @@ export async function readWorkspace(
 ) {
   const url = new URL(req.url),
     id = path.split("/").at(-1);
+  if (path === "/api/brand-questions") return brandQuestionStats(db.binding,url.searchParams);
   if (path === "/api/destinations") return json(destinations(env));
   if (path === "/api/state") {
     const monitors = (

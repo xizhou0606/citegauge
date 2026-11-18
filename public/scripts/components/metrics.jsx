@@ -89,7 +89,7 @@ export function Sources({ report, filter }) {
   const {valid, observable, citations} = report.summary;
   return (<>
     <section className="citation-status" aria-labelledby="citation-status-title">
-      <h2 id="citation-status-title">官网引用情况</h2>
+      <h2 id="citation-status-title">当前监测问题的官网引用情况</h2>
       <div>{[["引用官网", citations, "citations"], ["已核对无官网", observable - citations, "noCitation"],
         ["来源不可观测", valid - observable, "unknownCitation"]].map(([label, count, key]) =>
         <button type="button" key={key} onClick={() => filter(key, "")} aria-label={label + "，查看 " + count + " 份回答"}>

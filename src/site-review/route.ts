@@ -1,3 +1,4 @@
+import { startQuestions } from "./brand-questions.ts";
 import { sourcePreview } from "./industry-preview.ts";
 import { fillIndustry, previousIndustry, reconcileChanges, saveIndustry } from "./industry-store.ts";
 import { compareIndustry, mergeBrands } from "./industry.ts";
@@ -20,7 +21,8 @@ export async function siteReview(req: Request, env: Env) {
   if (req.method !== "POST") return json({ error: "请求方法无效" }, 405);
   let url;
   try {
-    const body = await req.json<{ url?: unknown; expandAt?: number; industryAt?: number; expandIndustry?: boolean; sources?: unknown }>();
+    const body = await req.json<{ url?: unknown; questionsAt?: number; expandAt?: number; industryAt?: number; expandIndustry?: boolean; sources?: unknown }>();
+    if (Number.isSafeInteger(body.questionsAt)) return startQuestions(env,body.questionsAt!);
     if (Number.isSafeInteger(body.industryAt)) {
       if (body.sources !== undefined && (!Array.isArray(body.sources) || body.sources.length > 12))
         return json({error: "每次最多可补充 12 个公开产品页。"}, 400);
@@ -82,5 +84,9 @@ export async function siteReview(req: Request, env: Env) {
     WHERE excluded.started >= latest_site_review.started`).bind(started, JSON.stringify(report));
   const byDomain = saveIndustry(env.DB, snapshot.url, started, report.at, industry, snapshot.screenshot);
   await env.DB.batch([latest, byDomain]);
+  if (monitor) {
+    try { await startQuestions(env,report.at); }
+    catch { console.warn("Brand questions could not be scheduled"); }
+  }
   return json({ report });
 }

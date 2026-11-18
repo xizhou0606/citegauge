@@ -45,6 +45,10 @@ export class Workspace {
   async fetch(req: Request) {
     const db = new Database(this.env.DB);
     const path = new URL(req.url).pathname;
+    if (path === "/internal/arm-questions" && req.method === "POST") {
+      await this.ctx.blockConcurrencyWhile(() => syncAlarm(db, this.ctx.storage));
+      return json({queued:true});
+    }
     if (path === "/internal/site-monitor" && req.method === "POST") {
       const { url, identity } = await req.json<{ url: string; identity: Identity }>();
       return this.ctx.blockConcurrencyWhile(async () => {

@@ -10,6 +10,7 @@ export interface Monitor {
   channel: Channel;
   model?: string;
   daily: boolean;
+  brandPrompt?: {at: number; intent: string};
 }
 export interface Evidence {
   answer: string;
