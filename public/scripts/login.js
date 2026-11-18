@@ -21,7 +21,7 @@ form.onsubmit = async (event) => {
       password: password.value,
     });
     form.reset();
-    location.replace("/workspace");
+    location.replace(location.hash === "#monitoring" ? "/workspace#monitoring" : "/workspace");
   } catch (e) {
     error.textContent = e.message;
     error.hidden = false;

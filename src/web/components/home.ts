@@ -1,3 +1,4 @@
+import { websiteInput } from "./site-review.ts";
 import { articles } from "../articles.ts";
 import { icon } from "./shell.ts";
 import { reportPreview } from "./report-preview.ts";
@@ -17,10 +18,11 @@ const resources = Object.entries(articles).map(([path, article]) => `
 export const home = `<main class="public-main">
   <section class="hero">
     <div class="intro">
-      <h1>你的品牌，<br>出现在 <em>AI</em><br>的回答里吗？</h1>
-      <p>追踪模型何时提及你的品牌、推荐了谁、引用了哪个网站。每个数字都可以回到回答原文核对。</p>
+      <h1>你的官网，<br>给人什么印象？</h1>
+      <p>从官网首屏和页面原文，逐块找出品牌表达的优势与不足。登录后查看具体改法，再追踪品牌在 AI 回答中的提及和引用。</p>
+      <form id="site-entry" action="/workspace" method="get">${websiteInput}</form>
       <div class="actions">
-        <a class="btn btn-primary" href="/workspace">进入监测工作台 ${icon("arrow-right")}</a>
+        <a class="text-action" href="/workspace#monitoring">进入模型监测</a>
         <a class="text-action" href="/methodology">查看监测方法</a>
       </div>
     </div>

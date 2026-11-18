@@ -1,0 +1,26 @@
+.workspace-views { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+.workspace-views a { padding: 6px 12px; border-radius: 8px; color: var(--muted-foreground); font-size: 14px; text-decoration: none; }
+.workspace-views a[aria-current="page"] { color: var(--foreground); background: var(--secondary); font-weight: 600; }
+#website-panel { max-width: 1050px; }
+#website-panel h1 { font-size: clamp(26px, 3vw, 38px); }
+.site-input { display: flex; gap: 8px; max-width: 680px; }
+.site-input input { min-width: 0; }
+.site-input button { flex: none; }
+#site-entry { margin: 22px 0 14px; max-width: 510px; }
+#site-entry .form-label, #website-form .form-label { font-size: 14px; font-weight: 600; }
+#website-status { margin: 14px 0; color: var(--muted-foreground); }
+.site-summary, .site-module { margin-top: 14px; overflow-wrap: anywhere; }
+.site-summary p { line-height: 1.8; margin: 12px 0; }
+.site-summary small { display: block; margin-top: 6px; color: var(--muted-foreground); }
+.site-summary details { margin-top: 14px; font-size: 14px; }
+.site-summary img { width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; margin-top: 12px; }
+.module-heading { margin: 28px 0 0; font-size: 21px; }
+.site-module h3 { font-size: 18px; }
+.site-module blockquote { border-left: 2px solid var(--chart-1); padding-left: 12px; color: var(--muted-foreground); font-size: 14px; }
+.site-module dl { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 18px; margin: 0; }
+.site-module dt { color: var(--signal); font-size: 13px; margin-bottom: 4px; }
+.site-module dd { margin: 0; line-height: 1.7; }
+@media (max-width: 750px) { .site-module dl { grid-template-columns: 1fr; gap: 12px; } }
+@media (prefers-reduced-motion: no-preference) {
+  #website-panel, .site-summary, .site-module { animation: surface-enter 180ms ease-out; }
+}
