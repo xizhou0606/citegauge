@@ -1,5 +1,7 @@
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 
+import { platforms } from "../src/domain/platforms.ts";
+
 const output = new URL("../public/vendor/", import.meta.url);
 const modules = new URL("../node_modules/", import.meta.url);
 await mkdir(output, { recursive: true });
@@ -11,6 +13,15 @@ for (const [from, to] of [
   ["chart.js/LICENSE.md", "chart-LICENSE.txt"],
 ]) {
   await copyFile(new URL(from, modules), new URL(to, output));
+}
+const brands = new URL("brands/", output);
+await mkdir(brands, { recursive: true });
+for (const id of [...platforms.map((platform) => platform.id), "volcengine"]) {
+  const source = id === "openai" ? id : id + "-color";
+  await copyFile(
+    new URL("@lobehub/icons-static-svg/icons/" + source + ".svg", modules),
+    new URL(id + ".svg", brands),
+  );
 }
 const icons = [
   "soundwave",

@@ -67,7 +67,7 @@ export function trendConfig(report, animation, colors = []) {
         y: {
           min: 0,
           max: 100,
-          grid: { color: "#e4e8e1" },
+          grid: { color: "#e4e8ef" },
           border: { display: false },
           ticks: { stepSize: 25, callback: (v) => v + "%" },
         },

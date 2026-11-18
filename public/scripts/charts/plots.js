@@ -32,7 +32,7 @@ export function plotsSection(report) {
 export function mountPlots(report) {
   const motion = matchMedia("(prefers-reduced-motion: reduce)").matches
     ? false
-    : { duration: 600, easing: "easeOutQuart" };
+    : { duration: 460, easing: "easeOutQuart" };
   const Chart = window.Chart;
   if (!Chart) return;
   const theme = getComputedStyle(document.documentElement);
@@ -65,7 +65,7 @@ export function mountPlots(report) {
       },
       options: {
         cutout: "77%",
-        animation: motion,
+        animation: motion && { ...motion, animateRotate: true, animateScale: true },
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
       },

@@ -30,15 +30,15 @@
   height: 7px;
   border: 0;
   border-radius: 8px;
-  background: #e8eee8;
-  accent-color: var(--primary);
+  background: var(--secondary);
+  accent-color: var(--chart-1);
 }
 progress::-webkit-progress-bar {
-  background: #e8eee8;
+  background: var(--secondary);
   border-radius: 8px;
 }
 progress::-webkit-progress-value {
-  background: var(--primary);
+  background: var(--chart-1);
   border-radius: 8px;
 }
 .source-list,

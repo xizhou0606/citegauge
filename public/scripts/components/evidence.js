@@ -1,15 +1,25 @@
 import { action, clean, status } from "../core/ui.js";
 import { api } from "../core/api.js";
 export function bindEvidence(b, m, load) {
+  b.setAttribute("aria-expanded", "false");
   b.onclick = action(async () => {
     const n = b.nextElementSibling;
     if (n.dataset.open === "yes") {
+      if (n.animate && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        const exit = n.animate(
+          [{ opacity: 1 }, { opacity: .15, transform: "translateY(-3px)" }],
+          { duration: 120, easing: "ease-in" },
+        );
+        await exit.finished.catch(() => {});
+      }
+      b.setAttribute("aria-expanded", "false");
       n.replaceChildren();
       n.dataset.open = "";
       return;
     }
     const r = await api("evidence/" + b.dataset.run),
       d = r.detail;
+    b.setAttribute("aria-expanded", "true");
     n.dataset.open = "yes";
     n.innerHTML =
       r.state !== "ok"

@@ -5,10 +5,10 @@ dialog {
   border-radius: var(--radius);
   color: var(--foreground);
   padding: 24px;
-  box-shadow: 0 15px 65px #0c272533;
+  box-shadow: 0 15px 65px #19243433;
 }
 dialog::backdrop {
-  background: #102b285f;
+  background: #1924345f;
 }
 .dialog-head {
   display: flex;

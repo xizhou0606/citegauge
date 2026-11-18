@@ -32,22 +32,10 @@
   color: var(--primary);
   background: var(--secondary);
 }
-.k1 .kpi-title i {
-  color: #4674aa;
-  background: #e9f1fc;
-}
-.k2 .kpi-title i {
-  color: var(--chart-1);
-  background: var(--secondary);
-}
-.k3 .kpi-title i {
-  color: #a7733b;
-  background: #fbf0e2;
-}
 .kpi strong {
   display: block;
   font:
-    650 clamp(26px, 2.5vw, 39px)/1.16 "Inter",
+    500 clamp(26px, 2.5vw, 39px)/1.16 "Inter",
     system-ui,
     sans-serif;
   letter-spacing: -0.05em;

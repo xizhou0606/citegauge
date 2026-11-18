@@ -1,23 +1,25 @@
 @import url("./public-pages.css");
 @import url("./report-preview.css");
+@import url("./motion.css");
 :root {
-  --background: #fafaf6;
-  --foreground: #19251f;
+  --background: #fff;
+  --foreground: #20242b;
   --card: #fff;
-  --primary: #173d32;
+  --primary: #25282e;
   --primary-foreground: #fff;
-  --secondary: #eef1e8;
-  --muted-foreground: #56645a;
-  --border: #d8ded4;
-  --ring: #397654;
-  --sidebar: #f4f5ef;
-  --signal: #d4f583;
-  --radius: .625rem;
-  --chart-1: #397447;
-  --chart-2: #276e86;
-  --chart-3: #a65a27;
-  --chart-4: #8eb5a6;
-  --chart-5: #d7dfda;
+  --secondary: #f1f3f6;
+  --muted-foreground: #56606e;
+  --border: #dce1e7;
+  --ring: #54789b;
+  --sidebar: #fff;
+  --surface-shadow: 0 2px 7px rgba(47, 64, 86, .045);
+  --signal: #4b6d90;
+  --radius: .875rem;
+  --chart-1: #496f96;
+  --chart-2: #4383b6;
+  --chart-3: #737289;
+  --chart-4: #91a9bd;
+  --chart-5: #d5dce4;
   --bs-primary: var(--primary);
   --bs-secondary-color: var(--muted-foreground);
   --bs-border-color: var(--border);
@@ -56,10 +58,10 @@ a {
 .brand i {
   display: grid;
   place-items: center;
-  width: 34px;
+  width: 26px;
   height: 34px;
-  background: var(--primary);
-  color: var(--signal);
+  background: transparent;
+  color: var(--foreground);
   border-radius: 10px;
   font-size: 23px;
 }
@@ -86,9 +88,9 @@ a {
   --bs-btn-active-border-color: var(--primary);
   --bs-btn-bg: var(--primary);
   --bs-btn-border-color: var(--primary);
-  --bs-btn-hover-bg: #295444;
-  --bs-btn-hover-border-color: #295444;
-  --bs-btn-active-bg: #295444;
+  --bs-btn-hover-bg: #393f48;
+  --bs-btn-hover-border-color: #393f48;
+  --bs-btn-active-bg: #393f48;
 }
 .btn-light {
   --bs-btn-bg: white;
