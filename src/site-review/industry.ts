@@ -38,7 +38,7 @@ export function industryRows(value: unknown, identity: Identity, pages: SearchPa
     if (!quote || !evidence.includes(key) || !evidence.includes(normalized(quote))) return [];
     seen.add(key);
     const own = change && modules[change.module];
-    return [{ name, segment, quote, url: page.url, title: page.title,
+    return [{ name, segment, relation: parsed.data.relation, quote, url: page.url, title: page.title,
       change: own && change ? { ...change, target: own.name, evidence: own.evidence } : null }];
   });
 }

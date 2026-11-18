@@ -29,7 +29,7 @@
 | Gemini | GOOGLE_GENERATIVE_AI_API_KEY | GOOGLE_GENERATIVE_AI_MODEL |
 | Perplexity | PERPLEXITY_API_KEY | PERPLEXITY_MODEL |
 
-官网形象分析使用 Wrangler 的 BROWSER 绑定抓取公开页面的桌面首屏和正文，并用 DASHSCOPE_API_KEY 调用北京地域的 qwen3.7-flash。工作台保存最近一份官网报告和截图，并按域名保存行业竞品分析。升级时应用 D1 迁移至 `0005_industry_reviews.sql`。行业检索默认复用千问密钥，通过 qwen-plus 联网检索五组查询，再读取候选网页核对证据。也可设置 `BRAVE_SEARCH_API_KEY` 选用 Brave Web Search 摘要。
+官网形象分析使用 Wrangler 的 BROWSER 绑定抓取公开页面的桌面首屏和正文，并用 DASHSCOPE_API_KEY 调用北京地域的 qwen3.7-flash。工作台保存最近一份官网报告和截图，并按域名保存行业竞品分析。升级时应用 D1 迁移至 `0006_industry_brand_previews.sql`。行业检索默认复用千问密钥，通过 qwen-plus 联网检索五组查询，再读取候选网页核对证据。也可设置 `BRAVE_SEARCH_API_KEY` 选用 Brave Web Search 摘要。
 
 ## 报告发送
 

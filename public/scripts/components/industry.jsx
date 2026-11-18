@@ -1,43 +1,18 @@
 import { useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import { BrandAdvice, BrandScreenshot } from "./brand-comparison.jsx";
 import { Button } from "@/components/ui/button";
+import { rankedBrands } from "./industry-rank.js";
 import { PageShot, Source } from "./industry-evidence.jsx";
-
-const rank = {高: 0, 中: 1, 低: 2};
-
-function Tasks({ groups, heading }) {
-  return <section className="industry-block">
-    <header><h3 ref={heading} tabIndex={-1}>本站修改清单</h3><span>{groups.size} 个页面模块</span></header>
-    {!groups.size && <p>现有证据尚不足以提出具体修改。</p>}
-    {[...groups].map(([target, items]) => <article className="industry-module" key={target}>
-      <h4>{target}<Badge variant="secondary">{items[0].change.priority}优先级</Badge></h4>
-      <p className="industry-original"><b>本站现状</b>{items[0].change.evidence}</p>
-      {items.map(({name, change, url}) => <div key={name} className="industry-task">
-        <p><strong>对照差距</strong>{change.gap} <a href={url} target="_blank" rel="noreferrer">{name} ↗</a></p>
-        <div className="industry-action"><strong>建议修改</strong><p>{change.action}</p>
-          {change.example && <blockquote><b>修改示例</b>{change.example}</blockquote>}
-        </div>
-        <p><strong>验收方式</strong>{change.verify}</p>
-      </div>)}
-    </article>)}
-  </section>;
-}
 
 export function Industry({ industry, screenshot, url, onAnalyze, onExpand }) {
   const heading = useRef(null);
-  const rows = industry?.rows || [];
-  const [selected, select] = useState(industry?.preview?.name || "");
+  const rows = rankedBrands(industry?.rows || []);
+  const [selected, select] = useState("");
   const [sourceText, setSourceText] = useState("");
   const [working, setWorking] = useState(false);
   const [message, setMessage] = useState("");
   const active = rows.find(r => r.name === selected) || rows[0];
-  const groups = new Map();
-  const changes = rows.filter(r => r.change).sort((a,b) => rank[a.change.priority] - rank[b.change.priority]);
-  for (const row of changes) {
-    if (!groups.has(row.change.target)) groups.set(row.change.target, []);
-    groups.get(row.change.target).push(row);
-  }
   async function expand(sources = []) {
     setWorking(true);
     setMessage("正在查找其他品牌并逐页核对来源…");
@@ -47,15 +22,16 @@ export function Industry({ industry, screenshot, url, onAnalyze, onExpand }) {
     } catch (e) { setMessage(e.message); }
     finally { setWorking(false); }
   }
-  const preview = industry?.preview;
+  const site = url || industry?.url;
+  const saved = active && industry?.preview?.name === active.name && industry.preview.url === active.url ? industry.preview : null;
   return <section className="industry-report" aria-label="行业竞品与官网修改建议">
     <header className="industry-intro">
       <div><h2>行业竞品与官网修改建议</h2><p>{industry?.category || "行业对比"}</p></div>
       <div className="industry-buttons">
-        {!!groups.size && <Button variant="outline" onClick={() => {
+        {active?.change && <Button variant="outline" onClick={() => {
           heading.current?.focus({preventScroll: true});
           heading.current?.scrollIntoView({block: "start"});
-        }}>查看 {groups.size} 个模块的改法</Button>}
+        }}>查看 {active.name} 的改法</Button>}
         {onExpand && <Button disabled={working} onClick={() => expand()}>{working ? "检索中…" : "扩展竞品清单"}</Button>}
         {onAnalyze && <Button variant="outline" onClick={onAnalyze}>重新分析官网</Button>}
       </div>
@@ -63,6 +39,7 @@ export function Industry({ industry, screenshot, url, onAnalyze, onExpand }) {
     {message && <p role="status">{message}</p>}
     <section className="industry-block">
       <header><h3>行业品牌清单</h3><span>已核实 {rows.length} 家</span></header>
+      {!!rows.length && <p>对标排名按采购替代关系排序：直接竞品、细分替代、关系待核实。同类按本站修改优先级从高到低排列，同级按品牌名排序。</p>}
       <p>{industry?.note || "当前官网还没有行业检索报告。"}</p>
       {!!industry?.queries?.length && <details className="industry-queries"><summary>查看检索范围</summary>
         <ul>{industry.queries.map(q => <li key={q}>{q}</li>)}</ul></details>}
@@ -75,19 +52,19 @@ export function Industry({ industry, screenshot, url, onAnalyze, onExpand }) {
       </details>}
       {!!active && <>
         <div className="industry-names" role="group" aria-label="选择品牌查看依据">
-          {rows.map(r => <button key={r.name} type="button" aria-pressed={active.name === r.name}
-            onClick={() => select(r.name)}>{r.name}</button>)}
+          {rows.map((r, index) => <button key={r.name} type="button" aria-pressed={active.name === r.name}
+            onClick={() => select(r.name)}><span className="brand-rank">{index + 1}</span> {r.name}</button>)}
         </div>
-        <div className="industry-selected"><h4>{active.name}</h4><p>{active.segment}</p><Source row={active} /></div>
+        <div className="industry-selected"><h4>第 {rows.indexOf(active) + 1} 名 · {active.name}</h4><small>{active.relation || "关系待核实"} · {active.change?.priority ? active.change.priority + "修改优先级" : "待补充修改依据"}</small><p>{active.segment}</p><Source row={active} /></div>
       </>}
     </section>
-    {(screenshot || industry?.screenshot || preview) && <section className="industry-block">
-      <header><h3>页面截图对照</h3></header>
+    {active && <section className="industry-block">
+      <header><h3>本站与 {active.name} 的页面截图</h3></header>
       <div className="industry-images">
         <PageShot image={screenshot || industry?.screenshot} url={url || industry?.url} label="本站官网首屏" />
-        {preview && <PageShot image={preview.image} url={preview.url} label={preview.name + " · 对照来源页"} />}
+        <BrandScreenshot key={JSON.stringify([site, active.name, active.url])} row={active} site={site} saved={saved} />
       </div>
     </section>}
-    {!!rows.length && <Tasks groups={groups} heading={heading} />}
+    {active && <BrandAdvice row={active} heading={heading} />}
   </section>;
 }

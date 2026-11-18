@@ -1,3 +1,5 @@
+import { rankedBrands } from "./industry-rank.js";
+
 export const moduleFields = [
   ["strength", "优势"], ["weakness", "不足"], ["impact", "对访客的影响"],
   ["change", "修改步骤"], ["acceptance", "验收条件"],
@@ -27,13 +29,14 @@ export function reviewDocument(r, prompt = false, modules = r.modules) {
     const names = m?.[key] || identity?.[key];
     if (names?.length) lines.push(label + " · " + names.join("、"));
   }
-  const industryRows = r.industry?.rows.filter(row => modules === r.modules ||
+  const ranked = rankedBrands(r.industry?.rows || []);
+  const industryRows = ranked.filter(row => modules === r.modules ||
     (row.change && modules.includes(r.modules[row.change.module])));
   if (r.industry && (modules === r.modules || industryRows.length)) {
     lines.push("## 行业竞品与官网修改建议", r.industry.category, r.industry.note);
     if (r.industry.queries.length) lines.push("检索范围 · " + r.industry.queries.join(" / "));
     for (const row of industryRows) {
-      lines.push("### " + row.name, row.segment, row.quote, row.url);
+      lines.push("### " + (ranked.indexOf(row) + 1) + ". " + row.name, row.segment, row.quote, row.url);
       const c = row.change;
       if (c) lines.push(c.priority + "优先级 · " + c.target, "本站依据 · " + c.evidence, c.gap, c.action, ...(c.example ? ["修改示例 · " + c.example] : []), c.verify);
     }

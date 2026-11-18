@@ -1,3 +1,4 @@
+import { brandPreview } from "../site-review/brand-preview.ts";
 import { siteReview } from "../site-review/route.ts";
 import { betterAuth } from "better-auth";
 import { username } from "better-auth/plugins/username";
@@ -60,6 +61,7 @@ export async function privateApi(req: Request, env: Env) {
     if ((await req.clone().arrayBuffer()).byteLength > limit)
       return json({ error: "样本过大" }, 413);
   }
+  if (url.pathname === "/api/industry-preview") return brandPreview(req, env);
   if (url.pathname === "/api/site-review") return siteReview(req, env);
   return env.WORKSPACE.get(env.WORKSPACE.idFromName("owner-v1")).fetch(req);
 }
