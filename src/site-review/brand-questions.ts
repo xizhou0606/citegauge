@@ -5,6 +5,7 @@ import type { Monitor } from "../domain/monitor.ts";
 import type { Env } from "../runtime/env.ts";
 import { json } from "../runtime/response.ts";
 
+import { fallbackProbe } from "./probe-fallback.ts";
 import { groundedProbe, questionAnchors, type Profile } from "./grounded-probes.ts";
 import { brandQuestionIntents } from "../domain/brand-question-intents.ts";
 
@@ -36,21 +37,28 @@ export async function prepareQuestions(env: Env, at: number, domain: string) {
   const existingIds = new Set(stored.results.map(row => row.id));
   const missing = brandQuestionIntents.map((intent,i) => ({intent,index:i,id:prefix+i})).filter(slot => !existingIds.has(slot.id));
   if (missing.length) {
-    let probes;
+    let drafts: unknown[] = [];
     try {
-      const drafts = await generateQuestions(env.DASHSCOPE_API_KEY,profile,missing);
-      const seen = new Set(stored.results.map(r => r.question));
-      probes = drafts.flatMap((draft,i) => {
-        const slot = missing[i];
+      drafts = await generateQuestions(env.DASHSCOPE_API_KEY,profile,missing);
+    } catch {
+      // A malformed draft or an unavailable generator can still use verified page passages.
+    }
+    const seen = new Set(stored.results.map(r => r.question));
+    const probes = missing.flatMap((slot,i) => {
+      try {
+        let probe;
         try {
-          const probe = groundedProbe(profile, slot.index, draft);
-          if (seen.has(probe.question)) return [];
-          seen.add(probe.question);
-          return [{...probe, ...slot}];
-        } catch { return []; }
-      });
-      if (!probes.length) throw Error("缺少可核对的问题");
-    } catch { return json({error:"未能生成与官网模块逐项对应的问题，可重试。"},502); }
+          probe = groundedProbe(profile,slot.index,drafts[i]);
+          if (seen.has(probe.question)) throw Error("问题重复");
+        } catch {
+          probe = fallbackProbe(profile,slot.index);
+        }
+        if (seen.has(probe.question)) return [];
+        seen.add(probe.question);
+        return [{...probe,...slot}];
+      } catch { return []; }
+    });
+    if (!probes.length) return json({error:"官网没有足够的可核对依据。"},502);
     const now = Date.now();
     const inserted = await env.DB.batch(probes.map(({question,mode,section,quote,id,intent}) => {
       const probe: Monitor = {...m, id, model:"qwen-plus", daily:false, question, brandPrompt:{at,intent,mode,section,quote,version:2}};

@@ -4,6 +4,7 @@ import { collect } from "../src/collectors/api.ts";
 import { markedSources } from "../src/collectors/ai/qwen-citations.ts";
 import { runQuestionJob } from "../src/site-review/question-queue.ts";
 import { siteReview } from "../src/site-review/route.ts";
+import { fallbackProbe } from "../src/site-review/probe-fallback.ts";
 import { groundedProbe } from "../src/site-review/grounded-probes.ts";
 import { brandQuestionStats } from "../src/storage/brand-question-stats.ts";
 import { Workspace } from "../src/storage/workspace.ts";
@@ -35,6 +36,9 @@ for (const previous of [0,3]) {
       const questions=brandQuestionIntents.map(intent => "零售团队在"+intent+"时应当考虑哪些客服方案？");
       const profile={url:"https://example.com",at:1,identity:{category:"客服工具"},impression:"零售连锁",monitor,
         modules:[{name:"工单",evidence:"跨门店分派工单"}]};
+      const fallback=brandQuestionIntents.map((_,i)=>fallbackProbe(profile,i));
+      assert.equal(new Set(fallback.map(p=>p.question)).size,12);
+      assert.ok(fallback.every(p=>p.question.includes("跨门店分派工单")&&p.question.includes("客服工具")));
       const drafts=questions.map(question=>({anchor:0,question}));
       assert.throws(()=>groundedProbe(profile,0,{...drafts[0],anchor:42}));
       assert.throws(()=>groundedProbe(profile,1,{...drafts[0],question:"例子这个产品好用吗？"}));
