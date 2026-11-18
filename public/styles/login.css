@@ -22,10 +22,6 @@ body > .login-page {
 }
 .login-box h1 { font-size: clamp(29px, 3vw, 39px); margin: 20px 0 9px; }
 .login-intro { color: var(--muted-foreground); font-size: 14px; margin-bottom: 23px; }
-.login-box .form-label { margin-top: 12px; font-weight: 600; font-size: 14px; }
-.login-box .form-control { min-height: 44px; }
-.login-box .btn-primary { margin-top: 25px; min-height: 44px; }
-.login-box .alert { margin: 12px 0 0; }
 @media (max-width: 720px) {
   body > .login-page { display: flex; justify-content: center; }
   .login-page .report-preview { display: none; }

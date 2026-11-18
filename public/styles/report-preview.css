@@ -14,14 +14,7 @@
   gap: 16px;
 }
 .report-heading { border-bottom: 1px solid var(--report-rule); padding-bottom: 17px; font-size: 14px; }
-.report-heading .bi { margin-right: 6px; color: var(--signal); }
-.report-heading small {
-  color: var(--signal);
-  border: 1px solid var(--report-rule);
-  padding: 3px 8px;
-  border-radius: 20px;
-  font-size: 11px;
-}
+.report-heading svg { margin-right: 6px; color: var(--signal); }
 .report-question { margin: 23px 0; }
 .report-question > span, .report-reading span, .report-base, .report-preview blockquote span {
   color: var(--muted-foreground);

@@ -69,7 +69,7 @@
   border-radius: var(--radius);
   color: var(--primary);
 }
-.guide-card > .bi { margin-top: 5px; color: var(--muted-foreground); font-size: 12px; }
+.guide-card > svg { margin-top: 5px; color: var(--muted-foreground); font-size: 12px; }
 .guide-card h3 { font-size: 16px; margin: 2px 0 8px; }
 .guide-card p { color: var(--muted-foreground); font-size: 13px; margin: 0; line-height: 1.75; }
 .article { max-width: 760px; padding-block: clamp(40px, 6vw, 80px); }
@@ -83,7 +83,7 @@
   .hero { gap: 32px; padding-block: 36px; }
   .public-header { min-height: 64px; }
   .public-header nav { display: none; }
-  .public-header > .btn { margin-left: auto; }
+  .public-header > [data-slot="button"] { margin-left: auto; }
   .public-footer { flex-wrap: wrap; gap: 12px; }
   .guide-card, .guide-card:first-child, .guide-card:last-child { padding: 16px 0; }
   .guide-card + .guide-card { border-left: 0; border-top: 1px solid var(--border); }

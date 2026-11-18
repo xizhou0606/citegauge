@@ -1,5 +1,5 @@
 import { privateApi, hasWorkspaceSession } from "./auth/server.ts";
-import { page } from "./web/pages.ts";
+import { page } from "./web/pages.tsx";
 import { articles } from "./web/articles.ts";
 import type { Env } from "./runtime/env.ts";
 export { Workspace } from "./storage/workspace.ts";

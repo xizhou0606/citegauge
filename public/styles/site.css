@@ -21,11 +21,6 @@
   --chart-3: #737289;
   --chart-4: #91a9bd;
   --chart-5: #d5dce4;
-  --bs-primary: var(--primary);
-  --bs-secondary-color: var(--muted-foreground);
-  --bs-border-color: var(--border);
-  --bs-body-color: var(--foreground);
-  --bs-link-color: var(--primary);
   --font: "Geist", "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
 }
 body {
@@ -37,16 +32,9 @@ body {
 [hidden] {
   display: none !important;
 }
-a {
+a:not([data-slot="button"]) {
   color: var(--primary);
   text-underline-offset: 4px;
-}
-.bi {
-  width: 1em;
-  height: 1em;
-  fill: currentColor;
-  vertical-align: -0.12em;
-  flex-shrink: 0;
 }
 .brand {
   display: inline-flex;
@@ -74,48 +62,11 @@ a {
   font-size: 13px;
   opacity: 0.75;
 }
-.btn {
-  font-size: 14px;
-  padding: .55rem .95rem;
-  font-weight: 580;
-  border-radius: 8px;
-}
-.actions .btn .bi { margin: 0 0 0 5px; }
-.btn-sm { font-size: 13px; padding: .36rem .7rem; }
-.btn-primary {
-  --bs-btn-color: var(--primary-foreground);
-  --bs-btn-disabled-bg: var(--primary);
-  --bs-btn-disabled-border-color: var(--primary);
-  --bs-btn-active-border-color: var(--primary);
-  --bs-btn-bg: var(--primary);
-  --bs-btn-border-color: var(--primary);
-  --bs-btn-hover-bg: #393f48;
-  --bs-btn-hover-border-color: #393f48;
-  --bs-btn-active-bg: #393f48;
-}
-.btn-light {
-  --bs-btn-bg: white;
-  --bs-btn-border-color: var(--border);
-  --bs-btn-hover-bg: var(--secondary);
-  --bs-btn-hover-border-color: var(--ring);
-}
-.btn-link {
-  color: var(--primary);
-  text-decoration: none;
-}
-.btn .bi {
-  margin-right: 5px;
-}
 a:focus-visible,
 button:focus-visible,
 summary:focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: 3px;
-}
-.form-control:focus,
-.form-select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--secondary);
 }
 h1,
 h2,
