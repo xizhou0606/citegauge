@@ -1,3 +1,4 @@
+import "./core/validation.js";
 import { requestJSON } from "./core/api.js";
 const password = document.getElementById("password");
 const reveal = document.getElementById("reveal");

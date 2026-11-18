@@ -9,7 +9,7 @@ export const workspaceShell = `
 <div class="console">
   <aside class="rail">${brand}<div class="rail-section">模型平台</div>
     <nav class="nav" id="platforms" aria-label="模型平台"></nav>
-    <select id="platform-picker" class="form-select form-select-sm" aria-label="选择模型平台"></select>
+    <div id="platform-picker" class="dropdown"></div>
     <div class="rail-foot">
       <a href="/methodology">${icon("book")}监测方法</a>
       <a href="/channels">${icon("layers")}采样渠道</a>
@@ -23,12 +23,12 @@ export const workspaceShell = `
       <button id="add" class="btn btn-primary btn-sm">${icon("plus-lg")}新建监测项</button></div>
     </header>
     <div class="content">
-      <nav class="workspace-views" aria-label="工作台视图">
-        <a href="#website" aria-current="page">官网分析</a><a href="#monitoring">模型监测</a>
+      <nav class="workspace-views nav nav-pills" aria-label="工作台视图">
+        <a class="nav-link" href="#website" aria-current="page">官网分析</a><a class="nav-link" href="#monitoring">模型监测</a>
       </nav>
       ${websitePanel}
       <p id="status" role="status" aria-live="polite"></p>
       <div id="app" hidden><div id="scope"></div><div id="panel"></div></div>
     </div>
   </main>
-</div><dialog id="editor" aria-labelledby="dialog-title"></dialog>`;
+</div><div class="modal fade" id="editor" tabindex="-1" aria-labelledby="dialog-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"></div></div></div>`;

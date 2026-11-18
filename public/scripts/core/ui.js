@@ -41,15 +41,23 @@ export function action(fn) {
 }
 export function openEditor(title, fields, save, label) {
   const dialog = $("editor");
-  dialog.innerHTML = `<form><div class="dialog-head"><h2 id="dialog-title">${clean(title)}</h2>
-    <button type="button" aria-label="关闭" class="btn-close"></button></div>${fields}
-    <p role="status" id="dialog-note"></p><button type="submit" class="btn btn-primary">${clean(label)}</button></form>`;
-  dialog.querySelector(".btn-close").onclick = () => dialog.close();
+  const trigger = document.activeElement;
+  const modal = window.bootstrap.Modal.getOrCreateInstance(dialog);
+  dialog.querySelector(".modal-content").innerHTML = `<div class="modal-header">
+    <h2 class="modal-title fs-5" id="dialog-title">${clean(title)}</h2>
+    <button type="button" aria-label="关闭" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form><div class="modal-body">${fields}<p role="status" id="dialog-note"></p></div>
+    <div class="modal-footer"><button type="submit" class="btn btn-primary">${clean(label)}</button></div></form>`;
   const form = dialog.querySelector("form");
   form.onsubmit = action(async () => {
     await save(form);
-    dialog.close();
+    modal.hide();
   });
-  dialog.showModal();
+  dialog.addEventListener("shown.bs.modal", () => {
+    const first = form.querySelector("input:not(:disabled),textarea:not(:disabled),button:not(:disabled)");
+    (first || dialog.querySelector(".btn-close")).focus();
+  }, { once: true });
+  dialog.addEventListener("hidden.bs.modal", () => trigger?.focus(), { once: true });
+  modal.show();
   return form;
 }

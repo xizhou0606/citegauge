@@ -57,7 +57,7 @@ export function breakdownSection(m, data) {
       (
         r,
       ) => `<button data-filter="${r.kind}" data-value="${clean(r.name)}" class="btn ranking-row">
-  <span>${clean(r.name)}</span><progress value="${r.hits}" max="${data.summary.valid || 1}"></progress><b>${r.hits} / ${data.summary.valid}</b></button>`,
+  <span>${clean(r.name)}</span><span class="progress" aria-hidden="true"><i class="progress-bar" data-width="${Math.round(100 * r.hits / (data.summary.valid || 1))}"></i></span><b>${r.hits} / ${data.summary.valid}</b></button>`,
     )
     .join("")}</div></section>
   <section class="card surface"><h2>引用来源</h2><div class="source-list">${

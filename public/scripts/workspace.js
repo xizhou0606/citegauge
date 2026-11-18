@@ -1,3 +1,4 @@
+import "./core/validation.js";
 import { bindWebsiteReview } from "./components/site-review.js";
 import { $, action, status } from "./core/ui.js";
 import { api, requestJSON } from "./core/api.js";

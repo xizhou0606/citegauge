@@ -32,11 +32,16 @@
     "@ai-sdk/moonshotai": "3.0.90",
     "@ai-sdk/openai": "4.0.115",
     "@ai-sdk/perplexity": "5.0.31",
+    "@chat-adapter/slack": "4.45.0",
+    "@chat-adapter/state-memory": "4.45.0",
+    "@chat-adapter/telegram": "4.45.0",
     "ai": "7.0.170",
     "better-auth": "^1.7.22",
     "bootstrap": "^5.3.9",
     "bootstrap-icons": "^1.13.2",
     "chart.js": "^4.6.1",
+    "chat": "4.45.0",
+    "markdown-it": "15.0.3",
     "pg": "^8.23.1",
     "zod": "4.6.7"
   }

@@ -1,13 +1,11 @@
+import { picker } from "../core/picker.js";
 import { $, clean } from "../core/ui.js";
 function brandLogo(id) {
   return `<img class="brand-logo" src="/vendor/brands/${encodeURIComponent(id)}.svg" width="20" height="20" alt="">`;
 }
 
 export function platformNav(platforms, monitors, platform, select) {
-  const picker = $("platform-picker");
-  picker.replaceChildren(...platforms.map((p) => new Option(p.name, p.id)));
-  picker.value = platform.id;
-  picker.onchange = () => select(picker.value);
+  picker($("platform-picker"), "选择模型平台", platforms.map(p => ({ value: p.id, text: p.name })), platform.id, select);
   $("platforms").innerHTML = platforms
     .map((p) => {
       const count = monitors.filter((m) =>
@@ -36,7 +34,7 @@ export function scopeSection({
   const option = (m) => {
     const suffix =
       frequencies.get(label(m)) > 1 ? " · #" + m.id.slice(0, 8) : "";
-    return `<option value="${clean(m.id)}" ${m.id === active ? "selected" : ""}>${clean(label(m) + suffix)}</option>`;
+    return { value: m.id, text: label(m) + suffix };
   };
   $("scope").innerHTML =
     `<div class="scope-title"><div class="platform-mark">${brandLogo(platform.id)}</div>
@@ -47,9 +45,8 @@ export function scopeSection({
     data-channel="${clean(c)}" aria-pressed="${channel === c}" class="nav-link ${channel === c ? "active" : ""}">${brandLogo(c === "火山方舟 API" ? "volcengine" : platform.id)}${clean(c)}</button>`,
       )
       .join("")}</nav>
-    <label class="monitor-picker">监测项<select class="form-select form-select-sm" id="monitor" ${items.length ? "" : "disabled"}>
-    ${items.map(option).join("") || "<option>暂无监测项</option>"}</select></label></div>`;
+    <div class="monitor-picker">监测项<div class="dropdown" id="monitor"></div></div></div>`;
+  picker($("monitor"), "选择监测项", items.map(option), active, onMonitor, "暂无监测项");
   for (const b of $("scope").querySelectorAll("[data-channel]"))
     b.onclick = () => onChannel(b.dataset.channel);
-  $("monitor").onchange = (e) => onMonitor(e.target.value);
 }

@@ -1,3 +1,4 @@
+import "./core/validation.js";
 const form = document.getElementById("site-entry");
 form.addEventListener("submit", (event) => {
   event.preventDefault();

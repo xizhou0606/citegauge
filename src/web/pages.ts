@@ -53,7 +53,7 @@ export function page(path: string, origin: string) {
     (login
       ? '<link rel="stylesheet" href="/styles/login.css"><script type="module" src="/scripts/login.js"></script>'
       : workspace
-        ? '<link rel="stylesheet" href="/styles/console.css"><link rel="stylesheet" href="/styles/mobile-shell.css"><script defer src="/vendor/chart.js"></script><script type="module" src="/scripts/workspace.js"></script>'
+        ? '<link rel="stylesheet" href="/styles/console.css"><link rel="stylesheet" href="/styles/mobile-shell.css"><script defer src="/vendor/bootstrap.js"></script><script defer src="/vendor/chart.js"></script><script type="module" src="/scripts/workspace.js"></script>'
         : '<script type="application/ld+json">' +
           JSON.stringify(schema) +
           "</script>") +

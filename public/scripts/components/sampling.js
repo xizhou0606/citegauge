@@ -21,7 +21,7 @@ export function bindSampling(m, refresh) {
       ...body,
     });
     await refresh();
-    const r = await api("evidence/" + id);
+    const r = await api("evidence/" + id + "?view=answer");
     status(r.state === "failed" ? r.detail.error : "样本已记录");
   };
   if ($("import")) {

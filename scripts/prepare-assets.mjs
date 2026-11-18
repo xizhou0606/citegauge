@@ -7,6 +7,9 @@ const modules = new URL("../node_modules/", import.meta.url);
 await mkdir(output, { recursive: true });
 for (const [from, to] of [
   ["bootstrap/dist/css/bootstrap.min.css", "bootstrap.css"],
+  ["bootstrap/dist/js/bootstrap.bundle.min.js", "bootstrap.js"],
+  ["markdown-it/dist/browser/markdown-it.esm.min.mjs", "markdown-it.js"],
+  ["markdown-it/LICENSE", "markdown-it-LICENSE.txt"],
   ["chart.js/dist/chart.umd.min.js", "chart.js"],
   ["bootstrap/LICENSE", "bootstrap-LICENSE.txt"],
   ["bootstrap-icons/LICENSE", "icons-LICENSE.txt"],

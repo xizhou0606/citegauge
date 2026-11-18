@@ -1,3 +1,4 @@
+import { sendReport } from "../delivery/report.ts";
 import { ensureSiteMonitor } from "../site-review/monitor.ts";
 import type { Identity } from "../site-review/identity.ts";
 import { syncAlarm } from "./schedule.ts";
@@ -89,6 +90,7 @@ export class Workspace {
     );
     if (!rows.length) return json({ error: "监测项不存在" }, 404);
     const m: Monitor = rows[0].config;
+    if (path === "/api/send-report") return sendReport(db, this.env, m, b);
     if (path === "/api/schedule" && m.channel.endsWith("API")) {
       const daily = b.daily === true;
       if (daily && !ready(this.env, m.channel, m.model))

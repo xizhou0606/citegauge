@@ -14,7 +14,7 @@ test("官网输入支持裸域名和深层页面，拒绝凭据、内网与非�
 
 test("报告只保留有截图观察或可核对原文的模块", () => {
   const module = { name: "产品案例", evidence: "客户故事", source: "原文",
-    strength: "给出了案例入口", weakness: "入口缺少行业说明", change: "在案例标题旁补充行业" };
+    impact: "品牌团队很难找到同类客户", acceptance: "案例入口旁可见行业标签", strength: "给出了案例入口", weakness: "入口缺少行业说明", change: "在案例标题旁补充行业" };
   const payload = { usable: true, identity: null, impression: "面向品牌团队", modules: [
     module, { ...module, evidence: "一条不存在的引用" },
     { ...module, source: "截图", name: "首屏", evidence: "左侧标题和右侧截图形成对照" },

@@ -72,7 +72,7 @@
     margin: 0 2px;
   }
   .monitor-picker,
-  .monitor-picker select {
+  .monitor-picker .dropdown {
     width: 100%;
   }
   .scope-filters,

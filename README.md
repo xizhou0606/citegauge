@@ -16,7 +16,7 @@ CiteGauge is an MIT-licensed, self-hosted GEO monitor for Chinese and internatio
 
 在首页或工作台输入官网网址，Cloudflare Browser Run 抓取首屏和正文，千问识别品牌、分析页面模块并生成监测问题。系统按官网域名创建通义千问监测项并自动采样一次，识别不到品牌时保存官网报告。重复分析同一域名会复用监测项。官网分析和新建项使用 qwen3.7-flash，后续可在监测结果里开启每日采样。
 
-工作台支持导出当前监测项的 JSON 报告，包含统计时间窗、每日趋势、竞品和引用来源。首页展示演示数据。
+工作台可导出官网完整报告、逐模块 AI 修改提示词，以及含样本正文的监测 Markdown 报告和统计 JSON。配置 Slack 或 Telegram 机器人后，可将所选问题与采样渠道的统计报告发送到预设会话。首页展示演示数据。
 
 ## 如何解读指标
 

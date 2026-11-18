@@ -1,4 +1,5 @@
 import { action, clean, status } from "../core/ui.js";
+import { markdown } from "../core/markdown.js";
 import { api } from "../core/api.js";
 export function bindEvidence(b, m, load) {
   b.setAttribute("aria-expanded", "false");
@@ -17,22 +18,22 @@ export function bindEvidence(b, m, load) {
       n.dataset.open = "";
       return;
     }
-    const r = await api("evidence/" + b.dataset.run),
+    const r = await api("evidence/" + b.dataset.run + "?view=answer"),
       d = r.detail;
     b.setAttribute("aria-expanded", "true");
     n.dataset.open = "yes";
     n.innerHTML =
       r.state !== "ok"
-        ? clean(d.error || "采集中")
+        ? clean(r.state === "failed" ? "这次采样未能完成，可重新采样。" : "采集中")
         : "<p>" +
           clean(d.model) +
           " · 命中 " +
           clean(d.matched.join("、") || "无") +
           " · 竞品 " +
           clean(d.rivals.join("、") || "无") +
-          "</p><pre>" +
-          clean(d.answer) +
-          "</pre>" +
+          '</p><div class="sample-markdown">' +
+          markdown(d.answer) +
+          "</div>" +
           (d.page
             ? '<a href="' +
               clean(d.page) +
@@ -50,10 +51,7 @@ export function bindEvidence(b, m, load) {
                     clean(u) +
                     "</a></p>",
                 )
-                .join("") || "已核对，未见引用") +
-          "<details><summary>原始记录</summary><pre>" +
-          clean(r.raw) +
-          "</pre></details>";
+                .join("") || "已核对，未见引用");
     if (r.state === "ok") {
       if (r.hasScreenshot) {
         const download = document.createElement("button");
@@ -77,13 +75,13 @@ export function bindEvidence(b, m, load) {
       }
       const form = document.createElement("form");
       form.innerHTML =
-        '<label>推荐复核<select class="form-select" name="decision"><option value="">未复核</option><option value="yes">明确推荐</option><option value="no">未明确推荐</option></select></label><label>支持判断的原句<textarea class="form-control" name="quote" maxlength="2000"></textarea></label><label>明确排序中的顺位（可留空）<input class="form-control" type="number" min="1" step="1" name="rank"></label><button class="btn btn-primary" type="submit">保存复核</button>';
+        '<fieldset class="mb-3"><legend class="fs-6">推荐复核</legend><div class="d-flex flex-wrap gap-3"><label class="form-check"><input class="form-check-input" type="radio" name="decision" value="" checked>未复核</label><label class="form-check"><input class="form-check-input" type="radio" name="decision" value="yes">明确推荐</label><label class="form-check"><input class="form-check-input" type="radio" name="decision" value="no">未明确推荐</label></div></fieldset><label>支持判断的原句<textarea class="form-control" name="quote" maxlength="2000"></textarea></label><label>明确排序中的顺位（可留空）<input class="form-control" type="number" min="1" step="1" name="rank"></label><button class="btn btn-primary" type="submit">保存复核</button>';
       const f = form.elements;
       f.decision.value = d.review ? (d.review.recommended ? "yes" : "no") : "";
       f.quote.value = d.review?.quote || "";
       f.rank.value = d.review?.rank ?? "";
       f.rank.disabled = f.decision.value !== "yes";
-      f.decision.onchange = () => {
+      form.onchange = () => {
         f.rank.disabled = f.decision.value !== "yes";
         if (f.rank.disabled) f.rank.value = "";
       };
@@ -99,7 +97,17 @@ export function bindEvidence(b, m, load) {
         await load();
         status("复核已保存，指标已更新");
       });
-      n.append(form);
+      const toggle = document.createElement("button");
+      toggle.type = "button";
+      toggle.className = "btn btn-light btn-sm";
+      toggle.textContent = d.review ? "查看或修改人工复核" : "人工复核";
+      form.id = "review-" + crypto.randomUUID();
+      form.className = "collapse";
+      toggle.dataset.bsToggle = "collapse";
+      toggle.dataset.bsTarget = "#" + form.id;
+      toggle.setAttribute("aria-controls", form.id);
+      toggle.setAttribute("aria-expanded", "false");
+      n.append(toggle, form);
     }
   });
 }
