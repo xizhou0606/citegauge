@@ -35,6 +35,9 @@ export async function siteReview(req: Request, env: Env) {
     review = await analyze(snapshot, env.DASHSCOPE_API_KEY);
   } catch (e) {
     const message = (e as Error).message;
+    const kind = e instanceof Error ? e.name : "Unknown";
+    const code = e && typeof e === "object" && "statusCode" in e ? Number(e.statusCode) : undefined;
+    console.warn("site-review analysis failed", { kind, code });
     return json({ error: message.startsWith("页面内容") || message.startsWith("未取得")
       ? message : "已取得官网截图，但千问未返回可用报告，请重试或检查模型额度" }, 502);
   }
