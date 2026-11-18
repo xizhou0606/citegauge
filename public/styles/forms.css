@@ -1,9 +1,9 @@
 dialog {
   width: min(520px, 94vw);
   max-height: 90dvh;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--foreground);
   padding: 24px;
   box-shadow: 0 15px 65px #0c272533;
 }
@@ -35,6 +35,6 @@ dialog .form-select {
   max-width: 620px;
   margin: 14px 0;
   padding: 15px;
-  background: var(--paper);
+  background: var(--background);
   border-radius: 9px;
 }

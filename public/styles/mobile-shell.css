@@ -14,6 +14,12 @@
   .console {
     display: block;
   }
+  .console-main {
+    margin: 0;
+    border: 0;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+  }
   .rail {
     height: auto;
     position: static;

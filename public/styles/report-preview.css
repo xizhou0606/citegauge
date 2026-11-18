@@ -1,0 +1,60 @@
+.report-preview {
+  --report-rule: #527367;
+  padding: clamp(24px, 3.2vw, 46px);
+  border-radius: 16px;
+  background-color: var(--primary);
+  background-image: radial-gradient(#ffffff14 .8px, transparent .9px);
+  background-size: 13px 13px;
+  color: #f5f8ec;
+  box-shadow: 0 6px 14px -9px #1d372b66;
+}
+.report-heading, .report-reading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.report-heading { border-bottom: 1px solid var(--report-rule); padding-bottom: 17px; font-size: 14px; }
+.report-heading .bi { margin-right: 6px; color: var(--signal); }
+.report-heading small {
+  color: var(--signal);
+  border: 1px solid var(--report-rule);
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+}
+.report-question { margin: 23px 0; }
+.report-question > span, .report-reading span, .report-base, .report-preview blockquote span {
+  color: #c1d4c6;
+  font-size: 12px;
+}
+.report-question h2 { font-size: clamp(19px, 1.8vw, 25px); margin-top: 6px; }
+.report-reading strong {
+  display: block;
+  font: 500 clamp(60px, 6.5vw, 97px)/1 var(--font);
+  color: var(--signal);
+  letter-spacing: -.075em;
+  font-variant-numeric: tabular-nums;
+}
+.report-reading small { font-size: .4em; letter-spacing: -.06em; margin-left: 4px; }
+.sample-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  width: clamp(92px, 10vw, 140px);
+}
+.sample-grid i { aspect-ratio: 1.4; border-radius: 3px; background: var(--signal); }
+.sample-grid i:nth-child(n+10) {
+  border: 1px solid var(--report-rule);
+  background: repeating-linear-gradient(135deg, transparent 0 4px, var(--report-rule) 4px 5px);
+}
+.report-base { margin: 10px 0 22px; }
+.report-preview blockquote {
+  border-top: 1px solid var(--report-rule);
+  padding-top: 16px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.report-preview blockquote span { display: block; margin-bottom: 4px; }
+.report-preview mark { color: var(--signal); background: #ffffff10; padding: 1px 3px; }

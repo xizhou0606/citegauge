@@ -11,13 +11,13 @@
   border: 0;
   background: transparent;
   text-align: left;
-  color: var(--ink);
+  color: var(--foreground);
   font-size: 13px;
   padding: 7px 0;
 }
 .ranking-row:hover,
 .source-row:hover {
-  color: var(--accent);
+  color: var(--primary);
   text-decoration: underline;
 }
 .ranking-row span {
@@ -31,14 +31,14 @@
   border: 0;
   border-radius: 8px;
   background: #e8eee8;
-  accent-color: var(--accent);
+  accent-color: var(--primary);
 }
 progress::-webkit-progress-bar {
   background: #e8eee8;
   border-radius: 8px;
 }
 progress::-webkit-progress-value {
-  background: var(--accent);
+  background: var(--primary);
   border-radius: 8px;
 }
 .source-list,
@@ -51,7 +51,7 @@ progress::-webkit-progress-value {
   overflow-wrap: anywhere;
 }
 .source-row small {
-  color: var(--muted);
+  color: var(--muted-foreground);
 }
 .history {
   margin-top: 14px;
@@ -61,15 +61,15 @@ progress::-webkit-progress-value {
   grid-template-columns: 1fr auto auto;
   align-items: center;
   gap: 9px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--border);
   padding: 9px 0;
   font-size: 13px;
 }
 .state-tag {
   padding: 2px 8px;
   border-radius: 6px;
-  background: var(--mint);
-  color: var(--accent);
+  background: var(--secondary);
+  color: var(--primary);
 }
 .sample-detail {
   grid-column: 1/-1;
@@ -83,6 +83,6 @@ progress::-webkit-progress-value {
   padding: 13px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  background: var(--paper);
+  background: var(--background);
   max-height: 320px;
 }
