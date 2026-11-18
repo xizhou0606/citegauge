@@ -1,3 +1,4 @@
+import { Industry } from "./industry.jsx";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { CalendarDays, FileText, Plus } from "lucide-react";
@@ -13,7 +14,7 @@ import { Plots } from "../charts/plots.jsx";
 const panel = createRoot(document.getElementById("panel"));
 const all = { filter: "all", value: "", label: "全部样本", offset: 0 };
 let sequence = 0;
-function Dashboard({ view, m, report, ready, refresh }) {
+function Dashboard({ view, m, report, industry, ready, refresh, onCreate }) {
   const [query, setQuery] = useState(all);
   const date = (t) => new Date(t).toISOString().slice(0, 10);
   function filter(filter, value, label) {
@@ -45,6 +46,7 @@ function Dashboard({ view, m, report, ready, refresh }) {
           <Plots report={report} />
         </>
       )}
+      {view === "competitors" && <Industry industry={industry} onAnalyze={() => onCreate(m.domain)} />}
       {view === "competitors" && <Competitors m={m} report={report} filter={filter} />}
       {view === "sources" && <Sources report={report} filter={filter} />}
       {view === "evidence" && (
@@ -62,7 +64,7 @@ function EmptyMonitor({ create }) {
       <div>
         <h2>从官网创建监测项</h2>
         <p>输入官网网址，AI 会识别品牌、生成监测问题，并用千问完成首次采样。</p>
-        <Button id="first-monitor" onClick={create}>
+        <Button id="first-monitor" onClick={() => create()}>
           <Plus />
           新建监测项
         </Button>
@@ -86,9 +88,12 @@ export async function renderDashboard(view, m, ready, refresh, onCreate) {
     </p>,
   );
   try {
-    const report = await api("report/" + m.id);
+    const [report, comparison] = await Promise.all([
+      api("report/" + m.id),
+      view === "competitors" ? api("industry/" + m.id) : null,
+    ]);
     if (request === sequence)
-      panel.render(<Dashboard key={request} {...{ view, m, report, ready, refresh }} />);
+      panel.render(<Dashboard key={request} {...{ view, m, report, industry: comparison?.industry, ready, refresh, onCreate }} />);
   } catch (e) {
     if (request === sequence) panel.render(<p role="alert">{e.message}</p>);
   }

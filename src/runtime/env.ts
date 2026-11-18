@@ -12,6 +12,7 @@ export type ModelCredentials = Partial<
 >;
 
 export interface Env extends ModelCredentials {
+  BRAVE_SEARCH_API_KEY?: string;
   SLACK_BOT_TOKEN?: string;
   SLACK_SIGNING_SECRET?: string;
   SLACK_CHANNEL_ID?: string;

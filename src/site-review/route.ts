@@ -1,3 +1,5 @@
+import { fillIndustry, saveIndustry } from "./industry-store.ts";
+import { compareIndustry } from "./industry.ts";
 import { checkExamples } from "./claims.ts";
 import { expandAdvice } from "./expand.ts";
 import { json } from "../runtime/response.ts";
@@ -17,7 +19,8 @@ export async function siteReview(req: Request, env: Env) {
   if (req.method !== "POST") return json({ error: "请求方法无效" }, 405);
   let url;
   try {
-    const body = await req.json<{ url?: unknown; expandAt?: number }>();
+    const body = await req.json<{ url?: unknown; expandAt?: number; industryAt?: number }>();
+    if (Number.isSafeInteger(body.industryAt)) return fillIndustry(env, body.industryAt!);
     if (Number.isSafeInteger(body.expandAt)) return expandAdvice(env, body.expandAt!);
     url = websiteURL(body.url);
   } catch {
@@ -53,10 +56,18 @@ export async function siteReview(req: Request, env: Env) {
     if (!created.ok) return json({ error: "品牌已识别，监测项创建失败，请重新提交网址" }, 503);
     monitor = await created.json<Monitor>();
   }
-  const report = { ...review, modules: checkExamples(review.modules), monitor, url: snapshot.url, title: snapshot.title,
+  const modules = review.modules.map(({name, evidence, source}) => {
+    const section = source === "原文" && snapshot.sections?.find(s => s.heading === evidence);
+    return { name, evidence: section ? section.heading + "\n" + section.body.slice(0, 900) : evidence };
+  });
+  const industry = await compareIndustry(review.identity, modules, snapshot.url,
+    env.DASHSCOPE_API_KEY, env.BRAVE_SEARCH_API_KEY);
+  const report = { ...review, industry, modules: checkExamples(review.modules), monitor, url: snapshot.url, title: snapshot.title,
     screenshot: snapshot.screenshot, at: Date.now() };
-  await env.DB.prepare(`INSERT INTO latest_site_review (id,started,report) VALUES (1,?1,?2)
+  const latest = env.DB.prepare(`INSERT INTO latest_site_review (id,started,report) VALUES (1,?1,?2)
     ON CONFLICT (id) DO UPDATE SET started=excluded.started,report=excluded.report
-    WHERE excluded.started >= latest_site_review.started`).bind(started, JSON.stringify(report)).run();
+    WHERE excluded.started >= latest_site_review.started`).bind(started, JSON.stringify(report));
+  const byDomain = saveIndustry(env.DB, snapshot.url, started, report.at, industry);
+  await env.DB.batch([latest, byDomain]);
   return json({ report });
 }

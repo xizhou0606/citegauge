@@ -5,6 +5,7 @@ BETTER_AUTH_SECRET=
 # DEEPSEEK_MODEL=deepseek-flash
 # ARK_API_KEY=
 # ARK_MODEL=your-enabled-model-or-endpoint
+# BRAVE_SEARCH_API_KEY=
 # DASHSCOPE_API_KEY=
 # DASHSCOPE_MODEL=qwen-plus
 # MOONSHOT_API_KEY=

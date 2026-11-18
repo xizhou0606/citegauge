@@ -37,6 +37,11 @@ export async function readWorkspace(
       ),
     });
   }
+  if (path.startsWith("/api/industry/")) {
+    const row = await db.binding.prepare(`SELECT i.report FROM monitors m JOIN industry_reviews i
+      ON i.domain = lower(m.config->>'domain') WHERE m.id=?1`).bind(id!).first<{report: string}>();
+    return json({ industry: row ? JSON.parse(row.report) : null });
+  }
   if (path.startsWith("/api/initial-sample/")) {
     const row = await db.binding.prepare("SELECT state FROM runs WHERE id=?1")
       .bind("initial-" + id).first<{ state: string }>();

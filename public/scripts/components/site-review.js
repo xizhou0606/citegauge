@@ -16,6 +16,10 @@ export function bindWebsiteReview(actions) {
         report,
         actions,
         onAnalyze: openWebsiteEntry,
+        onIndustry: async () => {
+          const result = await api("site-review", { industryAt: report.at });
+          if (activeReport === report) renderReport(result.report);
+        },
         onExpand: async () => {
           const expanded = await api("site-review", { expandAt: report.at });
           if (activeReport === report) renderReport(expanded.report);
@@ -37,7 +41,7 @@ export function bindWebsiteReview(actions) {
     field.readOnly = true;
     form.setAttribute("aria-busy", "true");
 
-    status.textContent = "正在抓取官网、识别品牌并分析页面模块…";
+    status.textContent = "正在抓取官网、识别品牌，并对照行业竞品分析页面模块…";
     try {
       const { report } = await api("site-review", { url });
       renderReport(report);
@@ -75,9 +79,10 @@ export function bindWebsiteReview(actions) {
     });
 }
 
-export function openWebsiteEntry() {
+export function openWebsiteEntry(domain) {
   $("website-entry").hidden = false;
   const field = $("website-url");
+  if (typeof domain === "string") field.value = domain;
   field.focus();
   field.select();
 }

@@ -1,8 +1,9 @@
+import { Industry } from "./industry.jsx";
 import { useRef, useState } from "react";
 import { Tabs } from "radix-ui";
 import { ArrowUpRight, BookOpen, CodeXml, Download, Expand, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { SmallButton } from "./controls.jsx";
+import { SmallButton, AsyncButton } from "./controls.jsx";
 import { ModuleAdvice } from "./module-advice.jsx";
 import { Monitor } from "./review-monitor.jsx";
 import { ReviewPrompt } from "./review-prompt.jsx";
@@ -29,7 +30,7 @@ function Screenshot({ report }) {
     </Dialog>
   );
 }
-export function SiteReport({ report, actions, onAnalyze, onExpand }) {
+export function SiteReport({ report, actions, onAnalyze, onExpand, onIndustry }) {
   const [view, setView] = useState("report"),
     [scope, setScope] = useState("all");
   const [expanding, setExpanding] = useState(false);
@@ -98,6 +99,10 @@ export function SiteReport({ report, actions, onAnalyze, onExpand }) {
             </div>
             <Screenshot report={report} />
           </section>
+          <Industry industry={report.industry} />
+          {report.identity && !report.industry?.rows.length && (
+            <AsyncButton run={onIndustry}>为此报告生成行业对比</AsyncButton>
+          )}
           <div className="reader-columns">
             <div className="reader-body">
               <h2>

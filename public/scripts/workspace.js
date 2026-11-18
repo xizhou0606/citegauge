@@ -24,10 +24,10 @@ function showView() {
   }
   return view;
 }
-function create() {
+function create(domain) {
   location.hash = "website";
   showView();
-  openWebsiteEntry();
+  openWebsiteEntry(domain);
 }
 async function select(p, c, id) {
   platform = p;
@@ -63,7 +63,7 @@ async function refreshView() {
     catalog.monitors.find((m) => m.id === active),
     catalog.ready[channel],
     () => load(active),
-    () => create(),
+    create,
   );
 }
 async function load(id) {

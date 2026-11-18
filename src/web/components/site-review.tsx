@@ -29,7 +29,7 @@ export function WebsitePanel() {
       <div id="website-entry">
         <h1 id="website-title">官网形象分析</h1>
         <p className="text-muted-foreground my-3">
-          输入官网网址，查看品牌形象、页面改进建议和 AI 修改提示词。
+          输入官网网址，查看行业竞品、与同行的差距和逐项修改建议。
         </p>
         <form id="website-form">
           <WebsiteInput />

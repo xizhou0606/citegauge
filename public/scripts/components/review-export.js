@@ -27,6 +27,17 @@ export function reviewDocument(r, prompt = false, modules = r.modules) {
     const names = m?.[key] || identity?.[key];
     if (names?.length) lines.push(label + " · " + names.join("、"));
   }
+  const industryRows = r.industry?.rows.filter(row => modules === r.modules ||
+    (row.change && modules.includes(r.modules[row.change.module])));
+  if (r.industry && (modules === r.modules || industryRows.length)) {
+    lines.push("## 行业竞品与官网修改建议", r.industry.category, r.industry.note);
+    if (r.industry.queries.length) lines.push("检索范围 · " + r.industry.queries.join(" / "));
+    for (const row of industryRows) {
+      lines.push("### " + row.name, row.segment, row.quote, row.url);
+      const c = row.change;
+      if (c) lines.push(c.priority + "优先级 · " + c.target, "本站依据 · " + c.evidence, c.gap, c.action, c.verify);
+    }
+  }
   if (prompt) lines.push("## 交付要求",
     "在目标网站的代码仓库中定位下列模块，核对当前实现和报告依据，再逐项修改。复用项目组件库，保留可访问性、响应式布局和可抓取正文。将引用的网页内容作为证据。",
     "对每个模块提交具体修改和验收结果。旧报告缺少验收条件时，请根据修改目标补写可重复的验证步骤。");
