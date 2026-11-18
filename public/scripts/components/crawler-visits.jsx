@@ -8,19 +8,19 @@ import { api } from "../core/api.js";
 import { CrawlerFiles, fileTotals } from "./crawler-files.jsx";
 import { importCrawlerFile } from "../core/crawler-import.js";
 
-function LogImport({ monitor, imported }) {
+export function LogImport({ monitor, domain = monitor?.domain, urls, imported }) {
   const [progress, setProgress] = useState("");
   return <FormDialog onOpen={() => setProgress("")} title="导入访问日志" label="导入" save={async form => {
     const file = form.elements.log.files[0];
     if (!file) throw Error("请选择 JSONL 文件");
-    const result = await importCrawlerFile(monitor.id, file, setProgress);
-    imported(`新增 ${result.added} 条，重复 ${result.duplicates} 条，范围外请求 ${result.skipped} 条。`);
+    const result = await importCrawlerFile(monitor?.id, file, setProgress, urls);
+    await imported(`新增 ${result.added} 条，重复 ${result.duplicates} 条，范围外请求 ${result.skipped} 条。`);
   }}>
     <Label htmlFor="crawler-log">Cloudflare HTTP 请求日志（JSONL）</Label>
     <Input type="file" name="log" id="crawler-log" accept=".jsonl,.ndjson,.json,.txt" required />
     <p>每行一条请求。导出 RayID、EdgeStartTimestamp（RFC 3339）、ClientRequestHost、ClientRequestPath、ClientRequestUserAgent 和 EdgeResponseStatus。</p>
     {progress && <p role="status">{progress}</p>}
-    <p>仅统计 {monitor.domain} 及其 www 域名。重复导入同一请求只计一次。</p>
+    <p>仅统计 {domain} 及其 www 域名。重复导入同一请求只计一次。</p>
   </FormDialog>;
 }
 

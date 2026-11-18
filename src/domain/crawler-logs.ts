@@ -1,7 +1,7 @@
 const crawlers = ["GPTBot", "OAI-SearchBot", "ClaudeBot", "Claude-SearchBot", "PerplexityBot", "Bytespider"];
 const signature = new RegExp("(?:^|[\\s(;])(" + crawlers.join("|") + ")(?=/|[\\s;)]|$)", "i");
 
-function parseVisit(line: string, domain: string) {
+function parseVisit(line: string, domain: string, paths?: ReadonlySet<string>) {
   const row = JSON.parse(line);
   const { ClientRequestHost: host } = row;
   const agent = row.ClientRequestUserAgent ?? "";
@@ -18,11 +18,11 @@ function parseVisit(line: string, domain: string) {
     ? Date.parse(stamp) : NaN;
   if (typeof id !== "string" || !/^[\da-f]{16}$/i.test(id) || !Number.isFinite(at) ||
       !Number.isInteger(status) || status < 0 || status > 599 || agent.length > 4096) throw Error();
-  if (!bot && !/\.(?:xml(?:\.gz)?|txt)$/i.test(path)) return { at, visit: null };
+  if (!bot && !paths?.has(path) && !/\.(?:xml(?:\.gz)?|txt)$/i.test(path)) return { at, visit: null };
   return { at, visit: { id: id.toLowerCase(), at, bot: bot ?? "", host: host.toLowerCase(), path, status, agent } };
 }
 
-export function parseCrawlerLogs(input: unknown, domain: string) {
+export function parseCrawlerLogs(input: unknown, domain: string, paths?: ReadonlySet<string>) {
   if (typeof input !== "string" || !input.trim()) throw Error("请选择包含访问记录的 JSONL 文件");
   const visits = [];
   const days = new Map<number, { day: number; first: number; last: number }>();
@@ -31,7 +31,7 @@ export function parseCrawlerLogs(input: unknown, domain: string) {
   for (const [i, line] of lines.entries()) {
     if (!line.trim()) continue;
     try {
-      const event = parseVisit(line, domain);
+      const event = parseVisit(line, domain, paths);
       if (event) {
         const day = Math.floor(event.at / 86400000);
         const coverage = days.get(day);

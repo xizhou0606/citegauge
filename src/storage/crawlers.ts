@@ -2,10 +2,10 @@ import { parseCrawlerLogs } from "../domain/crawler-logs.ts";
 import { json } from "../runtime/response.ts";
 import type { Database } from "./d1.ts";
 
-export async function importCrawlerLogs(db: Database, domain: string, input: unknown) {
+export async function importCrawlerLogs(db: Database, domain: string, input: unknown, paths?: ReadonlySet<string>) {
   let parsed;
   try {
-    parsed = parseCrawlerLogs(input, domain);
+    parsed = parseCrawlerLogs(input, domain, paths);
   } catch (e) {
     return json({ error: (e as Error).message }, 400);
   }

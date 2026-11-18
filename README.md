@@ -82,7 +82,9 @@ npx wrangler deploy --dry-run
 
 ### AI 爬虫访问统计
 
-登录工作台，打开「AI 爬虫」，选择官网域名，在「导入访问日志」中上传 Cloudflare HTTP 请求日志。使用 JSONL 格式（每行一个对象），时间格式选 RFC 3339。大文件会按整行分批上传，中断后可重新导入。以下为字段示例，时间应取自实际请求。
+在工作台「AI 爬虫」输入任意公开官网 URL，可直接查询，无需创建监测项。系统读取该来源根目录的 robots.txt，提取 Sitemap 声明并检查前五个地址；缺少声明时尝试 /sitemap.xml。也可指定一个绝对或相对 Sitemap 地址。每个结果展示本次请求的 HTTP 状态、跳转地址和近 30 天日志中的历史请求数。历史统计匹配请求主机和路径，同路径的查询参数合并，展示的合计只覆盖本次列出的资源。没有日志时显示未知。可在结果下为对应域名导入访问日志。
+
+在「导入访问日志」中上传 Cloudflare HTTP 请求日志。使用 JSONL 格式（每行一个对象），时间格式选 RFC 3339。大文件会按整行分批上传，中断后可重新导入。以下为字段示例，时间应取自实际请求。
 
 ```json
 {"RayID":"1234567890abcdef","EdgeStartTimestamp":"2026-11-01T08:30:00Z","ClientRequestHost":"www.example.com","ClientRequestPath":"/products","ClientRequestUserAgent":"GPTBot/1.3","EdgeResponseStatus":200}

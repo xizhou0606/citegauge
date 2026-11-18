@@ -23,11 +23,12 @@ async function* fileLines(file) {
   }
 }
 
-export async function importCrawlerFile(monitor, file, progress) {
+export async function importCrawlerFile(monitor, file, progress, urls) {
   const totals = { added: 0, skipped: 0, duplicates: 0 };
   let lines = [], bytes = 0, completed = 0;
   async function flush() {
-    const result = await api("crawler-logs", { monitor, log: lines.join("\n") });
+    const log = lines.join("\n");
+    const result = urls ? await api("crawler-resource-logs", { urls, log }) : await api("crawler-logs", { monitor, log });
     for (const field of Object.keys(totals)) totals[field] += result[field];
     completed += lines.length;
     progress(`已处理 ${completed} 条日志…`);
