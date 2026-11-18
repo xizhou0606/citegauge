@@ -35,6 +35,11 @@ export async function readWorkspace(
       ),
     });
   }
+  if (path.startsWith("/api/initial-sample/")) {
+    const row = await db.binding.prepare("SELECT state FROM runs WHERE id=?1")
+      .bind("initial-" + id).first<{ state: string }>();
+    return json({ state: row?.state || "queued" });
+  }
   if (path.startsWith("/api/report/") || path.startsWith("/api/history/")) {
     const { rows } = await db.query("SELECT config FROM monitors WHERE id=?1", [
       id,

@@ -14,7 +14,7 @@ CiteGauge is an MIT-licensed, self-hosted GEO monitor for Chinese and internatio
 | 通义千问、Kimi API | 中国大陆官方文本接口 | 正文、模型及原始响应 |
 | OpenAI、Claude、Gemini、Perplexity API | 官方 API 与厂商内置联网工具 | 正文、模型、原始响应及可判定的正文引用 |
 
-创建 API 监测项时可以选择模型。手动和每日采样使用保存的模型 ID。旧监测项如果没有模型 ID，会继续使用部署配置的默认值。
+在首页或工作台输入官网网址，Cloudflare Browser Run 抓取首屏和正文，千问识别品牌、分析页面模块并生成监测问题。系统按官网域名创建通义千问监测项并自动采样一次，识别不到品牌时保存官网报告。重复分析同一域名会复用监测项。官网分析和新建项使用 qwen3.7-flash，后续可在监测结果里开启每日采样。
 
 工作台支持导出当前监测项的 JSON 报告，包含统计时间窗、每日趋势、竞品和引用来源。首页展示演示数据。
 

@@ -5,7 +5,7 @@ export const websiteInput = `<label class="form-label" for="website-url">官网�
 
 export const websitePanel = `<section id="website-panel" aria-labelledby="website-title">
   <h1 id="website-title">官网形象分析</h1>
-  <p class="text-secondary">输入公开页面的网址，千问会结合桌面首屏截图和页面正文逐模块给出修改建议。工作台保存最近一份成功报告。</p>
+  <p class="text-secondary">输入官网网址，AI 会从首屏和正文识别品牌，按模块给出修改建议，并自动创建监测问题、发起首次采样。</p>
   <form id="website-form">${websiteInput}</form>
   <p id="website-status" role="status" aria-live="polite"></p>
   <div id="website-result"></div>

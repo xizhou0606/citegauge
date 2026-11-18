@@ -1,6 +1,7 @@
 import { json } from "../runtime/response.ts";
 import type { Env } from "../runtime/env.ts";
 import { capture, websiteURL } from "./capture.ts";
+import type { Monitor } from "../domain/monitor.ts";
 import { analyze } from "./analyze.ts";
 
 export async function siteReview(req: Request, env: Env) {
@@ -34,7 +35,16 @@ export async function siteReview(req: Request, env: Env) {
     return json({ error: message.startsWith("页面内容") || message.startsWith("未取得")
       ? message : "已取得官网截图，但千问未返回可用报告，请重试或检查模型额度" }, 502);
   }
-  const report = { ...review, url: snapshot.url, title: snapshot.title,
+  let monitor: Monitor | null = null;
+  if (review.identity) {
+    const workspace = env.WORKSPACE.get(env.WORKSPACE.idFromName("owner-v1"));
+    const created = await workspace.fetch("https://workspace/internal/site-monitor", {
+      method: "POST", body: JSON.stringify({ url: snapshot.url, identity: review.identity }),
+    });
+    if (!created.ok) return json({ error: "品牌已识别，监测项创建失败，请重新提交网址" }, 503);
+    monitor = await created.json<Monitor>();
+  }
+  const report = { ...review, monitor, url: snapshot.url, title: snapshot.title,
     screenshot: snapshot.screenshot, at: Date.now() };
   await env.DB.prepare(`INSERT INTO latest_site_review (id,started,report) VALUES (1,?1,?2)
     ON CONFLICT (id) DO UPDATE SET started=excluded.started,report=excluded.report

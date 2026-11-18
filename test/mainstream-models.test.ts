@@ -155,3 +155,19 @@ test("API 返回候选或缺少对应段落时保留不可观测状态", () => {
     null,
   );
 });
+
+
+test("千问首次采样使用低价模型并关闭思考，保留原始回答", async (t) => {
+  const catalog = modelCatalog(env);
+  const monitor = monitorFrom({ ...input, channel: "通义千问 API" }, catalog);
+  t.mock.method(globalThis, "fetch", async (_url, init) => {
+    const body = JSON.parse(init.body);
+    assert.equal(body.model, "qwen3.7-flash");
+    assert.equal(body.enable_thinking, false);
+    return Response.json(chat);
+  });
+  const evidence = await collect(env, monitor);
+  assert.equal(evidence.answer, "答复");
+  assert.equal(evidence.urls, null);
+  assert.deepEqual(JSON.parse(evidence.raw), chat);
+});
