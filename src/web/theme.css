@@ -1,0 +1,29 @@
+@import "tailwindcss" source(none);
+@source "../components";
+@source "./";
+@source "../../public/scripts";
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--foreground);
+  --color-muted: var(--secondary);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--secondary);
+  --color-accent-foreground: var(--foreground);
+  --color-destructive: #b32625;
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--ring);
+  --radius-md: calc(var(--radius) - 5px);
+  --radius-lg: var(--radius);
+}
+@layer base {
+  * { @apply border-border; }
+  button, summary, select { cursor: pointer; }
+  button:disabled { cursor: default; }
+}

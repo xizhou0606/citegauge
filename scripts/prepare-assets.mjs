@@ -1,18 +1,21 @@
-import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, rm } from "node:fs/promises";
 
+import { build } from "esbuild";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { platforms } from "../src/domain/platforms.ts";
 
 const output = new URL("../public/vendor/", import.meta.url);
 const modules = new URL("../node_modules/", import.meta.url);
+// This directory contains only generated assets. Remove files from earlier builds.
+await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 for (const [from, to] of [
-  ["bootstrap/dist/css/bootstrap.min.css", "bootstrap.css"],
-  ["bootstrap/dist/js/bootstrap.bundle.min.js", "bootstrap.js"],
-  ["markdown-it/dist/browser/markdown-it.esm.min.mjs", "markdown-it.js"],
+  ["lucide-react/LICENSE", "lucide-LICENSE.txt"],
+  ["react/LICENSE", "react-LICENSE.txt"],
+  ["radix-ui/LICENSE", "radix-LICENSE.txt"],
   ["markdown-it/LICENSE", "markdown-it-LICENSE.txt"],
   ["chart.js/dist/chart.umd.min.js", "chart.js"],
-  ["bootstrap/LICENSE", "bootstrap-LICENSE.txt"],
-  ["bootstrap-icons/LICENSE", "icons-LICENSE.txt"],
   ["chart.js/LICENSE.md", "chart-LICENSE.txt"],
 ]) {
   await copyFile(new URL(from, modules), new URL(to, output));
@@ -26,47 +29,25 @@ for (const id of [...platforms.map((platform) => platform.id), "volcengine"]) {
     new URL(id + ".svg", brands),
   );
 }
-const icons = [
-  "soundwave",
-  "grid",
-  "globe2",
-  "cpu",
-  "github",
-  "book",
-  "box-arrow-right",
-  "plus-lg",
-  "activity",
-  "bar-chart",
-  "link-45deg",
-  "check2-circle",
-  "exclamation-circle",
-  "folder2-open",
-  "arrow-up-right",
-  "arrow-right",
-  "box-arrow-in-right",
-  "file-earmark-text",
-  "layers",
-  "calendar3",
-  "diagram-3",
-  "cloud",
-  "circle-half",
-];
-const symbols = await Promise.all(
-  icons.map(async (name) => {
-    const svg = await readFile(
-      new URL("bootstrap-icons/icons/" + name + ".svg", modules),
-      "utf8",
-    );
-    return (
-      '<symbol id="' +
-      name +
-      '" viewBox="0 0 16 16">' +
-      svg.slice(svg.indexOf(">") + 1, svg.lastIndexOf("</svg>")) +
-      "</symbol>"
-    );
-  }),
-);
-await writeFile(
-  new URL("icons.svg", output),
-  '<svg xmlns="http://www.w3.org/2000/svg">' + symbols.join("") + "</svg>",
+
+await build({
+  entryPoints: ["public/scripts/workspace.js"],
+  outfile: fileURLToPath(new URL("workspace.js", output)),
+  bundle: true,
+  format: "esm",
+  minify: true,
+  legalComments: "linked",
+  define: { "process.env.NODE_ENV": '"production"' },
+});
+execFileSync(
+  process.execPath,
+  [
+    fileURLToPath(new URL("@tailwindcss/cli/dist/index.mjs", modules)),
+    "-i",
+    "src/web/theme.css",
+    "-o",
+    fileURLToPath(new URL("ui.css", output)),
+    "--minify",
+  ],
+  { stdio: "inherit" },
 );
