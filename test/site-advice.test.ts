@@ -30,3 +30,11 @@ test("旧报告细化请求不能替换另一份报告，已生成的建议可�
     assert.deepEqual((await (await expandAdvice({DB:f.binding},123)).json()).report,report);
   } finally {await f.close();}
 });
+test("栏目分析必须覆盖输入的每一栏，按页面顺序回填真实标题", async () => {
+  const {sectionResults} = await import("../src/site-review/section-advice.ts");
+  const sections = [{heading:"简历评审",body:"简历正文"}, {heading:"人工面试",body:"面试流程"}];
+  const item = {name:"示例",strength:"优势",weakness:"不足",impact:"影响",actions};
+  assert.throws(() => sectionResults(sections,{modules:[{index:1,...item}]}));
+  const modules = sectionResults(sections,{modules:[{index:1,...item},{index:0,...item}]});
+  assert.deepEqual(modules.map(m => m.evidence),["简历评审","人工面试"]);
+});

@@ -1,3 +1,4 @@
+import { sectionAdvice } from "./section-advice.ts";
 import { pagePassages } from "./passages.ts";
 import { actionsSchema, adviceInstructions } from "./advice.ts";
 import { qwen, qwenModel, qwenOptions } from "../collectors/ai/qwen.ts";
@@ -58,8 +59,9 @@ export function readReview(text: string, markdown: string, title = "") {
 }
 
 async function draft(snapshot: Snapshot, key: string, compact: boolean) {
+  const scope = (snapshot.sections?.length || 0) >= 2 ? "\n已有独立的栏目分析。你的 modules 只包含首页首屏整体定位一项，以截图为证据；其余栏目由另一流程分别分析。" : "";
   const { text } = await generateText({
-    model: qwen(key).chatModel(qwenModel), system: instructions + (compact ? "\n请紧凑重写为完整合法的 JSON。每项只写两到三条不同操作，每个字段只写一句，优先覆盖不同模块。字符串内避免使用双引号。" : ""), output: Output.json(),
+    model: qwen(key).chatModel(qwenModel), system: instructions + scope + (compact ? "\n请紧凑重写为完整合法的 JSON。每项只写两到三条不同操作，每个字段只写一句，优先覆盖不同模块。字符串内避免使用双引号。" : ""), output: Output.json(),
     messages: [{ role: "user", content: [
       { type: "file", data: snapshot.screenshot, mediaType: "image/jpeg" },
       { type: "text", text: JSON.stringify({ url: snapshot.url, title: snapshot.title, passages: pagePassages(snapshot.markdown).map((text,i) => ({id:i+1,text})) }) },
@@ -70,7 +72,7 @@ async function draft(snapshot: Snapshot, key: string, compact: boolean) {
   return readReview(text, snapshot.markdown, snapshot.title);
 }
 
-export async function analyze(snapshot: Snapshot, key: string) {
+async function overview(snapshot: Snapshot, key: string) {
   try {
     return await draft(snapshot, key, false);
   } catch (e) {
@@ -80,4 +82,11 @@ export async function analyze(snapshot: Snapshot, key: string) {
     }
     throw e;
   }
+}
+
+export async function analyze(snapshot: Snapshot, key: string) {
+  const sections = snapshot.sections || [];
+  if (sections.length < 2) return overview(snapshot, key);
+  const [summary, details] = await Promise.all([overview(snapshot, key), sectionAdvice(sections, key)]);
+  return { ...summary, modules: [summary.modules[0], ...details] };
 }

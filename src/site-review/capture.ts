@@ -1,3 +1,4 @@
+import { renderedSections, type Section } from "./sections.ts";
 import { httpURL } from "../domain/url.ts";
 
 export function websiteURL(value: unknown) {
@@ -18,11 +19,12 @@ export interface Snapshot {
   title: string;
   screenshot: string;
   markdown: string;
+  sections?: Section[];
 }
 
 export async function capture(browser: BrowserRun, url: string): Promise<Snapshot> {
   const response = await browser.quickAction("snapshot", {
-    url, formats: ["screenshot", "markdown"],
+    url, formats: ["screenshot", "markdown", "content"],
     viewport: { width: 1280, height: 960, deviceScaleFactor: 1 },
     screenshotOptions: { type: "jpeg", quality: 72 },
     gotoOptions: { waitUntil: "load", timeout: 25000 },
@@ -44,6 +46,7 @@ export async function capture(browser: BrowserRun, url: string): Promise<Snapsho
     throw Error("未取得可用的官网首屏截图，请重试");
   return {
     url: websiteURL(data.meta?.finalUrl || url), title: (data.meta?.title || "").slice(0, 220),
+    sections: data.result.content ? await renderedSections(data.result.content) : [],
     screenshot: image, markdown: markdown.slice(0, 16000),
   };
 }
