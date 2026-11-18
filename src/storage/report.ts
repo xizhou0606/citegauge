@@ -6,6 +6,8 @@ const cohort = "monitor=?1 AND at BETWEEN ?2 AND ?3";
 const mentioned = "json_array_length(detail->'matched')>0";
 const cited = "detail->>'cited'";
 const recommended = "json_extract(detail,'$.review.recommended')";
+const competitorGap = "state='ok' AND json_array_length(detail->'rivals')>0 AND json_array_length(detail->'matched')=0";
+const noOfficialCitation = "state='ok' AND (" + cited + ")=0";
 const count = (condition: string) =>
   `count(*) FILTER (WHERE ${condition})`;
 const counts = `
@@ -35,18 +37,18 @@ export async function daily(db: Database, id: string, start: number, end: number
 export async function report(db: Database, monitor: Monitor, end: number) {
   const args = period(monitor.id, end);
   const start = Number(args[1]);
-  const groups = async (field: "rivals" | "urls") =>
+  const groups = async (field: "rivals" | "urls", condition = "state='ok'") =>
     (
       await db.query(
         `SELECT j.value AS name, count(DISTINCT runs.id) AS hits
     FROM runs, json_each(runs.detail,'$.${field}') AS j
-    WHERE ${cohort} AND state='ok' AND j.type='text'
+    WHERE ${cohort} AND ${condition} AND j.type='text'
     GROUP BY j.value ORDER BY hits DESC,j.value ${field === "urls" ? "LIMIT 20" : ""}`,
         args,
       )
     ).rows;
   const summary = (
-    await db.query(`SELECT ${counts} FROM runs WHERE ${cohort}`, args)
+    await db.query(`SELECT ${counts}, ${count(competitorGap)} AS competitorGaps FROM runs WHERE ${cohort}`, args)
   ).rows[0];
   const days = await daily(db, monitor.id, start, end);
   const rivals = new Map((await groups("rivals")).map((r) => [r.name, r.hits]));
@@ -60,6 +62,7 @@ export async function report(db: Database, monitor: Monitor, end: number) {
       hits: rivals.get(name) ?? 0,
     })),
     sources: await groups("urls"),
+    gapSources: await groups("urls", noOfficialCitation),
   };
 }
 export async function history(db: Database, id: string, params: URLSearchParams) {
@@ -72,19 +75,23 @@ export async function history(db: Database, id: string, params: URLSearchParams)
     offset < 0
   )
     throw Error("时间窗或页码无效");
+  const sourceMatch = "EXISTS(SELECT 1 FROM json_each(detail,'$.urls') WHERE value=?5)";
   const predicates: Record<string, string> = {
     all: "TRUE",
+    unreviewed: "state='ok' AND " + recommended + " IS NULL",
+    competitorGap,
+    gapSource: noOfficialCitation + " AND " + sourceMatch,
     mentions: "state='ok' AND " + mentioned,
     citations: "state='ok' AND (" + cited + ")",
     recommended: "state='ok' AND (" + recommended + ")",
     failed: "state='failed'",
     rival: "state='ok' AND EXISTS(SELECT 1 FROM json_each(detail,'$.rivals') WHERE value=?5)",
-    source: "state='ok' AND EXISTS(SELECT 1 FROM json_each(detail,'$.urls') WHERE value=?5)",
+    source: "state='ok' AND " + sourceMatch,
   };
   const filter = params.get("filter") || "all";
   if (!Object.hasOwn(predicates, filter)) throw Error("筛选项无效");
   const args = [...period(id, end), offset];
-  if (filter === "rival" || filter === "source")
+  if (["rival", "source", "gapSource"].includes(filter))
     args.push(params.get("value") || "");
   const fields = params.get("format") === "markdown"
     ? "id,at,state,json_object('answer',detail->>'answer','page',detail->>'page','urls',detail->'urls','review',detail->'review') AS detail"

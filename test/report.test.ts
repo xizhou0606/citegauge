@@ -75,6 +75,21 @@ test("同一 UTC 窗口统计和下钻覆盖全部样本，包括被其他项目
         30,
       );
     }
+    const external = "https://elsewhere.example/page";
+    const row = { matched: [], cited: false, urls: [external, external], rivals: ["C"] };
+    await add("gap", m.id, end, "ok", row);
+    await add("alsoCited", m.id, end, "ok", { ...row, matched: [m.brand],
+      cited: true, urls: [external, "https://example.com"], review: { recommended: false } });
+    const updated = await report(sql, m, end);
+    assert.equal(updated.summary.competitorGaps, 1);
+    assert.deepEqual(updated.gapSources, [{ name: external, hits: 1 }]);
+    for (const [filter, expected] of Object.entries({
+      competitorGap: ["gap"], gapSource: ["gap"], unreviewed: ["gap", "unknown"],
+    })) {
+      const params = new URLSearchParams({ end: String(end), filter, value: external });
+      const result = await history(sql, m.id, params);
+      assert.deepEqual(result.rows.map(r => r.id).sort(), expected);
+    }
   } finally {
     await f.close();
   }
