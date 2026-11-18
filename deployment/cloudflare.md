@@ -28,3 +28,5 @@
 | Claude | ANTHROPIC_API_KEY | ANTHROPIC_MODEL |
 | Gemini | GOOGLE_GENERATIVE_AI_API_KEY | GOOGLE_GENERATIVE_AI_MODEL |
 | Perplexity | PERPLEXITY_API_KEY | PERPLEXITY_MODEL |
+
+官网形象分析使用 Wrangler 的 BROWSER 绑定抓取公开页面的桌面首屏和正文，并用 DASHSCOPE_API_KEY 调用北京地域的 qwen3-vl-plus。上线前应用 0003_site_review.sql 迁移。工作台只保留最近一份成功报告和对应截图。

@@ -1,3 +1,4 @@
+import { websitePanel } from "./site-review.ts";
 export const repo = "https://github.com/xizhou0606/citegauge";
 export const icon = (name: string) =>
   `<svg class="bi" aria-hidden="true"><use href="/vendor/icons.svg#${name}"></use></svg>`;
@@ -17,11 +18,15 @@ export const workspaceShell = `
     </div>
   </aside>
   <main class="console-main">
-    <header class="topbar"><div>工作台 <span>/</span> <strong id="crumb">监测概览</strong></div>
+    <header class="topbar"><div>工作台 <span>/</span> <strong id="crumb">官网分析</strong></div>
       <div id="tools" hidden>
       <button id="add" class="btn btn-primary btn-sm">${icon("plus-lg")}新建监测项</button></div>
     </header>
     <div class="content">
+      <nav class="workspace-views" aria-label="工作台视图">
+        <a href="#website" aria-current="page">官网分析</a><a href="#monitoring">模型监测</a>
+      </nav>
+      ${websitePanel}
       <p id="status" role="status" aria-live="polite"></p>
       <div id="app" hidden><div id="scope"></div><div id="panel"></div></div>
     </div>

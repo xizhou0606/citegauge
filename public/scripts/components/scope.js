@@ -28,7 +28,6 @@ export function scopeSection({
   onChannel,
   onMonitor,
 }) {
-  $("crumb").textContent = platform.name;
   const items = monitors.filter((m) => m.channel === channel);
   const label = (m) => [m.brand, m.model, m.question].filter(Boolean).join(" · ");
   const frequencies = new Map();

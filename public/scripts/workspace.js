@@ -1,3 +1,4 @@
+import { bindWebsiteReview } from "./components/site-review.js";
 import { $, action, status } from "./core/ui.js";
 import { api, requestJSON } from "./core/api.js";
 import { platformNav, scopeSection } from "./components/scope.js";
@@ -5,6 +6,17 @@ import { renderDashboard } from "./components/dashboard.js";
 import { newMonitor } from "./components/monitor-form.js";
 
 let catalog, platform, channel, active;
+function showView() {
+  const monitoring = location.hash === "#monitoring";
+  $("website-panel").hidden = monitoring;
+  $("app").hidden = !monitoring || !catalog;
+  $("tools").hidden = !monitoring || !catalog;
+  $("crumb").textContent = monitoring ? platform?.name || "模型监测" : "官网分析";
+  for (const link of document.querySelectorAll(".workspace-views a")) {
+    if (link.hash === (monitoring ? "#monitoring" : "#website")) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  }
+}
 function create() {
   newMonitor({ platforms: catalog.platforms, models: catalog.models, channel, onSave: load });
 }
@@ -19,6 +31,7 @@ async function select(p, c, id) {
     JSON.stringify({ platform: p.id, channel, id: active }),
   );
   platformNav(catalog.platforms, catalog.monitors, p, (platformId) => {
+    location.hash = "monitoring";
     const next = catalog.platforms.find((x) => x.id === platformId);
     const available = catalog.monitors.find((m) =>
       next.channels.includes(m.channel),
@@ -36,6 +49,7 @@ async function select(p, c, id) {
     onMonitor: (id) =>
       select(platform, channel, id).catch((e) => status(e.message)),
   });
+  showView();
   await renderDashboard(
     monitor,
     catalog.ready[channel],
@@ -45,7 +59,7 @@ async function select(p, c, id) {
 }
 async function load(id) {
   catalog = await api("state?catalog=1");
-  for (const el of ["app", "tools", "lock"]) $(el).hidden = false;
+  $("lock").hidden = false;
   let previous = {};
   try {
     previous = JSON.parse(sessionStorage.getItem("cg-selection")) || {};
@@ -72,7 +86,9 @@ window.addEventListener("session-expired", () => {
   location.replace("/login");
 });
 $("add").onclick = () => create();
-sessionStorage.removeItem("cg-token");
+window.addEventListener("hashchange", showView);
+showView();
+bindWebsiteReview();
 load().catch((error) => status(error.message));
 window.addEventListener("pageshow", (e) => {
   if (e.persisted) location.reload();

@@ -57,6 +57,7 @@ export function page(path: string, origin: string) {
         : '<script type="application/ld+json">' +
           JSON.stringify(schema) +
           "</script>") +
+    (path === "/" ? '<script type="module" src="/scripts/site-entry.js"></script>' : "") +
     "</head><body>" +
     (workspace ? "" : publicHeader(login)) +
     (login
