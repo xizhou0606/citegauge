@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { WorkspaceSelect } from "./workspace-select.jsx";
 
 function Logo({ id }) {
   return (
@@ -44,13 +44,12 @@ export function Scope({
       <div className="scope-filters">
         <div className="monitor-picker">
           <Label htmlFor="platform-picker">平台</Label>
-          <NativeSelect id="platform-picker" value={platform.id} onChange={(e) => onPlatform(e.target.value)}>
-            {platforms.map((p) => (
-              <NativeSelectOption key={p.id} value={p.id}>
-                {p.name}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
+          <WorkspaceSelect
+            id="platform-picker"
+            value={platform.id}
+            onChange={onPlatform}
+            options={platforms.map((p) => ({ value: p.id, label: p.name }))}
+          />
         </div>
         <nav className="flex flex-wrap gap-1" aria-label="采样渠道">
           {platform.channels.map((c) => (
@@ -68,20 +67,22 @@ export function Scope({
         </nav>
         <div className="monitor-picker">
           <Label htmlFor="monitor">监测项</Label>
-          <NativeSelect
+          <WorkspaceSelect
             id="monitor"
-            value={active || ""}
-            disabled={!items.length}
-            onChange={(e) => onMonitor(e.target.value)}
-          >
-            {!items.length && <option value="">暂无监测项</option>}
-            {items.map((m) => (
-              <option key={m.id} value={m.id}>
-                {label(m)}
-                {frequencies.get(label(m)) > 1 && " · #" + m.id.slice(0, 8)}
-              </option>
-            ))}
-          </NativeSelect>
+            value={active}
+            onChange={onMonitor}
+            wide
+            placeholder="暂无监测项"
+            options={items.map((m) => {
+              const suffix = frequencies.get(label(m)) > 1 ? " · #" + m.id.slice(0, 8) : "";
+              return {
+                value: m.id,
+                label: label(m) + suffix,
+                description: [m.brand, m.model].filter(Boolean).join(" · "),
+                text: m.question + suffix,
+              };
+            })}
+          />
         </div>
       </div>
     </>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Copy, Download } from "lucide-react";
-import { NativeSelect } from "@/components/ui/native-select";
+import { WorkspaceSelect } from "./workspace-select.jsx";
 import { Label } from "@/components/ui/label";
 import { SmallButton } from "./controls.jsx";
 import { markdown } from "../core/markdown.js";
@@ -22,21 +22,18 @@ export function ReviewPrompt({ report, scope, choose }) {
     <section className="prompt-reader">
       <div className="prompt-tools">
         <Label htmlFor="prompt-scope">提示词范围</Label>
-        <NativeSelect
+        <WorkspaceSelect
           id="prompt-scope"
           value={scope}
-          onChange={(e) => {
-            choose(e.target.value);
+          onChange={(value) => {
+            choose(value);
             setNote("");
           }}
-        >
-          <option value="all">全部模块</option>
-          {report.modules.map((m, i) => (
-            <option key={i} value={String(i)}>
-              {m.name}
-            </option>
-          ))}
-        </NativeSelect>
+          options={[
+            { value: "all", label: "全部模块" },
+            ...report.modules.map((m, i) => ({ value: String(i), label: m.name })),
+          ]}
+        />
         <SmallButton onClick={copy}>
           <Copy />
           复制提示词

@@ -94,7 +94,7 @@
 .report-monitor button { margin-top: 14px; }
 .prompt-reader { margin-top: 20px; }
 .prompt-tools { flex-wrap: wrap; gap: 8px; }
-.prompt-tools [data-slot="native-select-wrapper"] { max-width: min(300px,100%); }
+.prompt-tools [data-slot="select-trigger"] { max-width: min(300px,100%); }
 .prompt-tools small { color: var(--signal); }
 .prompt-document {
   margin: 18px 0;

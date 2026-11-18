@@ -77,7 +77,7 @@
     margin: 0 2px;
   }
   .monitor-picker,
-  .monitor-picker [data-slot="native-select-wrapper"] {
+  .monitor-picker [data-slot="select-trigger"] {
     width: 100%;
   }
   .scope-filters,

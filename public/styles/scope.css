@@ -50,7 +50,7 @@
   max-width: 100%;
   white-space: nowrap;
 }
-.monitor-picker [data-slot="native-select-wrapper"] {
+.monitor-picker [data-slot="select-trigger"] {
   max-width: min(310px, 50vw);
   min-width: 0;
 }
@@ -137,3 +137,10 @@
   border-radius: 6px;
   color: #594819;
 }
+
+.workspace-select-menu {
+  min-width: var(--radix-select-trigger-width);
+  max-width: min(32rem, var(--radix-select-content-available-width));
+}
+.monitor-options { width: min(32rem, var(--radix-select-content-available-width)); }
+.monitor-options [data-slot="select-item"] { padding-block: .6rem; }
