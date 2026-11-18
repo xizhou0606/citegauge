@@ -12,7 +12,7 @@
 
 - 服务端页面与公共导航在 `src/web` 和 `src/web/components`。方法页、渠道页和项目页在无 JavaScript 时提供完整内容。
 - 客户端入口负责登录和选中状态。平台导航、指标卡、监测表单、采样、证据和分页分别在 `public/scripts/components`。通用交互与 HTTP 调用在 `public/scripts/core`。
-- 使用 Bootstrap 5 的按钮、表单、导航和响应式表格；优先组合现有组件。主题色、圆角、字体与焦点样式复用公共 CSS 变量。
+- 服务端页面与浏览器交互统一使用 React、shadcn/ui 和 Tailwind CSS，优先组合 src/components/ui 中的组件。主题色、圆角、字体与焦点样式复用公共 CSS 变量。
 - Chart.js 配置与生命周期在 `public/scripts/charts`。维度切换释放旧图表；比率缺失时使用 null；为图表提供文字数据及减少动态效果支持。
 - 模型调用使用 Vercel AI SDK Core。采集入口在 `src/collectors/api.ts`；适配器注册在 `src/collectors/ai/providers.ts`，模型目录和采集器工厂在 `src/collectors/ai/factory.ts`，厂商适配与证据解析在 `src/collectors/ai`。优先使用 SDK 和供应商内置工具；变更接入时通过采集入口验证原始响应、正文引用和不可观测状态。
 - 数据采集、领域计算、读查询、证据复核与调度各有独立模块。避免在页面中复制 SQL 或采集逻辑。
