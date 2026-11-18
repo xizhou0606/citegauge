@@ -1,3 +1,4 @@
+import { expandAdvice } from "./expand.ts";
 import { json } from "../runtime/response.ts";
 import type { Env } from "../runtime/env.ts";
 import { capture, websiteURL } from "./capture.ts";
@@ -13,7 +14,9 @@ export async function siteReview(req: Request, env: Env) {
   if (req.method !== "POST") return json({ error: "请求方法无效" }, 405);
   let url;
   try {
-    url = websiteURL((await req.json<{ url?: unknown }>()).url);
+    const body = await req.json<{ url?: unknown; expandAt?: number }>();
+    if (Number.isSafeInteger(body.expandAt)) return expandAdvice(env, body.expandAt!);
+    url = websiteURL(body.url);
   } catch {
     return json({ error: "请输入公开官网的网址，例如 https://example.com" }, 400);
   }
