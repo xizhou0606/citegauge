@@ -1,29 +1,41 @@
 @import url("./public-pages.css");
+@import url("./report-preview.css");
 :root {
-  --ink: #19223a;
-  --accent: #454ac6;
-  --mint: #ecedff;
-  --line: #dbe0ea;
-  --paper: #f7f8fc;
-  --muted: #566078;
-  --radius: 14px;
-  --shadow: 0 12px 40px -20px #1c25594d;
-  --bs-border-color: var(--line);
-  --bs-body-color: var(--ink);
-  --bs-link-color: var(--accent);
-  --font: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --background: #fafaf6;
+  --foreground: #19251f;
+  --card: #fff;
+  --primary: #173d32;
+  --primary-foreground: #fff;
+  --secondary: #eef1e8;
+  --muted-foreground: #56645a;
+  --border: #d8ded4;
+  --ring: #397654;
+  --sidebar: #f4f5ef;
+  --signal: #d4f583;
+  --radius: .625rem;
+  --chart-1: #397447;
+  --chart-2: #276e86;
+  --chart-3: #a65a27;
+  --chart-4: #8eb5a6;
+  --chart-5: #d7dfda;
+  --bs-primary: var(--primary);
+  --bs-secondary-color: var(--muted-foreground);
+  --bs-border-color: var(--border);
+  --bs-body-color: var(--foreground);
+  --bs-link-color: var(--primary);
+  --font: "Geist", "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
 }
 body {
   font-family: var(--font);
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--background);
+  color: var(--foreground);
   line-height: 1.55;
 }
 [hidden] {
   display: none !important;
 }
 a {
-  color: var(--accent);
+  color: var(--primary);
   text-underline-offset: 4px;
 }
 .bi {
@@ -46,8 +58,8 @@ a {
   place-items: center;
   width: 34px;
   height: 34px;
-  background: var(--accent);
-  color: #ffffff;
+  background: var(--primary);
+  color: var(--signal);
   border-radius: 10px;
   font-size: 23px;
 }
@@ -60,24 +72,32 @@ a {
   opacity: 0.75;
 }
 .btn {
+  font-size: 14px;
+  padding: .55rem .95rem;
   font-weight: 580;
   border-radius: 8px;
 }
+.actions .btn .bi { margin: 0 0 0 5px; }
+.btn-sm { font-size: 13px; padding: .36rem .7rem; }
 .btn-primary {
-  --bs-btn-bg: var(--accent);
-  --bs-btn-border-color: var(--accent);
-  --bs-btn-hover-bg: #34399c;
-  --bs-btn-hover-border-color: #34399c;
-  --bs-btn-active-bg: #34399c;
+  --bs-btn-color: var(--primary-foreground);
+  --bs-btn-disabled-bg: var(--primary);
+  --bs-btn-disabled-border-color: var(--primary);
+  --bs-btn-active-border-color: var(--primary);
+  --bs-btn-bg: var(--primary);
+  --bs-btn-border-color: var(--primary);
+  --bs-btn-hover-bg: #295444;
+  --bs-btn-hover-border-color: #295444;
+  --bs-btn-active-bg: #295444;
 }
 .btn-light {
   --bs-btn-bg: white;
-  --bs-btn-border-color: var(--line);
-  --bs-btn-hover-bg: var(--mint);
-  --bs-btn-hover-border-color: #a7abd9;
+  --bs-btn-border-color: var(--border);
+  --bs-btn-hover-bg: var(--secondary);
+  --bs-btn-hover-border-color: var(--ring);
 }
 .btn-link {
-  color: var(--accent);
+  color: var(--primary);
   text-decoration: none;
 }
 .btn .bi {
@@ -86,13 +106,13 @@ a {
 a:focus-visible,
 button:focus-visible,
 summary:focus-visible {
-  outline: 3px solid var(--accent);
+  outline: 3px solid var(--primary);
   outline-offset: 3px;
 }
 .form-control:focus,
 .form-select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--mint);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--secondary);
 }
 h1,
 h2,

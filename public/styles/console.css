@@ -3,8 +3,9 @@
 @import url("./forms.css");
 .console {
   display: grid;
-  grid-template-columns: 224px minmax(0, 1fr);
+  grid-template-columns: 216px minmax(0, 1fr);
   min-height: 100vh;
+  background: var(--sidebar);
 }
 .rail {
   display: flex;
@@ -13,14 +14,14 @@
   top: 0;
   height: 100dvh;
   padding: 27px 15px 17px;
-  background: var(--ink);
-  color: #fff;
+  background: var(--sidebar);
+  color: var(--foreground);
 }
 .rail > .brand {
   margin: 0 6px 36px;
 }
 .rail-section {
-  color: #b2bace;
+  color: var(--muted-foreground);
   font-size: 12px;
   font-weight: 600;
   margin: 0 13px 10px;
@@ -37,7 +38,7 @@
   border: 0;
   border-radius: 8px;
   text-decoration: none;
-  color: #d3daea;
+  color: var(--muted-foreground);
   text-align: left;
 }
 .platform-nav {
@@ -53,38 +54,43 @@
   text-align: center;
 }
 .rail .platform-nav[aria-pressed="true"] {
-  background: #ececff;
-  color: #272b85;
+  background: var(--primary);
+  color: var(--primary-foreground);
   font-weight: 650;
 }
 .rail .platform-nav[aria-pressed="false"]:hover,
 .rail-foot a:hover,
 .rail-foot button:hover {
-  background: #323e5a;
-  color: white;
+  background: var(--secondary);
+  color: var(--foreground);
 }
 .rail-foot {
   margin-top: auto;
-  border-top: 1px solid #36415a;
+  border-top: 1px solid var(--border);
   padding-top: 14px;
   font-size: 13px;
 }
 .console-main {
   min-width: 0;
+  margin: 8px 8px 8px 0;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: var(--card);
 }
 .topbar {
   height: 65px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--border);
   padding: 0 clamp(18px, 3vw, 46px);
-  background: white;
+  border-radius: 15px 15px 0 0;
+  background: var(--card);
   font-size: 13px;
-  color: var(--muted);
+  color: var(--muted-foreground);
 }
 .topbar strong {
-  color: var(--ink);
+  color: var(--foreground);
 }
 .topbar span {
   margin: 0 8px;
@@ -103,7 +109,6 @@
   padding: 25px clamp(18px, 3vw, 46px) 55px;
 }
 
-
 #platforms {
   display: flex;
   flex-direction: column;
@@ -111,5 +116,10 @@
   overflow-y: auto;
 }
 .kpi.k0 {
-  border-top: 3px solid var(--accent);
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
 }
+.k0 .kpi-title, .k0 small { color: #d2dfd3; }
+.k0 .kpi-title i { color: var(--signal); background: #ffffff12; }
+.k0 strong { color: var(--signal); }

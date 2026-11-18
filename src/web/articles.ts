@@ -66,7 +66,7 @@ export const articles: Record<
       ],
       [
         "开源与部署",
-        "源代码以 MIT 许可证发布。应用运行在 Cloudflare Workers，使用 PostgreSQL 保存账号、监测配置、样本和证据。仓库提供本地运行、测试和部署步骤。",
+        "源代码以 MIT 许可证发布。应用运行在 Cloudflare Workers，使用 Cloudflare D1 保存账号、监测配置、样本和证据。仓库提供本地运行、测试和部署步骤。",
       ],
     ],
   },

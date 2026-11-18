@@ -13,8 +13,11 @@ export async function renderDashboard(m, ready, refresh, onCreate) {
   if (reportUrl) URL.revokeObjectURL(reportUrl);
   clearPlots();
   if (!m) {
-    panel.innerHTML = `<section class="card surface empty-platform">${icon("folder2-open")}<h2>添加第一个监测问题</h2><p class="text-secondary">为当前渠道设置品牌和固定问题，即可开始记录回答。</p>
-    <button id="first-monitor" class="btn btn-primary">新建监测项</button></section>`;
+    panel.innerHTML = `<section class="card surface empty-platform">
+      <div><h2>添加第一个监测问题</h2><p>选定品牌，写下用户会向模型提出的问题，就可以开始采样并核对回答。</p>
+      <button id="first-monitor" class="btn btn-primary">${icon("plus-lg")}新建监测项</button></div>
+      <aside class="question-example"><span>${icon("file-earmark-text")} 监测问题示例</span>
+      <blockquote>小团队如何管理客户跟进？</blockquote></aside></section>`;
     $("first-monitor").onclick = onCreate;
     return;
   }

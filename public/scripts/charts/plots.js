@@ -6,7 +6,6 @@ export function clearPlots() {
   charts = [];
 }
 const slices = ["官网被引", "已核对无官网", "来源不可观测"];
-const colors = ["#454ac6", "#8fbaba", "#dfe3ef"];
 export function plotsSection(report) {
   const c = report.summary;
   const portions = [
@@ -36,10 +35,14 @@ export function mountPlots(report) {
     : { duration: 600, easing: "easeOutQuart" };
   const Chart = window.Chart;
   if (!Chart) return;
-  Chart.defaults.font.family = '"Inter","PingFang SC",system-ui,sans-serif';
-  Chart.defaults.color = "#566078";
+  const theme = getComputedStyle(document.documentElement);
+  const colors = [1, 2, 3, 4, 5].map((n) =>
+    theme.getPropertyValue("--chart-" + n).trim(),
+  );
+  Chart.defaults.font.family = theme.getPropertyValue("--font").trim();
+  Chart.defaults.color = theme.getPropertyValue("--muted-foreground").trim();
   if ($("trend-chart"))
-    charts.push(new Chart($("trend-chart"), trendConfig(report, motion)));
+    charts.push(new Chart($("trend-chart"), trendConfig(report, motion, colors)));
   const c = report.summary;
   charts.push(
     new Chart($("citation-chart"), {
@@ -53,7 +56,7 @@ export function mountPlots(report) {
               c.observable - c.citations,
               c.valid - c.observable,
             ],
-            backgroundColor: colors,
+            backgroundColor: [colors[0], colors[3], colors[4]],
             borderWidth: 2,
             borderColor: "#fff",
             hoverOffset: 2,

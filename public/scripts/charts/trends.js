@@ -1,20 +1,18 @@
 import { percent } from "../core/ui.js";
 const metrics = [
-  { name: "品牌提及率", hit: "mentions", base: "valid", color: "#454ac6" },
+  { name: "品牌提及率", hit: "mentions", base: "valid" },
   {
     name: "官网引用率",
     hit: "citations",
     base: "observable",
-    color: "#337b80",
   },
   {
     name: "明确推荐率",
     hit: "recommended",
     base: "reviewed",
-    color: "#ad658e",
   },
 ];
-export function trendConfig(report, animation) {
+export function trendConfig(report, animation, colors = []) {
   const observed = new Map(report.days.map((day) => [day.day, day]));
   const oneDay = observed.size === 1;
   const dates = oneDay
@@ -22,10 +20,10 @@ export function trendConfig(report, animation) {
     : Array.from({ length: 30 }, (_, i) =>
         new Date(report.start + i * 86400000).toISOString().slice(0, 10),
       );
-  const datasets = metrics.map((item) => ({
+  const datasets = metrics.map((item, index) => ({
     label: item.name,
-    borderColor: item.color,
-    backgroundColor: item.color,
+    borderColor: colors[index],
+    backgroundColor: colors[index],
     data: dates.map((date) => {
       const row = observed.get(date);
       return row?.[item.base] ? (100 * row[item.hit]) / row[item.base] : null;
@@ -69,7 +67,7 @@ export function trendConfig(report, animation) {
         y: {
           min: 0,
           max: 100,
-          grid: { color: "#e8ebf2" },
+          grid: { color: "#e4e8e1" },
           border: { display: false },
           ticks: { stepSize: 25, callback: (v) => v + "%" },
         },
