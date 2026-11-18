@@ -20,11 +20,11 @@
   .sample-detail[data-open="yes"], #model-field:not([hidden]) {
     animation: surface-enter 180ms ease-out;
   }
-  .platform-nav[aria-pressed="true"], .nav-pills .active,
+  .feature-nav [aria-current="page"], .nav-pills .active,
   .scope-filters, #history > .empty, #history > button, #login-error:not([hidden]) {
     animation: control-enter 150ms ease-out;
   }
-  .ranking-row progress {
+  .ranking-row .progress-bar {
     transform-origin: left center;
     animation: bar-enter 430ms cubic-bezier(.2,.7,.3,1);
   }
@@ -34,25 +34,5 @@
 
   .guide-card, .rail .nav-link, .rail-foot a, .rail-foot button {
     transition: color 150ms ease, background-color 150ms ease;
-  }
-  details[open] > :not(summary) { animation: surface-enter 160ms ease-out; }
-  dialog[open] { animation: surface-enter 180ms ease-out; }
-  @supports (transition-behavior: allow-discrete) {
-    dialog {
-      opacity: 0;
-      transform: translateY(4px);
-      transition: opacity 150ms, transform 150ms, overlay 150ms allow-discrete,
-        display 150ms allow-discrete;
-    }
-    dialog[open] { opacity: 1; transform: none; animation: none; }
-    @starting-style {
-      dialog[open] { opacity: 0; transform: translateY(4px); }
-    }
-    dialog::backdrop {
-      opacity: 0;
-      transition: opacity 150ms, overlay 150ms allow-discrete, display 150ms allow-discrete;
-    }
-    dialog[open]::backdrop { opacity: 1; }
-    @starting-style { dialog[open]::backdrop { opacity: 0; } }
   }
 }

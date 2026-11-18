@@ -1,3 +1,4 @@
+import { bindReportActions } from "./report-actions.js";
 import { $, clean, icon, action } from "../core/ui.js";
 import { api } from "../core/api.js";
 import { historySection, historyList } from "./history.js";
@@ -27,7 +28,7 @@ export async function renderDashboard(m, ready, refresh, onCreate) {
   const date = (t) => new Date(t).toISOString().slice(0, 10);
   panel.innerHTML = `<section class="monitor-head"><div><p class="brand-domain">${clean(m.brand)} <span>·</span> ${clean(m.domain)}${m.model ? " · " + clean(m.model) : ""}</p>
     <h2>${clean(m.question)}</h2><div class="date-range">${icon("calendar3")}${date(report.start)} — ${date(report.end)} · UTC</div></div>
-    <div class="sampling-actions">${samplingButtons(m, ready)}<a id="export-report" class="btn btn-light btn-sm" href="/api/report/${encodeURIComponent(m.id)}" download="citegauge-${date(report.end)}.json">导出报告</a></div></section>
+    <div class="sampling-actions">${samplingButtons(m, ready)}<a id="export-report" class="btn btn-light btn-sm" href="/api/report/${encodeURIComponent(m.id)}" download="citegauge-${date(report.end)}.json">导出统计 JSON</a><button class="btn btn-light btn-sm" id="export-samples">导出完整报告</button><button class="btn btn-primary btn-sm" id="send-report" ${report.summary.total ? "" : "disabled"}>发送报告</button></div></section>
     ${metricsSection(report.summary)}${plotsSection(report)}${breakdownSection(m, report)}${historySection}`;
   const exportLink = $("export-report");
   const blob = new Blob([JSON.stringify({ monitor: m, ...report }, null, 2)], {
@@ -36,8 +37,11 @@ export async function renderDashboard(m, ready, refresh, onCreate) {
   const url = URL.createObjectURL(blob);
   exportLink.href = url;
   reportUrl = url;
+  for (const bar of panel.querySelectorAll("[data-width]"))
+    bar.style.width = bar.dataset.width + "%";
   mountPlots(report);
   bindSampling(m, refresh);
+  bindReportActions(m, report);
   const list = historyList(m, report, refresh);
   for (const button of panel.querySelectorAll("[data-filter]")) {
     button.onclick = action(async () => {

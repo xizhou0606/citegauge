@@ -24,23 +24,12 @@
   width: 40%;
   overflow-wrap: anywhere;
 }
-.ranking-row progress {
+.ranking-row .progress {
   flex: 1;
-  min-width: 20px;
   height: 7px;
-  border: 0;
-  border-radius: 8px;
   background: var(--secondary);
-  accent-color: var(--chart-1);
 }
-progress::-webkit-progress-bar {
-  background: var(--secondary);
-  border-radius: 8px;
-}
-progress::-webkit-progress-value {
-  background: var(--chart-1);
-  border-radius: 8px;
-}
+.ranking-row .progress-bar { background: var(--chart-1); }
 .source-list,
 .ranking {
   max-height: 210px;
@@ -79,10 +68,13 @@ progress::-webkit-progress-value {
 .sample-detail:empty {
   display: none;
 }
-.sample-detail pre {
-  padding: 13px;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  background: var(--background);
-  max-height: 320px;
+.sample-markdown {
+  max-width: 80ch;
+  margin: 1rem 0;
+  line-height: 1.8;
+  font-size: 15px;
 }
+.sample-markdown :is(h1,h2,h3,h4,h5,h6) { margin: 1.35em 0 .55em; font-size: 1.12em; }
+.sample-markdown p { margin: .55em 0; }
+.sample-markdown blockquote { padding-left: 1em; border-left: 3px solid var(--border); }
+.sample-markdown pre { padding: 1em; background: var(--secondary); border-radius: 8px; overflow: auto; }

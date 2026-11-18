@@ -71,8 +71,9 @@
   max-width: 100%;
   white-space: nowrap;
 }
-.monitor-picker select {
+.monitor-picker .dropdown {
   width: min(310px, 50vw);
+  min-width: 0;
 }
 .monitor-head {
   margin: 20px 0 16px;

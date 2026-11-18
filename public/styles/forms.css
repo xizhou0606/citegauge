@@ -1,34 +1,12 @@
-dialog {
-  width: min(520px, 94vw);
-  max-height: 90dvh;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--foreground);
-  padding: 24px;
-  box-shadow: 0 15px 65px #19243433;
-}
-dialog::backdrop {
-  background: #1924345f;
-}
-.dialog-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
-.dialog-head h2 {
-  font-size: 20px;
-  margin: 0;
-}
-dialog label,
+.modal label,
 .sample-detail form label {
   display: block;
   font-weight: 600;
   font-size: 13px;
   margin-bottom: 12px;
 }
-dialog .form-control,
-dialog .form-select {
+.modal .form-control,
+.modal .form-select {
   margin-top: 4px;
 }
 .sample-detail form {
@@ -38,3 +16,13 @@ dialog .form-select {
   background: var(--background);
   border-radius: 9px;
 }
+
+.modal-content { border-radius: var(--radius); }
+.modal-body { max-height: 65dvh; overflow-y: auto; }
+.dropdown-toggle { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.dropdown-menu { max-width: min(440px, 90vw); max-height: 55vh; overflow-y: auto; }
+.dropdown-item { white-space: normal; overflow-wrap: anywhere; }
+.dropdown-item.active { background: var(--primary); }
+
+.form-check-input:checked { background-color: var(--primary); border-color: var(--primary); }
+.modal-body { overflow-wrap: anywhere; }

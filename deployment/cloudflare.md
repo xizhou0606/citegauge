@@ -29,4 +29,17 @@
 | Gemini | GOOGLE_GENERATIVE_AI_API_KEY | GOOGLE_GENERATIVE_AI_MODEL |
 | Perplexity | PERPLEXITY_API_KEY | PERPLEXITY_MODEL |
 
-官网形象分析使用 Wrangler 的 BROWSER 绑定抓取公开页面的桌面首屏和正文，并用 DASHSCOPE_API_KEY 调用北京地域的 qwen3-vl-plus。上线前应用 0003_site_review.sql 迁移。工作台只保留最近一份成功报告和对应截图。
+官网形象分析使用 Wrangler 的 BROWSER 绑定抓取公开页面的桌面首屏和正文，并用 DASHSCOPE_API_KEY 调用北京地域的 qwen3.7-flash。上线前应用 0003_site_review.sql 迁移。工作台只保留最近一份成功报告和对应截图。
+
+## 报告发送
+
+先应用 D1 迁移 0004_report_deliveries.sql。工作台在当前采样渠道和问题下生成报告，按发送时所选会话投递。服务端使用 Vercel Chat SDK 4.45.0 的主动发送接口。用户点击发送后才投递，目的地由服务端配置。
+
+| 渠道 | Cloudflare Worker Secrets | 接收会话 |
+| --- | --- | --- |
+| Slack | SLACK_BOT_TOKEN、SLACK_SIGNING_SECRET | SLACK_CHANNEL_ID，例如 C0123456789 |
+| Telegram | TELEGRAM_BOT_TOKEN | TELEGRAM_CHAT_ID，例如 -1001234567890 |
+
+Slack 应用需要 chat:write 权限，机器人应加入目标频道。Telegram 群组需要加入机器人，向个人会话投递时先在 Telegram 中启动机器人。本功能只做出站发送，无需注册入站 webhook。请在 Workers 的 Settings → Variables and Secrets 配置变量。真实密钥仅存为 Secret。发送状态不明时，先核对目标会话再决定是否另发一份。
+
+参考 [Chat SDK 渠道 API](https://chat-sdk.dev/docs/api/channel)。

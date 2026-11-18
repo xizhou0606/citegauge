@@ -86,8 +86,11 @@ export async function history(db: Database, id: string, params: URLSearchParams)
   const args = [...period(id, end), offset];
   if (filter === "rival" || filter === "source")
     args.push(params.get("value") || "");
+  const fields = params.get("format") === "markdown"
+    ? "id,at,state,json_object('answer',detail->>'answer','page',detail->>'page','urls',detail->'urls','review',detail->'review') AS detail"
+    : "id,at,state";
   const { rows } = await db.query(
-    `SELECT id,at,state FROM runs WHERE ${cohort} AND (${predicates[filter]})
+    `SELECT ${fields} FROM runs WHERE ${cohort} AND (${predicates[filter]})
     ORDER BY at DESC,id DESC LIMIT 26 OFFSET ?4`,
     args,
   );

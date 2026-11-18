@@ -1,11 +1,12 @@
 import { $, clean, action } from "../core/ui.js";
+import { bindExport, moduleFields } from "./review-export.js";
 import { api } from "../core/api.js";
 
 function monitorSection(report) {
   const m = report.monitor;
   if (!m) return report.monitor === null
     ? '<p class="surface">页面中缺少可核对的品牌名称。可以提交含品牌介绍的官网页面继续分析。</p>' : "";
-  return `<section class="site-summary surface"><h2>${clean(m.brand)} · 品牌监测</h2>
+  return `<section class="card site-summary surface"><h2>${clean(m.brand)} · 品牌监测</h2>
     ${report.identity?.brand === m.brand ? `<small>品牌识别依据 · ${clean(report.identity.evidence)}</small>` : ""}
     ${m.aliases.length ? `<small>品牌别名 · ${clean(m.aliases.join("、"))}</small>` : ""}
     ${m.rivals.length ? `<small>官网提到的竞品 · ${clean(m.rivals.join("、"))}</small>` : ""}
@@ -28,16 +29,19 @@ async function sampleStatus(id, el, settled) {
 
 function renderReport(report, { open, settled }) {
   const target = $("website-result");
-  target.innerHTML = `<section class="site-summary surface">
+  target.innerHTML = `<section class="card site-summary surface">
     <div><h2>官网整体形象</h2><p>${clean(report.impression)}</p>
     <a href="${clean(report.url)}" target="_blank" rel="noopener noreferrer">${clean(report.title || report.url)} ↗</a>
     <small>${clean(new URL(report.url).hostname)} · ${clean(new Date(report.at).toLocaleString())}</small></div>
-    <details><summary>查看桌面首屏截图</summary><img alt="分析时抓取的官网首屏" width="1280" height="960"></details></section>
-    ${monitorSection(report)}<h2 class="module-heading">按模块修改</h2>${report.modules.map((m) => `
-    <article class="site-module surface"><h3>${clean(m.name)}</h3>
+    <div class="d-flex gap-2 flex-wrap mt-3"><button class="btn btn-light btn-sm" data-export-review>导出完整报告</button><button class="btn btn-light btn-sm" data-export-prompt>导出 AI 修改提示词</button><button class="btn btn-light btn-sm" data-prompt="all">复制全部提示词</button>
+    <button class="btn btn-light btn-sm" data-bs-toggle="collapse" data-bs-target="#website-shot" aria-expanded="false" aria-controls="website-shot">查看首屏截图</button></div><div id="website-shot" class="collapse"><img alt="分析时抓取的官网首屏" width="1280" height="960"></div></section>
+    ${monitorSection(report)}<h2 class="module-heading">按模块修改</h2>${report.modules.map((m, i) => `
+    <article class="card site-module surface"><h3>${clean(m.name)}</h3>
     <blockquote><strong>${m.source === "截图" ? "首屏观察" : "页面原文"}</strong> ${clean(m.evidence)}</blockquote>
-    <dl>${[["优势", m.strength], ["不足", m.weakness], ["如何修改", m.change]]
-      .map(([label, value]) => `<div><dt>${label}</dt><dd>${clean(value)}</dd></div>`).join("")}</dl></article>`).join("")}`;
+    <dl>${moduleFields.filter(([key]) => m[key])
+      .map(([key, label]) => `<div><dt>${label}</dt><dd>${clean(m[key])}</dd></div>`).join("")}</dl>
+    <div class="mt-3"><button class="btn btn-light btn-sm" data-prompt="${i}">复制本模块修改提示词</button></div></article>`).join("")}`;
+  bindExport(target, report);
   if (report.monitor) {
     $("open-site-monitor").onclick = action(() => open(report.monitor.id));
     const el = $("initial-state");

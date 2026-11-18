@@ -29,8 +29,8 @@ export function historyList(m, data, refresh) {
         .map(
           (r) => `<article class="sample-row">
       <time>${clean(new Date(r.at).toLocaleString())}</time>
-      <span class="state-tag">${{ ok: "有效", pending: "采集中", failed: "失败" }[r.state] || ""}</span>
-      <button class="btn btn-link btn-sm" data-run="${clean(r.id)}">查看证据 →</button><div class="sample-detail"></div></article>`,
+      <span class="badge rounded-pill state-tag">${{ ok: "有效", pending: "采集中", failed: "失败" }[r.state] || ""}</span>
+      <button class="btn btn-link btn-sm" data-run="${clean(r.id)}">阅读回答</button><div class="sample-detail"></div></article>`,
         )
         .join("") || '<p class="empty">当前筛选没有样本。</p>';
     const pager = (label, next) => {
