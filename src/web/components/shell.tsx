@@ -25,7 +25,7 @@ function Brand() {
     </a>
   );
 }
-export function PublicHeader({ login }: { login: boolean }) {
+export function PublicHeader() {
   return (
     <header className="public-header">
       <Brand />
@@ -34,11 +34,9 @@ export function PublicHeader({ login }: { login: boolean }) {
         <a href="/channels">采样渠道</a>
         <a href={repo}>GitHub ↗</a>
       </nav>
-      {!login && (
-        <Button asChild>
-          <a href="/workspace">进入工作台</a>
-        </Button>
-      )}
+      <Button asChild>
+        <a href="/workspace">进入工作台</a>
+      </Button>
     </header>
   );
 }

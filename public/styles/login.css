@@ -1,28 +1,82 @@
-body:has(.login-page) { display: flex; flex-direction: column; min-height: 100svh; }
+@import url("./login-signal.css");
+
 body > .login-page {
-  flex: 1;
+  width: 100%;
+  min-height: 100svh;
   display: grid;
-  grid-template-columns: minmax(270px,.8fr) minmax(330px,1fr);
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  padding: 14px;
+  background: #fbfbfa;
+}
+.login-content {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   align-items: center;
-  gap: clamp(48px, 9vw, 140px);
-  max-width: 1010px;
-  padding-block: clamp(45px, 8vw, 110px);
+  justify-items: center;
+  padding: 26px clamp(28px, 4vw, 82px);
 }
-.login-box { width: 100%; max-width: 380px; }
-.login-symbol {
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 46px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--card);
-  color: var(--primary);
-  font-size: 23px;
+.login-links, .login-footer {
+  display: flex;
+  width: 100%;
+  gap: 24px;
+  font-size: 13px;
 }
-.login-box h1 { font-size: clamp(29px, 3vw, 39px); margin: 20px 0 9px; }
-.login-intro { color: var(--muted-foreground); font-size: 14px; margin-bottom: 23px; }
-@media (max-width: 720px) {
-  body > .login-page { display: flex; justify-content: center; }
-  .login-page .report-preview { display: none; }
+.login-links { justify-content: flex-end; }
+.login-footer { justify-content: space-between; border-top: 1px solid var(--border); padding-top: 18px; }
+.login-content a { color: var(--muted-foreground); text-decoration: none; }
+.login-content a:hover { color: var(--primary); text-decoration: underline; }
+.login-box { width: min(100%, 390px); padding-block: 60px; }
+.login-box h1 { font-size: clamp(32px, 3.2vw, 48px); line-height: 1.2; letter-spacing: -.055em; }
+.login-intro { margin: 14px 0 36px; font-size: 14px; color: var(--muted-foreground); }
+#login-form, .login-field { display: grid; }
+#login-form { gap: 22px; }
+.login-field { gap: 9px; }
+.login-control { position: relative; color: #737288; }
+.login-control > svg, #reveal { position: absolute; top: 50%; transform: translateY(-50%); }
+.login-control > svg { left: 15px; width: 18px; height: 18px; pointer-events: none; }
+.login-control:focus-within > svg { color: #6454b9; }
+.login-control input {
+  height: 50px;
+  padding-inline: 44px 16px;
+  border-radius: 11px;
+  background: #fff;
+  border-color: #d9d9df;
+  font-size: 16px;
+}
+.login-control input:focus-visible { border-color: #8d78d6; box-shadow: 0 0 0 3px #8d78d624; }
+.login-control input[aria-invalid="true"] { border-color: #b32625; }
+.login-control #password { padding-right: 50px; }
+#reveal { right: 3px; width: 44px; height: 44px; }
+#reveal[aria-pressed="false"] .lucide-eye-off,
+#reveal[aria-pressed="true"] .lucide-eye { display: none; }
+#login-error { color: #a12529; font-size: 14px; }
+#login-submit {
+  justify-content: space-between;
+  height: 50px;
+  margin-top: 6px;
+  padding-inline: 19px;
+  border-radius: 11px;
+  background: #29253d;
+  color: white;
+  font-size: 15px;
+}
+#login-submit:hover { background: #433462; }
+#login-submit:disabled { opacity: .82; }
+#login-submit:not(:disabled) .lucide-loader-circle,
+#login-submit:disabled .lucide-arrow-right { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .login-box { animation: login-arrive .55s cubic-bezier(.2,.8,.2,1) both; }
+  #login-submit .lucide-arrow-right { transition: transform .2s ease; }
+  #login-submit:hover .lucide-arrow-right { transform: translateX(4px); }
+  #login-submit:disabled svg { animation: login-spin 1s linear infinite; }
+}
+@keyframes login-arrive { from { opacity: 0; transform: translateY(14px); } }
+@keyframes login-spin { to { transform: rotate(360deg); } }
+@media (max-width: 760px) {
+  body > .login-page { grid-template-columns: minmax(0,1fr); grid-template-rows: auto 1fr; padding: 8px; }
+  .login-content { padding: 20px clamp(16px, 5vw, 36px) 12px; }
+  .login-box { padding-block: 24px 32px; }
+  .login-intro { margin: 9px 0 24px; }
+  #login-form { gap: 16px; }
+  .login-footer { padding-top: 14px; }
 }

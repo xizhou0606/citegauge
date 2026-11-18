@@ -58,6 +58,7 @@ export function page(path: string, origin: string) {
             <>
               <link rel="stylesheet" href="/styles/login.css" />
               <script type="module" src="/scripts/login.js" />
+              <script type="module" src="/scripts/login-signal.js" />
             </>
           )}
           {workspace && (
@@ -77,9 +78,9 @@ export function page(path: string, origin: string) {
           {path === "/" && <script type="module" src="/scripts/site-entry.js" />}
         </head>
         <body>
-          {!workspace && <PublicHeader login={login} />}
+          {!workspace && !login && <PublicHeader />}
           {content}
-          {!workspace && <PublicFooter />}
+          {!workspace && !login && <PublicFooter />}
         </body>
       </html>,
     )

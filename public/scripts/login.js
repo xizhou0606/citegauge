@@ -5,7 +5,6 @@ const reveal = document.getElementById("reveal");
 reveal.onclick = () => {
   const visible = password.type === "password";
   password.type = visible ? "text" : "password";
-  reveal.textContent = visible ? "隐藏" : "显示";
   reveal.setAttribute("aria-label", visible ? "隐藏密码" : "显示密码");
   reveal.setAttribute("aria-pressed", String(visible));
 };
@@ -14,7 +13,10 @@ const form = document.getElementById("login-form"),
 form.onsubmit = async (event) => {
   event.preventDefault();
   const submit = form.querySelector('[type="submit"]');
+  if (submit.disabled) return;
   submit.disabled = true;
+  submit.setAttribute("aria-busy", "true");
+  submit.querySelector("span").textContent = "正在登录…";
   error.hidden = true;
   try {
     await requestJSON("/api/auth/sign-in/username", {
@@ -28,6 +30,8 @@ form.onsubmit = async (event) => {
     error.hidden = false;
     password.focus();
     submit.disabled = false;
+    submit.removeAttribute("aria-busy");
+    submit.querySelector("span").textContent = "登录工作台";
   }
 };
 window.addEventListener("pageshow", (e) => {

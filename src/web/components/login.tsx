@@ -1,42 +1,70 @@
-import { LogIn } from "lucide-react";
+import { ArrowRight, AudioLines, Eye, EyeOff, KeyRound, LoaderCircle, Pause, Play, UserRound } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
-import { ReportPreview } from "./report-preview";
+import { repo } from "./shell";
+
+function SignalPanel() {
+  return (
+    <aside className="signal-panel" aria-label="引迹品牌监测">
+      <a href="/" className="login-brand">
+        <AudioLines aria-hidden="true" /><strong>CiteGauge</strong><span>引迹</span>
+      </a>
+      <div className="signal-title">追踪品牌在<br /><em>AI 回答</em>中的引用</div>
+      <canvas id="signal-field" aria-hidden="true" />
+      <div className="signal-caption">
+        <span><i />采样信号示意</span>
+        <Button type="button" size="icon" variant="ghost" id="signal-motion" aria-label="暂停动画" hidden>
+          <Pause className="motion-pause" /><Play className="motion-play" />
+        </Button>
+      </div>
+    </aside>
+  );
+}
 
 export function LoginPage() {
   return (
     <main className="login-page">
-      <section className="login-box">
-        <div className="login-symbol">
-          <LogIn />
-        </div>
-        <h1>登录监测工作台</h1>
-        <p className="login-intro">使用管理员账号查看监测问题和采样证据。</p>
-        <form id="login-form" method="post" action="/login" className="grid gap-2">
-          <Label htmlFor="username">账号</Label>
-          <Input
-            id="username"
-            name="username"
-            autoComplete="username"
-            autoCapitalize="none"
-            spellCheck={false}
-            required
-          />
-          <Label htmlFor="password">密码</Label>
-          <div className="flex gap-2">
-            <Input id="password" name="password" type="password" autoComplete="current-password" required />
-            <Button variant="outline" type="button" id="reveal" aria-label="显示密码" aria-pressed="false">
-              显示
+      <SignalPanel />
+      <section className="login-content" aria-labelledby="login-heading">
+        <nav className="login-links" aria-label="项目导航">
+          <a href="/methodology">监测方法</a>
+          <a href="/channels">采样渠道</a>
+        </nav>
+        <div className="login-box">
+          <h1 id="login-heading">登录工作台</h1>
+          <p className="login-intro">使用管理员账号查看品牌监测结果与采样证据。</p>
+          <form id="login-form" method="post" action="/login">
+            <div className="login-field">
+              <Label htmlFor="username">账号</Label>
+              <div className="login-control">
+                <UserRound aria-hidden="true" />
+                <Input id="username" name="username" autoComplete="username" autoCapitalize="none"
+                  spellCheck={false} placeholder="输入管理员账号" required />
+              </div>
+            </div>
+            <div className="login-field">
+              <Label htmlFor="password">密码</Label>
+              <div className="login-control">
+                <KeyRound aria-hidden="true" />
+                <Input id="password" name="password" type="password" autoComplete="current-password"
+                  placeholder="输入密码" required />
+                <Button variant="ghost" size="icon" type="button" id="reveal" aria-label="显示密码" aria-pressed="false">
+                  <Eye /><EyeOff />
+                </Button>
+              </div>
+            </div>
+            <p id="login-error" role="alert" hidden></p>
+            <Button id="login-submit" type="submit">
+              <span>登录工作台</span><ArrowRight /><LoaderCircle />
             </Button>
-          </div>
-          <p id="login-error" className="text-destructive text-sm" role="alert" hidden></p>
-          <Button className="mt-4" type="submit">
-            登录工作台
-          </Button>
-        </form>
+          </form>
+        </div>
+        <footer className="login-footer">
+          <a href="/about">关于引迹</a>
+          <a href={repo}>GitHub ↗</a>
+        </footer>
       </section>
-      <ReportPreview />
     </main>
   );
 }

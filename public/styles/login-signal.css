@@ -1,0 +1,78 @@
+.signal-panel {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 565px;
+  padding: clamp(26px, 3.7vw, 78px);
+  color: #f3f2ff;
+  border-radius: 22px;
+  background:
+    radial-gradient(ellipse at 6% 76%, #58488288, transparent 62%),
+    radial-gradient(ellipse at 102% 58%, #2b6c7480, transparent 44%),
+    linear-gradient(150deg, #141521 8%, #25213b 57%, #101c28);
+}
+.signal-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: radial-gradient(#c4c2f04d .7px, transparent .8px);
+  background-size: 20px 20px;
+  mask-image: linear-gradient(145deg, transparent 10%, #000 80%);
+}
+.signal-panel .login-brand {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 9px;
+  color: inherit;
+  text-decoration: none;
+}
+.login-brand svg { width: 32px; height: 32px; stroke: #c8baff; }
+.login-brand strong { font-size: 24px; letter-spacing: -.055em; }
+.login-brand span { margin-left: 3px; color: #c4c3cf; font-size: 13px; }
+.signal-title {
+  margin-top: clamp(42px, 9svh, 100px);
+  font-size: clamp(34px, 4.45vw, 82px);
+  font-weight: 650;
+  letter-spacing: -.055em;
+  line-height: 1.19;
+}
+.signal-title em { color: #c6b7fa; font-style: normal; }
+#signal-field {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  left: 0;
+  bottom: 8%;
+  width: 100%;
+  height: 63%;
+}
+.signal-caption {
+  display: flex;
+  margin-top: auto;
+  padding-top: 14px;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #ffffff35;
+}
+.signal-caption span { display: inline-flex; align-items: center; gap: 10px; font-size: 12px; color: #d8dce4; }
+.signal-caption i { width: 17px; border-top: 2px solid #adeadf; }
+#signal-motion { width: 40px; height: 40px; border: 1px solid #ffffff44; border-radius: 50%; color: white; }
+#signal-motion:hover { background: #ffffff18; }
+#signal-motion:focus-visible, .login-brand:focus-visible { outline-color: #c6b7fa; }
+#signal-motion[data-playing="true"] .motion-play,
+#signal-motion[data-playing="false"] .motion-pause { display: none; }
+@media (max-width: 760px) {
+  .signal-panel { min-height: 0; height: clamp(148px, 23svh, 210px); padding: 18px 22px; border-radius: 16px; }
+  .login-brand svg { width: 22px; height: 22px; }
+  .login-brand strong { font-size: 18px; }
+  .login-brand span { font-size: 11px; }
+  .signal-title { margin-top: auto; font-size: clamp(24px, 5vw, 32px); }
+  #signal-field { width: 66%; height: 100%; left: auto; right: -6%; bottom: 0; mask-image: linear-gradient(90deg, transparent 7%, black 44%); }
+  .signal-caption { position: absolute; top: 10px; right: 12px; border: 0; padding: 0; }
+  .signal-caption span { display: none; }
+  #signal-motion { width: 36px; height: 36px; }
+}
