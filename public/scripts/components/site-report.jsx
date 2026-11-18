@@ -1,13 +1,13 @@
 import { Industry } from "./industry.jsx";
 import { useRef, useState } from "react";
 import { Tabs } from "radix-ui";
-import { ArrowUpRight, BookOpen, CodeXml, Download, Expand, Plus } from "lucide-react";
+import { ArrowUpRight, BookOpen, CodeXml, Download, Expand, Layers, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SmallButton } from "./controls.jsx";
-import { ModuleAdvice } from "./module-advice.jsx";
+import { ReviewModules } from "./review-modules.jsx";
 import { Monitor } from "./review-monitor.jsx";
 import { ReviewPrompt } from "./review-prompt.jsx";
-import { downloadMarkdown, moduleFields, reviewDocument } from "./review-export.js";
+import { downloadMarkdown, reviewDocument } from "./review-export.js";
 
 function Screenshot({ report }) {
   if (!report.screenshot) return null;
@@ -33,28 +33,21 @@ function Screenshot({ report }) {
 export function SiteReport({ report, actions, onAnalyze, onExpand, onIndustry }) {
   const [view, setView] = useState("report"),
     [scope, setScope] = useState("all");
-  const [expanding, setExpanding] = useState(false);
-  const [detailNote, setDetailNote] = useState("");
   const tabBar = useRef(null);
   const host = new URL(report.url).hostname;
-  const brand = report.monitor?.brand || report.identity?.brand || report.title || host;
+  const brand = report.identity?.brand || report.monitor?.brand || report.title || host;
   function showPrompt(index) {
     setScope(String(index));
     setView("prompt");
     tabBar.current.querySelector('[data-reader="prompt"]').focus();
     tabBar.current.scrollIntoView({ block: "start" });
   }
-  function jump(id) {
-    const heading = document.getElementById(id);
-    heading?.focus({ preventScroll: true });
-    heading?.scrollIntoView({ block: "start" });
-  }
   return (
     <article className="review-reader">
       <header className="reader-heading">
         <div>
           <p className="reader-kicker">官网分析报告</p>
-          <h1>{brand}</h1>
+          <h1 tabIndex={-1}>{brand}</h1>
           <div className="reader-meta">
             <a href={report.url} target="_blank" rel="noreferrer">
               {host} <ArrowUpRight size={14} />
@@ -74,8 +67,9 @@ export function SiteReport({ report, actions, onAnalyze, onExpand, onIndustry })
           <Tabs.List aria-label="报告阅读视图" className="reader-tabs">
             <Tabs.Trigger value="report">
               <BookOpen size={16} />
-              分析报告
+              官网诊断
             </Tabs.Trigger>
+            {!report.monitor && <Tabs.Trigger value="industry"><Layers size={16} />竞品对比</Tabs.Trigger>}
             <Tabs.Trigger value="prompt" data-reader="prompt">
               <CodeXml size={16} />
               AI 修改提示词
@@ -94,78 +88,19 @@ export function SiteReport({ report, actions, onAnalyze, onExpand, onIndustry })
         <Tabs.Content value="report" forceMount hidden={view !== "report"}>
           <section className="reader-summary">
             <div>
-              <h2>整体形象</h2>
+              <h2>品牌形象</h2>
+              {report.identity?.category && <strong className="brand-category">{report.identity.category}</strong>}
               <p>{report.impression}</p>
+              {report.identity?.evidence && <blockquote className="brand-evidence"><strong>品牌识别依据</strong>{report.identity.evidence}</blockquote>}
             </div>
-            {!report.industry?.rows.length && <Screenshot report={report} />}
+            <Screenshot report={report} />
           </section>
-          <Industry industry={report.industry} screenshot={report.industry?.rows.length ? report.screenshot : null} url={report.url} onExpand={report.identity ? onIndustry : undefined} />
-          <div className="reader-columns">
-            <div className="reader-body">
-              <h2>
-                模块修改建议 <span>{report.modules.length}</span>
-              </h2>
-              {report.modules.some((m) => !m.actions?.length) && (
-                <div className="expand-advice">
-                  <SmallButton
-                    disabled={expanding}
-                    onClick={async () => {
-                      setExpanding(true);
-                      setDetailNote("正在按原报告证据细化各模块建议…");
-                      try {
-                        await onExpand();
-                        setDetailNote("");
-                      } catch (e) {
-                        setDetailNote(e.message);
-                      } finally {
-                        setExpanding(false);
-                      }
-                    }}
-                  >
-                    生成详细修改清单
-                  </SmallButton>
-                  <small role="status">{detailNote}</small>
-                </div>
-              )}
-              {report.modules.map((m, i) => (
-                <section className="reader-module" key={i}>
-                  <h3 id={"review-module-" + i} tabIndex={-1}>
-                    {m.name}
-                  </h3>
-                  <blockquote>
-                    <strong>{m.source === "截图" ? "首屏观察" : "页面原文"}</strong>
-                    {m.evidence}
-                  </blockquote>
-                  <dl>
-                    {moduleFields
-                      .filter(([key]) => m[key])
-                      .map(([key, label]) => (
-                        <div key={key}>
-                          <dt>{label}</dt>
-                          <dd>{m[key]}</dd>
-                        </div>
-                      ))}
-                  </dl>
-                  <ModuleAdvice actions={m.actions} />
-                  <SmallButton variant="outline" onClick={() => showPrompt(i)}>
-                    <CodeXml />
-                    查看本模块提示词
-                  </SmallButton>
-                </section>
-              ))}
-            </div>
-            <aside className="reader-aside">
-              <nav aria-label="模块目录">
-                <h3>模块目录</h3>
-                {report.modules.map((m, i) => (
-                  <button key={i} onClick={() => jump("review-module-" + i)}>
-                    {m.name}
-                  </button>
-                ))}
-              </nav>
-              <Monitor report={report} actions={actions} />
-            </aside>
-          </div>
+          <ReviewModules modules={report.modules} showPrompt={showPrompt} onExpand={onExpand} />
+          <Monitor report={report} actions={actions} />
+        </Tabs.Content>
+        <Tabs.Content value="industry">
+          <Industry industry={report.industry} screenshot={report.screenshot} url={report.url}
+            onExpand={report.identity ? onIndustry : undefined} />
         </Tabs.Content>
         <Tabs.Content value="prompt">
           <ReviewPrompt report={report} scope={scope} choose={setScope} />

@@ -27,9 +27,9 @@ export function WebsitePanel() {
   return (
     <section id="website-panel" aria-label="官网分析">
       <div id="website-entry">
-        <h1 id="website-title">官网形象分析</h1>
+        <h1 id="website-title" tabIndex={-1}>官网形象分析</h1>
         <p className="text-muted-foreground my-3">
-          输入官网网址，查看行业竞品、与同行的差距和逐项修改建议。
+          输入官网网址，查看官网传达的品牌形象，以及每个页面模块的优势、不足和修改建议。
         </p>
         <form id="website-form">
           <WebsiteInput />

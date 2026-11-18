@@ -52,8 +52,11 @@ export async function readWorkspace(
       id,
     ]);
     if (!rows.length) return json({ error: "监测项不存在" }, 404);
-    if (path.startsWith("/api/report/"))
-      return json(await report(db, rows[0].config, Date.now()));
+    if (path.startsWith("/api/report/")) {
+      const end = Number(url.searchParams.get("end") ?? Date.now());
+      if (!Number.isSafeInteger(end) || end <= 0 || end > 8640000000000000) return json({error: "时间窗无效"}, 400);
+      return json(await report(db, rows[0].config, end));
+    }
     try {
       return json(await history(db, id!, url.searchParams));
     } catch (e) {

@@ -49,8 +49,7 @@ export function History({ m, report, query, change, refresh }) {
   return (
     <Panel className="history">
       <div className="section-head">
-        <h2 id="history-title">样本历史 · {query.label}</h2>
-        <SmallButton onClick={() => change()}>查看全部样本</SmallButton>
+        <h2 id="history-title">回答记录 · {query.label}</h2>
       </div>
       <div id="history">
         {error ? (

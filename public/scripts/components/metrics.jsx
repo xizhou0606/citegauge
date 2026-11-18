@@ -86,7 +86,17 @@ export function Competitors({ m, report, filter }) {
   );
 }
 export function Sources({ report, filter }) {
-  return (
+  const {valid, observable, citations} = report.summary;
+  return (<>
+    <section className="citation-status" aria-labelledby="citation-status-title">
+      <h2 id="citation-status-title">官网引用情况</h2>
+      <div>{[["引用官网", citations, "citations"], ["已核对无官网", observable - citations, "noCitation"],
+        ["来源不可观测", valid - observable, "unknownCitation"]].map(([label, count, key]) =>
+        <button type="button" key={key} onClick={() => filter(key, "")} aria-label={label + "，查看 " + count + " 份回答"}>
+          <span>{label}</span><strong>{count} <small>份回答</small></strong>
+        </button>
+      )}</div>
+    </section>
     <div className="plot-grid">
       {[
         ["最常引用的页面", "source", report.sources],
@@ -107,10 +117,10 @@ export function Sources({ report, filter }) {
                 <b>{r.hits} 份回答</b>
               </SmallButton>
             ))}
-            {!rows.length && <p className="empty">当前时间窗没有符合条件的引用页。</p>}
+            {!rows.length && <p className="empty">{key === "source" ? "这些回答尚未记录可列出的引用网址。" : "已核对且未引用官网的回答中，尚未记录其他来源网址。"}</p>}
           </div>
         </Panel>
       ))}
-    </div>
+    </div></>
   );
 }

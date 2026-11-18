@@ -13,7 +13,14 @@ function Logo({ id }) {
     />
   );
 }
+const descriptions = {
+  monitoring: "查看 AI 回答中品牌被提及、官网被引用和明确推荐的频率。",
+  competitors: "对照同行官网找出可改进的模块，或比较 AI 回答中的品牌提及。",
+  sources: "查看回答引用了哪些页面，以及官网缺席时引用了谁。",
+  evidence: "阅读原始回答，核对引用，并标记 AI 是否明确推荐了品牌。",
+};
 export function Scope({
+  view,
   title,
   platform,
   platforms,
@@ -35,9 +42,9 @@ export function Scope({
           <Logo id={platform.id} />
         </div>
         <div>
-          <h1>{title}</h1>
+          <h1 tabIndex={-1}>{title}</h1>
           <p>
-            {items.length} 个监测项 · {channel}
+            {descriptions[view]}
           </p>
         </div>
       </div>
@@ -66,7 +73,7 @@ export function Scope({
           ))}
         </nav>
         <div className="monitor-picker">
-          <Label htmlFor="monitor">监测项</Label>
+          <Label htmlFor="monitor">监测项（{items.length}）</Label>
           <WorkspaceSelect
             id="monitor"
             value={active}

@@ -80,6 +80,8 @@ export async function history(db: Database, id: string, params: URLSearchParams)
     all: "TRUE",
     unreviewed: "state='ok' AND " + recommended + " IS NULL",
     competitorGap,
+    noCitation: noOfficialCitation,
+    unknownCitation: "state='ok' AND " + cited + " IS NULL",
     gapSource: noOfficialCitation + " AND " + sourceMatch,
     mentions: "state='ok' AND " + mentioned,
     citations: "state='ok' AND (" + cited + ")",

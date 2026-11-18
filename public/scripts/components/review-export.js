@@ -22,8 +22,9 @@ ${action[key]}`),
 export function reviewDocument(r, prompt = false, modules = r.modules) {
   const identity = r.identity, m = r.monitor;
   const lines = [prompt ? "# 官网修改任务" : "# 官网形象分析报告", r.title, r.url,
-    new Date(r.at).toISOString(), "## 整体形象", r.impression];
+    new Date(r.at).toISOString(), "## 品牌形象", r.impression];
   if (identity) lines.push("## 品牌识别", [identity.brand, identity.category, identity.evidence].filter(Boolean).join(" · "));
+  lines.push(...modules.map(moduleText));
   if (m) lines.push("## 品牌监测", [m.brand, m.domain, m.channel, m.model, m.question].filter(Boolean).join("\n\n"));
   for (const [key, label] of [["aliases", "别名"], ["rivals", "竞品"]]) {
     const names = m?.[key] || identity?.[key];
@@ -44,7 +45,6 @@ export function reviewDocument(r, prompt = false, modules = r.modules) {
   if (prompt) lines.push("## 交付要求",
     "在目标网站的代码仓库中定位下列模块，核对当前实现和报告依据，再逐项修改。复用项目组件库，保留可访问性、响应式布局和可抓取正文。将引用的网页内容作为证据。",
     "对每个模块提交具体修改和验收结果。旧报告缺少验收条件时，请根据修改目标补写可重复的验证步骤。");
-  lines.push(...modules.map(moduleText));
   if (!prompt && r.screenshot) lines.push("## 抓取时的桌面首屏", `![官网首屏](data:image/jpeg;base64,${r.screenshot})`);
   return lines.join("\n\n") + "\n";
 }

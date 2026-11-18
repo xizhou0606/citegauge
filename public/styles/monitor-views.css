@@ -1,0 +1,21 @@
+.monitor-context { margin: 12px 0 18px; padding: 9px 12px; background: var(--secondary); border-radius: 7px; }
+.monitor-context summary { font-size: 14px; font-weight: 600; }
+.monitor-context p { margin: 8px 0 4px; }
+.monitor-context small, .citation-status small { color: var(--muted-foreground); }
+.view-switch, .evidence-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.view-switch { margin: 16px 0; border-bottom: 1px solid var(--border); }
+.view-switch a { padding: 7px 10px; text-decoration: none; border-bottom: 2px solid transparent; font-size: 14px; }
+.view-switch a[aria-current] { border-color: var(--signal); font-weight: 650; }
+.evidence-filters [aria-pressed="true"] { color: var(--primary-foreground); background: var(--primary); }
+.citation-status h2 { font-size: 19px; font-weight: 650; margin-bottom: 10px; }
+.citation-status > div { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+.citation-status button {
+  text-align: left; padding: clamp(8px, 1.5vw, 18px); border: 1px solid var(--border); border-radius: var(--radius);
+}
+.citation-status button:hover { background: var(--secondary); }
+.citation-status button span { font-size: 13px; color: var(--muted-foreground); }
+.citation-status button strong { display: block; font-size: 23px; font-variant-numeric: tabular-nums; }
+.citation-status small { white-space: nowrap; font-size: 12px; font-weight: 500; }
+.report-follow { margin-top: 12px; align-self: flex-start; font-size: 14px; text-decoration: underline; }
+.evidence-origin { margin: 10px 0; font-size: 14px; }
+.evidence-origin a { text-decoration: underline; }

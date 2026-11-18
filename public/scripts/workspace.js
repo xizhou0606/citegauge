@@ -4,6 +4,7 @@ import { $, action, status } from "./core/ui.js";
 import { api, requestJSON } from "./core/api.js";
 import { createElement } from "react";
 import { createRoot } from "react-dom/client";
+import { readEvidenceRoute } from "./core/evidence-route.js";
 import { Scope } from "./components/scope.jsx";
 import { renderDashboard } from "./components/dashboard.jsx";
 
@@ -11,7 +12,7 @@ const scope = createRoot($("scope"));
 let catalog, platform, channel, active;
 function showView() {
   const links = [...document.querySelectorAll(".feature-nav a")];
-  const current = links.find((link) => link.hash === location.hash) || links[0];
+  const current = links.find((link) => link.hash === location.hash.split("?")[0]) || links[0];
   const view = current.hash.slice(1);
   const monitoring = view !== "website";
   $("website-panel").hidden = monitoring;
@@ -35,6 +36,8 @@ async function select(p, c, id) {
   const matches = catalog.monitors.filter((m) => m.channel === channel);
   const monitor = matches.find((m) => m.id === id) || matches[0];
   active = monitor?.id;
+  const route = readEvidenceRoute(location.hash);
+  if (route && route.monitor !== active) history.replaceState(null, "", "#evidence");
   sessionStorage.setItem("cg-selection", JSON.stringify({ platform: p.id, channel, id: active }));
   await refreshView();
 }
@@ -43,6 +46,7 @@ async function refreshView() {
   if (!catalog || !platform) return;
   scope.render(
     createElement(Scope, {
+      view,
       title: $("crumb").textContent,
       platform,
       platforms: catalog.platforms,
@@ -73,7 +77,7 @@ async function load(id) {
   try {
     previous = JSON.parse(sessionStorage.getItem("cg-selection")) || {};
   } catch {}
-  const m = catalog.monitors.find((item) => item.id === (id || previous.id));
+  const m = catalog.monitors.find((item) => item.id === (id || readEvidenceRoute(location.hash)?.monitor || previous.id));
   const p =
     catalog.platforms.find((x) => (m ? x.channels.includes(m.channel) : x.id === previous.platform)) ||
     catalog.platforms.find((x) => x.channels.includes(catalog.monitors[0]?.channel)) ||
@@ -89,16 +93,27 @@ window.addEventListener("session-expired", () => {
   location.replace("/login");
 });
 $("add").onclick = () => create();
-window.addEventListener("hashchange", () => refreshView().catch((e) => status(e.message)));
+window.addEventListener("hashchange", () => {
+  const route = readEvidenceRoute(location.hash);
+  const next = route && catalog?.monitors.find(m => m.id === route.monitor);
+  const work = next && active !== next.id ? select(catalog.platforms.find(p => p.channels.includes(next.channel)), next.channel, next.id) : refreshView();
+  const destination = location.hash;
+  work.then(() => requestAnimationFrame(() => {
+    if (location.hash !== destination || (destination === "#website" && document.activeElement === $("website-url"))) return;
+    const heading = document.querySelector(location.hash === "#website" ? "#website-entry:not([hidden]) h1, #website-result .reader-heading h1" : "#scope h1");
+    heading?.focus({ preventScroll: true });
+    window.scrollTo(0, 0);
+  })).catch(e => status(e.message));
+});
 showView();
 bindWebsiteReview({
   refresh: load,
   settled: (id) => {
     if (showView() !== "website" && active === id) return load(id);
   },
-  open: async (id) => {
+  open: async (id, view = "monitoring") => {
     await load(id);
-    location.hash = "monitoring";
+    location.hash = view;
     showView();
   },
 });

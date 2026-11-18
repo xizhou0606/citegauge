@@ -41,7 +41,7 @@ export function bindWebsiteReview(actions) {
     field.readOnly = true;
     form.setAttribute("aria-busy", "true");
 
-    status.textContent = "正在抓取官网、识别品牌，并对照行业竞品分析页面模块…";
+    status.textContent = "正在抓取官网，分析品牌形象和各模块的优势与不足…";
     try {
       const { report } = await api("site-review", { url });
       renderReport(report);

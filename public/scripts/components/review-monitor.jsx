@@ -44,12 +44,12 @@ export function Monitor({ report, actions }) {
     <Panel className="report-monitor">
       <h3>品牌监测</h3>
       <p>{m.question}</p>
-      {report.identity?.brand === m.brand && <small>品牌识别依据 · {report.identity.evidence}</small>}
       {!!m.aliases.length && <small>品牌别名 · {m.aliases.join("、")}</small>}
       {!!m.rivals.length && <small>官网提到的竞品 · {m.rivals.join("、")}</small>}
       <AsyncButton id="open-site-monitor" run={() => actions.open(m.id)}>
         查看监测结果
       </AsyncButton>
+      <AsyncButton run={() => actions.open(m.id, "competitors")}>查看该品牌的竞品对比</AsyncButton>
       <small role="status">{note}</small>
     </Panel>
   );
