@@ -1,11 +1,16 @@
 @import url("./public-pages.css");
 :root {
-  --ink: #192e29;
-  --accent: #096d53;
-  --mint: #e4f2e9;
-  --line: #dce5df;
-  --paper: #f4f7f4;
-  --muted: #526a60;
+  --ink: #19223a;
+  --accent: #454ac6;
+  --mint: #ecedff;
+  --line: #dbe0ea;
+  --paper: #f7f8fc;
+  --muted: #566078;
+  --radius: 14px;
+  --shadow: 0 12px 40px -20px #1c25594d;
+  --bs-border-color: var(--line);
+  --bs-body-color: var(--ink);
+  --bs-link-color: var(--accent);
   --font: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
 }
 body {
@@ -41,8 +46,8 @@ a {
   place-items: center;
   width: 34px;
   height: 34px;
-  background: #b9ecc6;
-  color: #194937;
+  background: var(--accent);
+  color: #ffffff;
   border-radius: 10px;
   font-size: 23px;
 }
@@ -61,15 +66,15 @@ a {
 .btn-primary {
   --bs-btn-bg: var(--accent);
   --bs-btn-border-color: var(--accent);
-  --bs-btn-hover-bg: #07563f;
-  --bs-btn-hover-border-color: #07563f;
-  --bs-btn-active-bg: #07563f;
+  --bs-btn-hover-bg: #34399c;
+  --bs-btn-hover-border-color: #34399c;
+  --bs-btn-active-bg: #34399c;
 }
 .btn-light {
   --bs-btn-bg: white;
   --bs-btn-border-color: var(--line);
   --bs-btn-hover-bg: var(--mint);
-  --bs-btn-hover-border-color: #afcbbd;
+  --bs-btn-hover-border-color: #a7abd9;
 }
 .btn-link {
   color: var(--accent);
@@ -81,13 +86,13 @@ a {
 a:focus-visible,
 button:focus-visible,
 summary:focus-visible {
-  outline: 3px solid #33956f;
+  outline: 3px solid var(--accent);
   outline-offset: 3px;
 }
 .form-control:focus,
 .form-select:focus {
-  border-color: #4c967c;
-  box-shadow: 0 0 0 3px #bce5d3;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--mint);
 }
 h1,
 h2,

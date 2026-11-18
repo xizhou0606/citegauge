@@ -1,11 +1,15 @@
 import { $, clean, icon } from "../core/ui.js";
 export function platformNav(platforms, monitors, platform, select) {
+  const picker = $("platform-picker");
+  picker.replaceChildren(...platforms.map((p) => new Option(p.name, p.id)));
+  picker.value = platform.id;
+  picker.onchange = () => select(picker.value);
   $("platforms").innerHTML = platforms
     .map((p) => {
       const count = monitors.filter((m) =>
         p.channels.includes(m.channel),
       ).length;
-      return `<button class="platform-nav" aria-label="${clean(p.name)}，${count} 个监测项" data-platform="${clean(p.id)}" aria-pressed="${p.id === platform.id}">
+      return `<button class="nav-link platform-nav" aria-label="${clean(p.name)}，${count} 个监测项" data-platform="${clean(p.id)}" aria-pressed="${p.id === platform.id}">
       <i>${icon(p.id === "doubao" ? "cloud" : "cpu")}</i>${clean(p.name)}<small>${count}</small></button>`;
     })
     .join("");
@@ -33,7 +37,7 @@ export function scopeSection({
   };
   $("scope").innerHTML =
     `<div class="scope-title"><div class="platform-mark">${icon(platform.id === "doubao" ? "cloud" : "cpu")}</div>
-    <div><h1>${clean(platform.name)}监测概览</h1><p>品牌可见度与引用分析</p></div></div>
+    <div><h1>${clean(platform.name)}监测概览</h1><p>${items.length} 个监测项 · ${clean(channel)}</p></div></div>
     <div class="scope-filters"><nav class="nav nav-pills" aria-label="采样渠道">${platform.channels
       .map(
         (c) => `<button

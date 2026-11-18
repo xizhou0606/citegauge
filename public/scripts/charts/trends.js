@@ -1,17 +1,17 @@
 import { percent } from "../core/ui.js";
 const metrics = [
-  { name: "品牌提及率", hit: "mentions", base: "valid", color: "#136d55" },
+  { name: "品牌提及率", hit: "mentions", base: "valid", color: "#454ac6" },
   {
     name: "官网引用率",
     hit: "citations",
     base: "observable",
-    color: "#5786ce",
+    color: "#337b80",
   },
   {
     name: "明确推荐率",
     hit: "recommended",
     base: "reviewed",
-    color: "#aa79a9",
+    color: "#ad658e",
   },
 ];
 export function trendConfig(report, animation) {
@@ -69,7 +69,7 @@ export function trendConfig(report, animation) {
         y: {
           min: 0,
           max: 100,
-          grid: { color: "#e9eeeb" },
+          grid: { color: "#e8ebf2" },
           border: { display: false },
           ticks: { stepSize: 25, callback: (v) => v + "%" },
         },

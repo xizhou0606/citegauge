@@ -1,9 +1,4 @@
 import { requestJSON } from "./core/api.js";
-import { drawSignal } from "./components/signal-field.js";
-
-const canvas = document.getElementById("signal-field");
-const observer = new ResizeObserver(() => drawSignal(canvas));
-observer.observe(canvas);
 const password = document.getElementById("password");
 const reveal = document.getElementById("reveal");
 reveal.onclick = () => {

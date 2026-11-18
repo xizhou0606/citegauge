@@ -39,7 +39,7 @@ export function metricsSection(c) {
         (
           [key, label, value, note, symbol],
           i,
-        ) => `<button class="kpi surface k${i}" data-filter="${key}" aria-label="${label} ${note}，查看样本">
+        ) => `<button class="btn kpi surface k${i}" data-filter="${key}" aria-label="${label} ${note}，查看样本">
     <span class="kpi-title"><i>${icon(symbol)}</i>${label}</span><strong>${value}</strong><small>${note}</small></button>`,
       )
       .join("") +
@@ -51,22 +51,22 @@ export function breakdownSection(m, data) {
     { name: m.brand, hits: data.summary.mentions, kind: "mentions" },
     ...data.rivals.map((r) => ({ ...r, kind: "rival" })),
   ];
-  return `<div class="plot-grid breakdown"><section class="surface"><h2>品牌与竞品提及</h2>
+  return `<div class="plot-grid breakdown"><section class="card surface"><h2>品牌与竞品提及</h2>
   <div class="ranking">${items
     .map(
       (
         r,
-      ) => `<button data-filter="${r.kind}" data-value="${clean(r.name)}" class="ranking-row">
+      ) => `<button data-filter="${r.kind}" data-value="${clean(r.name)}" class="btn ranking-row">
   <span>${clean(r.name)}</span><progress value="${r.hits}" max="${data.summary.valid || 1}"></progress><b>${r.hits} / ${data.summary.valid}</b></button>`,
     )
     .join("")}</div></section>
-  <section class="surface"><h2>引用来源</h2><div class="source-list">${
+  <section class="card surface"><h2>引用来源</h2><div class="source-list">${
     data.sources
       .map(
         (
           s,
           i,
-        ) => `<button data-filter="source" data-value="${clean(s.name)}" class="source-row">
+        ) => `<button data-filter="source" data-value="${clean(s.name)}" class="btn source-row">
   <small>${i + 1}</small><span>${clean(s.name)}</span><b>${s.hits} 条</b></button>`,
       )
       .join("") || '<p class="empty">尚无已核对的来源网址</p>'
