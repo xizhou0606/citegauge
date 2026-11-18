@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageShot, Source } from "./industry-evidence.jsx";
@@ -26,6 +27,7 @@ function Tasks({ groups }) {
 export function Industry({ industry, screenshot, url, onAnalyze, onExpand }) {
   const rows = industry?.rows || [];
   const [selected, select] = useState("");
+  const [sourceText, setSourceText] = useState("");
   const [working, setWorking] = useState(false);
   const [message, setMessage] = useState("");
   const active = rows.find(r => r.name === selected) || rows[0];
@@ -35,11 +37,11 @@ export function Industry({ industry, screenshot, url, onAnalyze, onExpand }) {
     if (!groups.has(row.change.target)) groups.set(row.change.target, []);
     groups.get(row.change.target).push(row);
   }
-  async function expand() {
+  async function expand(sources = []) {
     setWorking(true);
     setMessage("正在查找其他品牌并逐页核对来源…");
     try {
-      await onExpand();
+      await onExpand(sources);
       setMessage("检索已完成。");
     } catch (e) { setMessage(e.message); }
     finally { setWorking(false); }
@@ -49,7 +51,7 @@ export function Industry({ industry, screenshot, url, onAnalyze, onExpand }) {
     <header className="industry-intro">
       <div><h2>行业竞品与官网修改建议</h2><p>{industry?.category || "行业对比"}</p></div>
       <div className="industry-buttons">
-        {onExpand && <Button disabled={working} onClick={expand}>{working ? "检索中…" : "扩展竞品清单"}</Button>}
+        {onExpand && <Button disabled={working} onClick={() => expand()}>{working ? "检索中…" : "扩展竞品清单"}</Button>}
         {onAnalyze && <Button variant="outline" onClick={onAnalyze}>重新分析官网</Button>}
       </div>
     </header>
@@ -59,6 +61,13 @@ export function Industry({ industry, screenshot, url, onAnalyze, onExpand }) {
       <p>{industry?.note || "当前官网还没有行业检索报告。"}</p>
       {!!industry?.queries?.length && <details className="industry-queries"><summary>查看检索范围</summary>
         <ul>{industry.queries.map(q => <li key={q}>{q}</li>)}</ul></details>}
+      {onExpand && <details className="industry-queries"><summary>补充已知产品页</summary>
+        <label className="block my-2">每行一个公开网址，最多 12 个
+          <Textarea value={sourceText} onChange={e => setSourceText(e.target.value)} />
+        </label>
+        <Button size="sm" variant="outline" disabled={working || !sourceText.trim()}
+          onClick={() => expand(sourceText.trim().split(/\s+/))}>核对这些来源</Button>
+      </details>}
       {!!active && <>
         <div className="industry-names" role="group" aria-label="选择品牌查看依据">
           {rows.map(r => <button key={r.name} type="button" aria-pressed={active.name === r.name}

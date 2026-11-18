@@ -15,7 +15,7 @@ export function saveIndustry(db: D1Database, url: string, started: number, at: n
       JSON.stringify({...industry, at, url, screenshot}), guard ?? null);
 }
 
-export async function fillIndustry(env: Env, at: number, expand = false) {
+export async function fillIndustry(env: Env, at: number, expand = false, sources: string[] = []) {
   const row = await env.DB.prepare("SELECT started,report FROM latest_site_review WHERE id=1 AND report->>'at'=?1")
     .bind(at).first<{started: number; report: string}>();
   if (!row) return json({error: "官网报告已更新，请刷新。"}, 409);
@@ -25,11 +25,12 @@ export async function fillIndustry(env: Env, at: number, expand = false) {
   if (!env.DASHSCOPE_API_KEY) return json({error: "请先配置千问密钥。"}, 503);
   const previous = report.industry;
   const industry: Comparison = await compareIndustry(report.identity, report.modules.map(({name, evidence}) => ({name, evidence})),
-    report.url, env.DASHSCOPE_API_KEY, env.BRAVE_SEARCH_API_KEY, previous?.rows.map(r => r.name));
+    report.url, env.DASHSCOPE_API_KEY, env.BRAVE_SEARCH_API_KEY, previous?.rows.map(r => r.name), sources);
   if (!industry.rows.length) return json({error: industry.note}, 422);
+  const verified = industry.rows;
   industry.rows = mergeBrands(previous?.rows || [], industry.rows);
   industry.queries = [...new Set([...(previous?.queries || []), ...industry.queries])];
-  industry.preview = previous?.preview || await sourcePreview(env.BROWSER, industry.rows);
+  industry.preview = previous?.preview || await sourcePreview(env.BROWSER, verified);
   industry.revision = Date.now();
   const before = previous?.revision ?? 0;
   const [updated] = await env.DB.batch([

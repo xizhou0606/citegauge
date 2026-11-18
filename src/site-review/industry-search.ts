@@ -23,12 +23,12 @@ async function search(query: string, token: string) {
   });
 }
 
-export async function industrySources(identity: Identity, key: string, ownUrl: string, token?: string, known: string[] = []) {
+export async function industrySources(identity: Identity, key: string, ownUrl: string, token?: string, known: string[] = [], sources: string[] = []) {
   const { category, brand } = identity;
   const omit = known.length ? "，补充这些品牌以外的厂商：" + known.slice(0, 30).join("、") : "";
   const queries = [
     category + " 中国本土品牌 同类产品 官网",
-    brand + " global and North American direct competitors official product websites",
+    category + " 与 " + brand + " 同类，北美厂商，按行业英文术语检索官网",
     category + " 欧洲及亚太厂商 产品官网",
     category + " 垂直细分领域 新兴品牌 官网",
     category + " software vendor directories market landscape alternatives 行业目录",
@@ -40,15 +40,20 @@ export async function industrySources(identity: Identity, key: string, ownUrl: s
     const other = new URL(url).hostname;
     return other !== host && !other.endsWith("." + host);
   };
-  if (!token) {
-    const results = await Promise.allSettled(queries.map(q => discoverUrls(q, key)));
-    const urls = new Set<string>();
-    results.forEach((r, i) => {
-      if (r.status !== "fulfilled" || !r.value.length) return;
-      completed.push(queries[i]);
-      for (const url of r.value) if (external(url)) urls.add(url);
-    });
-    // Share the fetch budget among markets before taking a second URL from a domain.
+  if (!token || sources.length) {
+    const urls = new Set<string>(sources.filter(external));
+    if (sources.length) completed.push("补充核对 " + sources.length + " 个指定产品页");
+    else {
+      const results = await Promise.allSettled(queries.map(q => discoverUrls(q, key)));
+      // Interleave markets so a slower group has the same chance of being read.
+      for (let n = 0; n < 12; n++) {
+        results.forEach((r, i) => {
+          if (r.status !== "fulfilled" || !r.value[n]) return;
+          if (n === 0) completed.push(queries[i]);
+          if (external(r.value[n])) urls.add(r.value[n]);
+        });
+      }
+    }
     const byHost = new Map<string, string>();
     for (const url of urls) {
       const domain = new URL(url).hostname.replace(/^www\./, "");
@@ -63,7 +68,7 @@ export async function industrySources(identity: Identity, key: string, ownUrl: s
         if (r.status === "fulfilled" && r.value && external(r.value.url)) pages.set(r.value.url, r.value);
       }
     }
-    return { pages: [...pages.values()], completed, planned: queries.length };
+    return { pages: [...pages.values()], completed, planned: sources.length ? 1 : queries.length };
   }
   // Sequential requests also work with low-concurrency search plans.
   for (const query of queries) {

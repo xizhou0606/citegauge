@@ -45,6 +45,8 @@ export async function readSearchPage(input: string, budget: { remaining: number 
         if (body.length < 4500) body += chunk.text;
       }});
     await parser.transform(new Response(new Blob(chunks))).arrayBuffer();
+    if (/安全验证|访问验证|验证码|just a moment|captcha|access denied|attention required/i.test(title) ||
+      /\/(?:captcha|verify)(?:[./?]|$)/i.test(url)) return null;
     const snippet = (siteName + " " + description + " " + body).replace(/\s+/g, " ").trim().slice(0, 4500);
     return (title.trim() || siteName) && snippet ? {url, title: title.trim().slice(0, 240), snippet} : null;
   }

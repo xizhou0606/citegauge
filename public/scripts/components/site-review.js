@@ -16,8 +16,8 @@ export function bindWebsiteReview(actions) {
         report,
         actions,
         onAnalyze: openWebsiteEntry,
-        onIndustry: async () => {
-          const result = await api("site-review", { industryAt: report.at, expandIndustry: true });
+        onIndustry: async (sources) => {
+          const result = await api("site-review", { industryAt: report.at, expandIndustry: true, sources });
           if (activeReport === report) renderReport(result.report);
         },
         onExpand: async () => {

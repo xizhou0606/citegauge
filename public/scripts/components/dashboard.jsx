@@ -47,8 +47,8 @@ function Dashboard({ view, m, report, industry, ready, refresh, onCreate }) {
         </>
       )}
       {view === "competitors" && <Industry industry={industry} onAnalyze={() => onCreate(m.domain)}
-        onExpand={industry?.reviewAt ? async () => {
-          await api("site-review", {industryAt: industry.reviewAt, expandIndustry: true});
+        onExpand={industry?.reviewAt ? async (sources) => {
+          await api("site-review", {industryAt: industry.reviewAt, expandIndustry: true, sources});
           await refresh();
         } : undefined} />}
       {view === "competitors" && <Competitors m={m} report={report} filter={filter} />}

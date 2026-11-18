@@ -20,8 +20,13 @@ export async function siteReview(req: Request, env: Env) {
   if (req.method !== "POST") return json({ error: "请求方法无效" }, 405);
   let url;
   try {
-    const body = await req.json<{ url?: unknown; expandAt?: number; industryAt?: number; expandIndustry?: boolean }>();
-    if (Number.isSafeInteger(body.industryAt)) return fillIndustry(env, body.industryAt!, body.expandIndustry === true);
+    const body = await req.json<{ url?: unknown; expandAt?: number; industryAt?: number; expandIndustry?: boolean; sources?: unknown }>();
+    if (Number.isSafeInteger(body.industryAt)) {
+      if (body.sources !== undefined && (!Array.isArray(body.sources) || body.sources.length > 12))
+        return json({error: "每次最多可补充 12 个公开产品页。"}, 400);
+      const sources = Array.isArray(body.sources) ? [...new Set(body.sources.map(websiteURL))] : [];
+      return fillIndustry(env, body.industryAt!, body.expandIndustry === true, sources);
+    }
     if (Number.isSafeInteger(body.expandAt)) return expandAdvice(env, body.expandAt!);
     url = websiteURL(body.url);
   } catch {

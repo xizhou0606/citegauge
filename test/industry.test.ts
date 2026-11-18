@@ -10,11 +10,11 @@ const identity = { brand: "演示甲", aliases: ["甲平台"], rivals: [], categ
   evidence: "演示甲", question: "团队如何选择排班工具？" };
 const page = {title: "演示乙排班工具", snippet: "可查看团队班表示例", url: "https://example.org/"};
 const modules = [{name: "产品介绍", evidence: "演示甲为团队排班"}];
-const row = {name: "演示乙", segment: "同类排班工具", source: 0, quote: "可查看团队班表示例",
+const row = {relation: "直接竞品", name: "演示乙", segment: "同类排班工具", source: 0, quote: "可查看团队班表示例",
   change: {module: 0, priority: "高", gap: "当前介绍只给出用途", action: "在介绍下增加真实班表示例", verify: "能找到班表及字段说明"}};
 
 test("收录官网未点名的同行，拒绝自家别名、无来源名称和伪造引文", async () => {
-  const rows = industryRows({rows: [row, row, {...row, source: 1}, {...row, name: "演示丙"},
+  const rows = industryRows({rows: [row, row, {...row, name: "工具", relation: "排除"}, {...row, source: 1}, {...row, name: "演示丙"},
     {...row, name: "甲平台"}, {...row, name: "工具", quote: "虚构描述"}]}, identity, [page], modules);
   assert.deepEqual(rows.map(r => r.name), ["演示乙"]);
   assert.equal(rows[0].change.evidence, modules[0].evidence);
