@@ -32,9 +32,12 @@ export async function capture(browser: BrowserRun, url: string): Promise<Snapsho
     throw Error("浏览器额度或并发已达上限，请稍后再试");
   if (!response.ok) throw Error("官网未能在浏览器中打开，请确认网址或稍后重试");
   const data = await response.json<BrowserRunSnapshotSuccessResponse>();
-  if (!data.success || data.meta?.status >= 400 ||
-      /^(just a moment|access denied|attention required|验证访问)/i.test(data.meta?.title || ""))
-    throw Error("目标网站返回了错误页或访问验证，无法分析官网");
+  if (!data.success) throw Error("浏览器未完成页面抓取，请稍后重试");
+  const status = data.meta?.status;
+  if (status >= 400)
+    throw Error(`目标网站向 Cloudflare 浏览器返回 HTTP ${status}，请确认该页面可公开抓取`);
+  if (/^(just a moment|access denied|attention required|验证访问)/i.test(data.meta?.title || ""))
+    throw Error("目标网站向 Cloudflare 浏览器展示了访问验证页，未取得官网内容");
   const image = data.result?.screenshot;
   const markdown = data.result?.markdown?.trim() || "";
   if (!image?.startsWith("/9j/") || image.length > 1500000)
