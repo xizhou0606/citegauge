@@ -15,7 +15,7 @@ test("官网输入支持裸域名和深层页面，拒绝凭据、内网与非�
 test("报告只保留有截图观察或可核对原文的模块", () => {
   const module = { name: "产品案例", evidence: "客户故事", source: "原文",
     strength: "给出了案例入口", weakness: "入口缺少行业说明", change: "在案例标题旁补充行业" };
-  const payload = { usable: true, impression: "面向品牌团队", modules: [
+  const payload = { usable: true, identity: null, impression: "面向品牌团队", modules: [
     module, { ...module, evidence: "一条不存在的引用" },
     { ...module, source: "截图", name: "首屏", evidence: "左侧标题和右侧截图形成对照" },
   ] };
@@ -48,5 +48,40 @@ test("失败的官网分析不会覆盖最近成功报告", async () => {
       body: JSON.stringify({ url: "http://127.0.0.1" }) }), env);
     assert.equal(result.status, 400);
     assert.equal((await get()).report.url, "https://example.com");
+  } finally { await f.close(); }
+});
+
+test("只保留官网可核对的品牌和名称，监测问题不能诱导品牌提及", async () => {
+  const { groundedIdentity } = await import("../src/site-review/identity.ts");
+  const page = "引迹 CiteGauge 帮助品牌追踪 AI 提及，提供与 Acme 的对比。";
+  const identity = { brand: "引迹", category: "品牌监测工具", evidence: "引迹 CiteGauge", aliases: ["CiteGauge", "虚构"],
+    rivals: ["Acme", "不存在"], question: "如何判断一个品牌在 AI 中的曝光度？" };
+  const found = groundedIdentity(identity, page);
+  assert.deepEqual(found.aliases, ["CiteGauge"]);
+  assert.deepEqual(found.rivals, ["Acme"]);
+  assert.equal(groundedIdentity({ ...identity, brand: "其他" }, page), null);
+  assert.equal(groundedIdentity({ ...identity, question: "CiteGauge 好用吗？" }, page).question,
+    "有哪些值得考虑的品牌监测工具，各有什么特点？");
+});
+
+test("同一官网重复建项保留原问题，首次采样只执行一次", async () => {
+  const { ensureSiteMonitor } = await import("../src/site-review/monitor.ts");
+  const { Workspace } = await import("../src/storage/workspace.ts");
+  const f = await fixture();
+  try {
+    const identity = { brand: "例子", category: "客服系统", aliases: [], rivals: [], evidence: "例子", question: "怎样选择客服系统？" };
+    const first = await ensureSiteMonitor(f.binding, "https://example.com/", identity);
+    const again = await ensureSiteMonitor(f.binding, "https://www.example.com/about", { ...identity, question: "另一个问题" });
+    assert.deepEqual(again, first);
+    assert.equal(first.model, "qwen3.7-flash");
+    assert.equal(first.daily, false);
+    const workspace = new Workspace({ blockConcurrencyWhile: fn => fn(),
+      storage: { deleteAlarm: async () => {}, setAlarm: async () => {} } }, { DB: f.binding });
+    await workspace.alarm();
+    await ensureSiteMonitor(f.binding, "https://example.com/", identity);
+    await workspace.alarm();
+    const runs = (await f.pool.query("SELECT id FROM runs")).rows;
+    assert.deepEqual(runs, [{ id: "initial-" + first.id }]);
+    assert.equal((await f.pool.query("SELECT due FROM monitors")).rows[0].due, 0);
   } finally { await f.close(); }
 });

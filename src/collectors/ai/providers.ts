@@ -1,4 +1,4 @@
-import { createAlibaba } from "@ai-sdk/alibaba";
+import { qwen, qwenModel, qwenOptions } from "./qwen.ts";
 import { createMoonshotAI } from "@ai-sdk/moonshotai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
@@ -26,13 +26,10 @@ export const adapters: Record<ApiChannel, Adapter> = {
   },
   "通义千问 API": {
     vendor: "DASHSCOPE",
-    defaults: ["qwen-plus", "qwen-flash"],
+    defaults: [qwenModel, "qwen-plus", "qwen-flash"],
     collect(key, model, question) {
-      const provider = createAlibaba({
-        apiKey: key,
-        baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1",
-      });
-      return textSample(provider.chatModel(model), question);
+      return textSample(qwen(key).chatModel(model), question,
+        model === qwenModel ? { providerOptions: qwenOptions } : {});
     },
   },
   "Kimi API": {

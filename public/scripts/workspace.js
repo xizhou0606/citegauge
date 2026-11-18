@@ -3,7 +3,6 @@ import { $, action, status } from "./core/ui.js";
 import { api, requestJSON } from "./core/api.js";
 import { platformNav, scopeSection } from "./components/scope.js";
 import { renderDashboard } from "./components/dashboard.js";
-import { newMonitor } from "./components/monitor-form.js";
 
 let catalog, platform, channel, active;
 function showView() {
@@ -18,7 +17,11 @@ function showView() {
   }
 }
 function create() {
-  newMonitor({ platforms: catalog.platforms, models: catalog.models, channel, onSave: load });
+  location.hash = "website";
+  showView();
+  const field = $("website-url");
+  field.focus();
+  field.select();
 }
 async function select(p, c, id) {
   platform = p;
@@ -88,7 +91,17 @@ window.addEventListener("session-expired", () => {
 $("add").onclick = () => create();
 window.addEventListener("hashchange", showView);
 showView();
-bindWebsiteReview();
+bindWebsiteReview({
+  refresh: load,
+  settled: (id) => {
+    if (location.hash === "#monitoring" && active === id) return load(id);
+  },
+  open: async (id) => {
+    await load(id);
+    location.hash = "monitoring";
+    showView();
+  },
+});
 load().catch((error) => status(error.message));
 window.addEventListener("pageshow", (e) => {
   if (e.persisted) location.reload();

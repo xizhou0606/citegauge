@@ -19,7 +19,7 @@ export const home = `<main class="public-main">
   <section class="hero">
     <div class="intro">
       <h1>你的官网，<br>给人什么印象？</h1>
-      <p>从官网首屏和页面原文，逐块找出品牌表达的优势与不足。登录后查看具体改法，再追踪品牌在 AI 回答中的提及和引用。</p>
+      <p>只需一个官网网址。AI 会识别品牌，逐块分析官网的优势、不足和改法，并自动监测品牌在千问回答中的表现。</p>
       <form id="site-entry" action="/workspace" method="get">${websiteInput}</form>
       <div class="actions">
         <a class="text-action" href="/workspace#monitoring">进入模型监测</a>

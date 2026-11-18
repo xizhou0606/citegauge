@@ -14,7 +14,7 @@ export async function renderDashboard(m, ready, refresh, onCreate) {
   clearPlots();
   if (!m) {
     panel.innerHTML = `<section class="card surface empty-platform">
-      <div><h2>添加第一个监测问题</h2><p>选定品牌，写下用户会向模型提出的问题，就可以开始采样并核对回答。</p>
+      <div><h2>从官网创建监测项</h2><p>输入官网网址，AI 会识别品牌、生成监测问题，并用千问完成首次采样。</p>
       <button id="first-monitor" class="btn btn-primary">${icon("plus-lg")}新建监测项</button></div>
       <aside class="question-example"><span>${icon("file-earmark-text")} 监测问题示例</span>
       <blockquote>小团队如何管理客户跟进？</blockquote></aside></section>`;

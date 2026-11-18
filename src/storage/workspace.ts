@@ -1,3 +1,5 @@
+import { ensureSiteMonitor } from "../site-review/monitor.ts";
+import type { Identity } from "../site-review/identity.ts";
 import { syncAlarm } from "./schedule.ts";
 import { readWorkspace } from "./queries.ts";
 import { reviewSample } from "./review.ts";
@@ -10,10 +12,13 @@ import type { Env } from "../runtime/env.ts";
 import { json } from "../runtime/response.ts";
 
 export class Workspace {
-  constructor(
-    private ctx: DurableObjectState,
-    private env: Env,
-  ) {}
+  private ctx: DurableObjectState;
+  private env: Env;
+
+  constructor(ctx: DurableObjectState, env: Env) {
+    this.ctx = ctx;
+    this.env = env;
+  }
   async alarm() {
     const db = new Database(this.env.DB);
     const { rows } = await db.query(
@@ -26,10 +31,10 @@ export class Workspace {
         db,
         this.env,
         r.config,
-        "daily-" + r.id + "-" + r.due,
+        r.config.daily ? "daily-" + r.id + "-" + r.due : "initial-" + r.id,
       );
       await db.query("UPDATE monitors SET due=?1 WHERE id=?2 AND due=?3", [
-        Date.now() + 86400000,
+        r.config.daily ? Date.now() + 86400000 : 0,
         r.id,
         r.due,
       ]);
@@ -39,6 +44,14 @@ export class Workspace {
   async fetch(req: Request) {
     const db = new Database(this.env.DB);
     const path = new URL(req.url).pathname;
+    if (path === "/internal/site-monitor" && req.method === "POST") {
+      const { url, identity } = await req.json<{ url: string; identity: Identity }>();
+      return this.ctx.blockConcurrencyWhile(async () => {
+        const monitor = await ensureSiteMonitor(this.env.DB, url, identity);
+        await syncAlarm(db, this.ctx.storage);
+        return json(monitor);
+      });
+    }
     await db.query(
       "UPDATE runs SET state='failed', detail=?1 WHERE state='pending' AND at<?2",
       [{ error: "采样中断，请重新采样" }, Date.now() - 120000],
