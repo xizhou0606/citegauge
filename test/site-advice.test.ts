@@ -25,9 +25,9 @@ test("旧报告细化请求不能替换另一份报告，已生成的建议可�
   const f = await fixture();
   try {
     const report = {at:123, modules:[{name:"案例", actions}]};
-    await f.binding.prepare("INSERT INTO latest_site_review VALUES(1,100,?1)").bind(JSON.stringify(report)).run();
-    assert.equal((await expandAdvice({DB:f.binding}, 99)).status, 409);
-    assert.deepEqual((await (await expandAdvice({DB:f.binding},123)).json()).report,report);
+    await f.binding.prepare("INSERT INTO website_reports VALUES('example.com',100,?1)").bind(JSON.stringify(report)).run();
+    assert.equal((await expandAdvice({DB:f.binding}, 99,"example.com")).status, 409);
+    assert.deepEqual((await (await expandAdvice({DB:f.binding},123,"example.com")).json()).report,report);
   } finally {await f.close();}
 });
 test("栏目分析必须覆盖输入的每一栏，按页面顺序回填真实标题", async () => {

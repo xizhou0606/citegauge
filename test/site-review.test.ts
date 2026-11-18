@@ -52,7 +52,7 @@ test("失败的官网分析不会覆盖最近成功报告", async () => {
     const env = { DB: f.binding };
     const get = async () => (await siteReview(new Request(endpoint), env)).json();
     assert.equal((await get()).report, null);
-    await f.binding.prepare("INSERT INTO latest_site_review VALUES (1,1,?1)")
+    await f.binding.prepare("INSERT INTO website_reports VALUES ('example.com',1,?1)")
       .bind(JSON.stringify({ url: "https://example.com" })).run();
     const result = await siteReview(new Request(endpoint, { method: "POST",
       body: JSON.stringify({ url: "http://127.0.0.1" }) }), env);

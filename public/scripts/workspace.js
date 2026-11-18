@@ -8,8 +8,11 @@ import { readEvidenceRoute } from "./core/evidence-route.js";
 import { Scope } from "./components/scope.jsx";
 import { renderDashboard } from "./components/dashboard.jsx";
 
+import { WebsitePicker, websiteOptions } from "./components/website-picker.jsx";
+
+const website = createRoot($("website-scope"));
 const scope = createRoot($("scope"));
-let catalog, platform, channel, active, crawlerDomain;
+let catalog, platform, channel, active, domain, sites = [], generation = 0;
 function showView() {
   const links = [...document.querySelectorAll(".feature-nav a")];
   const current = links.find((link) => link.hash === location.hash.split("?")[0]) || links[0];
@@ -17,7 +20,7 @@ function showView() {
   const monitoring = view !== "website";
   $("website-panel").hidden = monitoring;
   $("app").hidden = !monitoring || !catalog;
-  $("tools").hidden = !monitoring || !catalog;
+  $("tools").hidden = !catalog;
   $("crumb").textContent = current.textContent;
   for (const link of links) {
     if (link === current) link.setAttribute("aria-current", "page");
@@ -33,41 +36,54 @@ function create(domain) {
 async function select(p, c, id) {
   platform = p;
   channel = c;
-  const matches = catalog.monitors.filter((m) => m.channel === channel);
+  const matches = siteMonitors().filter((m) => m.channel === channel);
   const monitor = matches.find((m) => m.id === id) || matches[0];
   active = monitor?.id;
-  if (monitor) crawlerDomain = monitor.domain;
   const route = readEvidenceRoute(location.hash);
   if (route && route.monitor !== active) history.replaceState(null, "", "#evidence");
-  sessionStorage.setItem("cg-selection", JSON.stringify({ platform: p.id, channel, id: active }));
+  sessionStorage.setItem("cg-selection", JSON.stringify({ domain, platform: p.id, channel, id: active }));
   await refreshView();
+}
+function siteMonitors() {
+  return catalog.monitors.filter(m => m.domain === domain);
+}
+async function chooseSite(value, id, saved = {}) {
+  generation++;
+  domain = value;
+  const monitors = siteMonitors();
+  const m = monitors.find(m => m.id === id) ||
+    monitors.find(m => m.channel === saved.channel && !m.brandPrompt) ||
+    monitors.find(m => !m.brandPrompt) || monitors[0];
+  const next = catalog.platforms.find(p => p.id === saved.platform && !id) ||
+    catalog.platforms.find(p => p.channels.includes(m?.channel)) || catalog.platforms[0];
+  const c = next.channels.includes(saved.channel) && !id ? saved.channel :
+    next.channels.includes(m?.channel) ? m.channel : next.channels[0];
+  return select(next,c,m?.id);
 }
 async function refreshView() {
   const view = showView();
   if (!catalog || !platform) return;
-  const selected = catalog.monitors.find(m => m.id === active);
-  const monitor = view === "crawlers"
-    ? catalog.monitors.find(m => m.domain === crawlerDomain) ?? selected ?? catalog.monitors[0]
-    : selected;
+  website.render(createElement(WebsitePicker,{sites,domain,change: value =>
+    chooseSite(value).catch(e => status(e.message))}));
+  websiteReview.scope(domain, view === "website");
+  const monitors = siteMonitors();
+  const selected = monitors.find(m => m.id === active);
+  const siteView = view === "crawlers" || (view === "competitors" && !location.hash.includes("section=mentions"));
+  const monitor = selected || (siteView ? monitors[0] : undefined);
   scope.render(
     createElement(Scope, {
       view,
       title: $("crumb").textContent,
-      domain: monitor?.domain,
-      onDomain: domain => {
-        crawlerDomain = domain;
-        refreshView().catch(e => status(e.message));
-      },
       platform,
       platforms: catalog.platforms,
       onPlatform: (platformId) => {
         const next = catalog.platforms.find((p) => p.id === platformId);
-        const first = catalog.monitors.find((m) => next.channels.includes(m.channel));
+        const first = monitors.find((m) => next.channels.includes(m.channel));
         select(next, first?.channel || next.channels[0], first?.id).catch((e) => status(e.message));
       },
       channel,
       active,
-      monitors: catalog.monitors,
+      monitors,
       onChannel: (c) => select(platform, c).catch((e) => status(e.message)),
       onMonitor: (id) => select(platform, channel, id).catch((e) => status(e.message)),
     }),
@@ -78,22 +94,25 @@ async function refreshView() {
     catalog.ready[channel],
     () => load(active),
     create,
+    domain,
   );
 }
-async function load(id) {
-  catalog = await api("state?catalog=1");
+async function load(id, requestedDomain) {
+  const token = ++generation;
+  const updated = await api("state?catalog=1");
+  if (token !== generation) return;
+  catalog = updated;
+  sites = websiteOptions(catalog);
   $("lock").hidden = false;
   let previous = {};
   try {
     previous = JSON.parse(sessionStorage.getItem("cg-selection")) || {};
   } catch {}
-  const m = catalog.monitors.find((item) => item.id === (id || readEvidenceRoute(location.hash)?.monitor || previous.id));
-  const p =
-    catalog.platforms.find((x) => (m ? x.channels.includes(m.channel) : x.id === previous.platform)) ||
-    catalog.platforms.find((x) => x.channels.includes(catalog.monitors[0]?.channel)) ||
-    catalog.platforms[0];
-  const c = m?.channel || (p.channels.includes(previous.channel) ? previous.channel : p.channels[0]);
-  await select(p, c, m?.id);
+  const targetId = id || readEvidenceRoute(location.hash)?.monitor || previous.id;
+  const m = catalog.monitors.find(item => item.id === targetId);
+  const selectedDomain = requestedDomain || m?.domain || (sites.some(s => s.domain === previous.domain) ? previous.domain : sites[0]?.domain);
+  await chooseSite(selectedDomain,targetId,previous);
+
 }
 $("lock").onclick = action(async () => {
   await requestJSON("/api/auth/sign-out", {});
@@ -106,7 +125,7 @@ $("add").onclick = () => create();
 window.addEventListener("hashchange", () => {
   const route = readEvidenceRoute(location.hash);
   const next = route && catalog?.monitors.find(m => m.id === route.monitor);
-  const work = next && active !== next.id ? select(catalog.platforms.find(p => p.channels.includes(next.channel)), next.channel, next.id) : refreshView();
+  const work = next && active !== next.id ? chooseSite(next.domain,next.id) : refreshView();
   const destination = location.hash;
   work.then(() => requestAnimationFrame(() => {
     if (location.hash !== destination || (destination === "#website" && document.activeElement === $("website-url"))) return;
@@ -116,7 +135,7 @@ window.addEventListener("hashchange", () => {
   })).catch(e => status(e.message));
 });
 showView();
-bindWebsiteReview({
+const websiteReview = bindWebsiteReview({
   refresh: load,
   settled: (id) => {
     if (showView() !== "website" && active === id) return load(id);
@@ -127,7 +146,10 @@ bindWebsiteReview({
     showView();
   },
 });
-load().catch((error) => status(error.message));
+load().then(() => websiteReview.start()).catch((error) => status(error.message));
+window.addEventListener("site-questions-ready", e => {
+  if (domain === e.detail) load(active,domain).catch(error => status(error.message));
+});
 window.addEventListener("pageshow", (e) => {
   if (e.persisted) location.reload();
 });

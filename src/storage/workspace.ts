@@ -1,5 +1,6 @@
 import { importCrawlerLogs } from "./crawlers.ts";
-import { prepareQuestions } from "../site-review/brand-questions.ts";
+import pLimit from "p-limit";
+import { runQuestionJob } from "../site-review/question-queue.ts";
 import { sendReport } from "../delivery/report.ts";
 import { ensureSiteMonitor } from "../site-review/monitor.ts";
 import type { Identity } from "../site-review/identity.ts";
@@ -17,7 +18,7 @@ import { json } from "../runtime/response.ts";
 export class Workspace {
   private ctx: DurableObjectState;
   private env: Env;
-  private questionJobs = new Map<number, Promise<Response>>();
+
 
   constructor(ctx: DurableObjectState, env: Env) {
     this.ctx = ctx;
@@ -26,11 +27,11 @@ export class Workspace {
   async alarm() {
     const db = new Database(this.env.DB);
     const { rows } = await db.query(
-      "SELECT * FROM monitors WHERE due>0 AND due<=?1 ORDER BY due LIMIT 1",
+      "SELECT * FROM monitors WHERE due>0 AND due<=?1 ORDER BY due,sequence LIMIT 6",
       [Date.now()],
     );
-    if (rows.length) {
-      const r = rows[0];
+    const limit = pLimit(3);
+    const samples = rows.map(r => limit(async () => {
       await collectOnce(
         db,
         this.env,
@@ -42,24 +43,15 @@ export class Workspace {
         r.id,
         r.due,
       ]);
-    }
+    }));
+    const outcomes = await Promise.allSettled([runQuestionJob(this.env), ...samples]);
+    const failed = outcomes.find(result => result.status === "rejected");
+    if (failed) throw failed.reason;
     await this.ctx.blockConcurrencyWhile(() => syncAlarm(db, this.ctx.storage));
   }
   async fetch(req: Request) {
     const db = new Database(this.env.DB);
     const path = new URL(req.url).pathname;
-    if (path === "/internal/ensure-questions" && req.method === "POST") {
-      const {at} = await req.json<{at:number}>();
-      let job = this.questionJobs.get(at);
-      if (!job) {
-        job = prepareQuestions(this.env,at).then(async result => {
-          if (result.ok) await this.ctx.blockConcurrencyWhile(() => syncAlarm(db,this.ctx.storage));
-          return result;
-        }).finally(() => this.questionJobs.delete(at));
-        this.questionJobs.set(at,job);
-      }
-      return (await job).clone();
-    }
     if (path === "/internal/arm-questions" && req.method === "POST") {
       await this.ctx.blockConcurrencyWhile(() => syncAlarm(db, this.ctx.storage));
       return json({queued:true});

@@ -27,15 +27,15 @@ export function reconcileChanges(rows: Comparison["rows"], modules: {name: strin
 export function saveIndustry(db: D1Database, url: string, started: number, at: number, industry: Comparison, screenshot?: string, guard?: number) {
   const domain = new URL(url).hostname.replace(/^www\./, "");
   return db.prepare(`INSERT INTO industry_reviews(domain,started,report) SELECT ?1,?2,?3 WHERE ?4 IS NULL OR EXISTS
-      (SELECT 1 FROM latest_site_review WHERE started=?2 AND report->>'$.industry.revision'=?4)
+      (SELECT 1 FROM website_reports WHERE domain=?1 AND started=?2 AND report->>'$.industry.revision'=?4)
     ON CONFLICT(domain) DO UPDATE SET started=excluded.started, report=excluded.report
     WHERE excluded.started >= industry_reviews.started`).bind(domain, started,
       JSON.stringify({...industry, at, url, screenshot}), guard ?? null);
 }
 
-export async function fillIndustry(env: Env, at: number, expand = false, sources: string[] = []) {
-  const row = await env.DB.prepare("SELECT started,report FROM latest_site_review WHERE id=1 AND report->>'at'=?1")
-    .bind(at).first<{started: number; report: string}>();
+export async function fillIndustry(env: Env, at: number, expand: boolean, sources: string[], domain: string) {
+  const row = await env.DB.prepare("SELECT started,report FROM website_reports WHERE domain=?2 AND report->>'at'=?1")
+    .bind(at,domain).first<{started: number; report: string}>();
   if (!row) return json({error: "官网报告已更新，请刷新。"}, 409);
   const report: {url: string; identity: Identity | null; modules: {name: string; evidence: string}[];
     screenshot?: string; industry?: Comparison} = JSON.parse(row.report);
@@ -52,8 +52,8 @@ export async function fillIndustry(env: Env, at: number, expand = false, sources
   industry.revision = Date.now();
   const before = previous?.revision ?? 0;
   const [updated] = await env.DB.batch([
-    env.DB.prepare(`UPDATE latest_site_review SET report=json_set(report,'$.industry',json(?1))
-      WHERE id=1 AND started=?2 AND report->>'at'=?3 AND coalesce(report->>'$.industry.revision',0)=?4`).bind(JSON.stringify(industry), row.started, at, before),
+    env.DB.prepare(`UPDATE website_reports SET report=json_set(report,'$.industry',json(?1))
+      WHERE domain=?5 AND started=?2 AND report->>'at'=?3 AND coalesce(report->>'$.industry.revision',0)=?4`).bind(JSON.stringify(industry), row.started, at, before, domain),
     saveIndustry(env.DB, report.url, row.started, industry.revision, industry, report.screenshot, industry.revision),
   ]);
   if (!updated.meta.changes) return json({error: "官网报告已更新，请刷新。"}, 409);

@@ -101,11 +101,12 @@ export function WorkspaceShell() {
           <div id="tools" hidden>
             <Button id="add" size="sm">
               <Plus />
-              新建监测项
+              添加监测网站
             </Button>
           </div>
         </header>
         <div className="content">
+          <div id="website-scope"></div>
           <WebsitePanel />
           <p id="status" role="status" aria-live="polite"></p>
           <div id="app" hidden>

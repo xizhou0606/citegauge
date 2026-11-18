@@ -1,4 +1,4 @@
-import { startQuestions } from "./brand-questions.ts";
+import { armQuestions } from "./question-queue.ts";
 import { sourcePreview } from "./industry-preview.ts";
 import { fillIndustry, previousIndustry, reconcileChanges, saveIndustry } from "./industry-store.ts";
 import { compareIndustry, mergeBrands } from "./industry.ts";
@@ -12,7 +12,8 @@ import { analyze } from "./analyze.ts";
 
 export async function siteReview(req: Request, env: Env) {
   if (req.method === "GET") {
-    const row = await env.DB.prepare("SELECT report FROM latest_site_review WHERE id=1")
+    const domain = new URL(req.url).searchParams.get("domain");
+    const row = await env.DB.prepare("SELECT report FROM website_reports WHERE ?1 IS NULL OR domain=?1 ORDER BY started DESC LIMIT 1").bind(domain)
       .first<{ report: string }>();
     const report = row ? JSON.parse(row.report) : null;
     if (report?.modules) report.modules = checkExamples(report.modules);
@@ -21,15 +22,24 @@ export async function siteReview(req: Request, env: Env) {
   if (req.method !== "POST") return json({ error: "请求方法无效" }, 405);
   let url;
   try {
-    const body = await req.json<{ url?: unknown; questionsAt?: number; expandAt?: number; industryAt?: number; expandIndustry?: boolean; sources?: unknown }>();
-    if (Number.isSafeInteger(body.questionsAt)) return startQuestions(env,body.questionsAt!);
+    const body = await req.json<{ url?: unknown; domain?: string; questionsAt?: number; expandAt?: number; industryAt?: number; expandIndustry?: boolean; sources?: unknown }>();
+    if ([body.questionsAt, body.industryAt, body.expandAt].some(Number.isSafeInteger) && !body.domain)
+      return json({error:"请刷新并选择监测网站。"},409);
+    if (Number.isSafeInteger(body.questionsAt)) {
+      const job = await env.DB.prepare(`INSERT INTO website_question_jobs(domain,revision,due)
+        SELECT domain,?2,?3 FROM website_reports WHERE domain=?1 AND report->>'at'=?2
+        ON CONFLICT(domain) DO UPDATE SET due=excluded.due,attempts=0 WHERE website_question_jobs.due=0`)
+        .bind(body.domain!,body.questionsAt!,Date.now()).run();
+      await armQuestions(env);
+      return json({queued:true, changed:job.meta.changes});
+    }
     if (Number.isSafeInteger(body.industryAt)) {
       if (body.sources !== undefined && (!Array.isArray(body.sources) || body.sources.length > 12))
         return json({error: "每次最多可补充 12 个公开产品页。"}, 400);
       const sources = Array.isArray(body.sources) ? [...new Set(body.sources.map(websiteURL))] : [];
-      return fillIndustry(env, body.industryAt!, body.expandIndustry === true, sources);
+      return fillIndustry(env, body.industryAt!, body.expandIndustry === true, sources, body.domain!);
     }
-    if (Number.isSafeInteger(body.expandAt)) return expandAdvice(env, body.expandAt!);
+    if (Number.isSafeInteger(body.expandAt)) return expandAdvice(env, body.expandAt!,body.domain!);
     url = websiteURL(body.url);
   } catch {
     return json({ error: "请输入公开官网的网址，例如 https://example.com" }, 400);
@@ -79,14 +89,18 @@ export async function siteReview(req: Request, env: Env) {
 
   const report = { ...review, industry, modules: checkExamples(review.modules), monitor, url: snapshot.url, title: snapshot.title,
     screenshot: snapshot.screenshot, at: Date.now() };
-  const latest = env.DB.prepare(`INSERT INTO latest_site_review (id,started,report) VALUES (1,?1,?2)
-    ON CONFLICT (id) DO UPDATE SET started=excluded.started,report=excluded.report
-    WHERE excluded.started >= latest_site_review.started`).bind(started, JSON.stringify(report));
+  const domain = new URL(snapshot.url).hostname.replace(/^www\./, "");
+  const latest = env.DB.prepare(`INSERT INTO website_reports (domain,started,report) VALUES (?3,?1,?2)
+    ON CONFLICT (domain) DO UPDATE SET started=excluded.started,report=excluded.report
+    WHERE excluded.started >= website_reports.started`).bind(started, JSON.stringify(report),domain);
   const byDomain = saveIndustry(env.DB, snapshot.url, started, report.at, industry, snapshot.screenshot);
-  await env.DB.batch([latest, byDomain]);
-  if (monitor) {
-    try { await startQuestions(env,report.at); }
-    catch { console.warn("Brand questions could not be scheduled"); }
-  }
+  const statements = [latest,byDomain];
+  if (monitor) statements.push(env.DB.prepare(`INSERT INTO website_question_jobs(domain,revision,due)
+    SELECT domain,?2,?3 FROM website_reports WHERE domain=?1 AND report->>'at'=?2
+    ON CONFLICT(domain) DO UPDATE SET revision=excluded.revision,due=excluded.due,attempts=0`)
+    .bind(domain,report.at,Date.now()));
+  const [saved] = await env.DB.batch(statements);
+  if (!saved.meta.changes) return json({error:"此网站已有更新的分析，请刷新报告。"},409);
+  if (monitor) await armQuestions(env);
   return json({ report });
 }

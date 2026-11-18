@@ -2,7 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { collect } from "../src/collectors/api.ts";
 import { markedSources } from "../src/collectors/ai/qwen-citations.ts";
-import { startQuestions, validateQuestions } from "../src/site-review/brand-questions.ts";
+import { runQuestionJob } from "../src/site-review/question-queue.ts";
+import { siteReview } from "../src/site-review/route.ts";
+import { groundedProbe } from "../src/site-review/grounded-probes.ts";
 import { brandQuestionStats } from "../src/storage/brand-question-stats.ts";
 import { Workspace } from "../src/storage/workspace.ts";
 import { brandQuestionIntents } from "../src/domain/brand-question-intents.ts";
@@ -31,29 +33,36 @@ for (const previous of [0,3]) {
     const f=await fixture();
     try {
       const questions=brandQuestionIntents.map(intent => "零售团队在"+intent+"时应当考虑哪些客服方案？");
-      assert.throws(()=>validateQuestions({questions:[questions[0],questions[0]]},monitor,2));
-      assert.throws(()=>validateQuestions({questions:[questions[0]]},monitor,1,[questions[0]]));
-      assert.throws(()=>validateQuestions({questions:["例子能否处理团队的排班问题？"]},monitor,1));
+      const profile={url:"https://example.com",at:1,identity:{category:"客服工具"},impression:"零售连锁",monitor,
+        modules:[{name:"工单",evidence:"跨门店分派工单"}]};
+      const drafts=questions.map(question=>({section:0,quote:"跨门店分派工单",question}));
+      assert.throws(()=>groundedProbe(profile,0,{...drafts[0],quote:"虚构功能"}));
+      assert.throws(()=>groundedProbe(profile,1,{...drafts[0],question:"例子这个产品好用吗？"}));
       let calls=0;
       t.mock.method(globalThis,"fetch",async()=>{
         calls++;
         return Response.json({id:"req",model:"qwen3.7-flash",choices:[{index:0,finish_reason:"stop",
-          message:{role:"assistant",content:JSON.stringify({questions:questions.slice(previous)})}}]});
+          message:{role:"assistant",content:JSON.stringify({questions:drafts.slice(previous)})}}]});
       });
       const ctx={blockConcurrencyWhile: fn=>fn(),storage:{setAlarm:async()=>{},deleteAlarm:async()=>{}}};
       const env={DB:f.binding,DASHSCOPE_API_KEY:"test"};
       const workspace=new Workspace(ctx,env);
       env.WORKSPACE={idFromName:()=>1,get:()=>({fetch:(url,init)=>workspace.fetch(new Request(url,init))})};
-      await f.pool.query("INSERT INTO latest_site_review VALUES(1,1,?1)",[{at:1,identity:{category:"客服工具"},impression:"零售连锁",monitor,modules:[]}]);
+      await f.pool.query("INSERT INTO website_reports VALUES('example.com',1,?1)",[profile]);
       for (let i=0;i<previous;i++) {
-        const id="demo-probe-1-"+i;
-        const config={...monitor,id,question:questions[i],brandPrompt:{at:1,intent:brandQuestionIntents[i]}};
+        const id="demo-probe-1-v2-"+i;
+        const {question,...basis}=groundedProbe(profile,i,drafts[i]);
+        const config={...monitor,id,question,brandPrompt:{at:1,intent:brandQuestionIntents[i],version:2,...basis}};
         await f.pool.query("INSERT INTO monitors(id,config,due) VALUES(?1,?2,0)",[id,config]);
         await f.pool.query("INSERT INTO runs(id,monitor,at,state,detail) VALUES(?1,?2,?3,'ok',?4)",
           ["r"+i,id,Date.now(),{cited:[true,false,null][i]}]);
       }
-      const results=await Promise.all([startQuestions(env,1),startQuestions(env,1)]);
-      assert.ok(results.every(r=>r.ok));assert.ok((await startQuestions(env,1)).ok);
+      const request=()=>siteReview(new Request("https://example.com/api/site-review",{method:"POST",
+        body:JSON.stringify({domain:monitor.domain,questionsAt:1})}),env);
+      assert.ok((await Promise.all([request(),request()])).every(r=>r.ok));
+      await runQuestionJob(env);
+      await request();
+      await runQuestionJob(env);
       assert.equal(calls,1);
       const probes=(await f.pool.query("SELECT due FROM monitors ORDER BY sequence")).rows;
       assert.equal(probes.length,12);
@@ -61,7 +70,50 @@ for (const previous of [0,3]) {
       const stats=await (await brandQuestionStats(f.binding,new URLSearchParams({domain:monitor.domain}))).json();
       assert.deepEqual(stats.totals,previous ? {valid:3,observable:2,citations:1} : {valid:0,observable:0,citations:0});
       assert.equal(stats.targetCount,12);
-      assert.deepEqual(stats.rows.map(r=>r.question),questions);
+      assert.deepEqual(stats.rows.map(r=>r.question),drafts.map((d,i)=>groundedProbe(profile,i,d).question));
     } finally {await f.close();}
   });
 }
+
+test("同一报告时间的两个官网分别读取、排队，错误域名无法启动另一站任务",async () => {
+  const f=await fixture();
+  try {
+    const ctx={blockConcurrencyWhile: fn=>fn(),storage:{setAlarm:async()=>{},deleteAlarm:async()=>{}}};
+    const env={DB:f.binding};
+    const workspace=new Workspace(ctx,env);
+    env.WORKSPACE={idFromName:()=>1,get:()=>({fetch:(url,init)=>workspace.fetch(new Request(url,init))})};
+    const endpoint="https://workspace/api/site-review";
+    for (const domain of ["first.example","second.example"]) {
+      const report={url:"https://"+domain,at:7,monitor:{...monitor,domain},identity:{category:"客服工具"}};
+      await f.pool.query("INSERT INTO website_reports VALUES(?1,1,?2)",[domain,report]);
+    }
+    for (const domain of ["first.example","second.example","absent.example"]) {
+      const read=await (await siteReview(new Request(endpoint+"?domain="+domain),env)).json();
+      assert.equal(read.report?.url,domain==="absent.example"?undefined:"https://"+domain);
+      await siteReview(new Request(endpoint,{method:"POST",body:JSON.stringify({domain,questionsAt:7})}),env);
+    }
+    assert.deepEqual((await f.pool.query("SELECT domain FROM website_question_jobs ORDER BY domain")).rows,
+      [{domain:"first.example"},{domain:"second.example"}]);
+  } finally {await f.close();}
+});
+
+test("采样批次并行执行三项，同样的首次任务不会产生第二份样本",async t => {
+  const f=await fixture();
+  try {
+    let active=0,peak=0,calls=0;
+    t.mock.method(globalThis,"fetch",async()=>{
+      calls++; peak=Math.max(peak,++active);
+      await new Promise(resolve=>setTimeout(resolve,35)); active--;
+      return Response.json({request_id:"sample",output:{choices:[{finish_reason:"stop",message:{role:"assistant",content:"答案"}}],search_info:{search_results:[]}}});
+    });
+    for (let i=0;i<6;i++) {
+      const m={...monitor,id:"test-"+i,brandPrompt:{intent:"测试",at:1}};
+      await f.pool.query("INSERT INTO monitors(id,config,due) VALUES(?1,?2,1)",[m.id,m]);
+    }
+    const ctx={blockConcurrencyWhile:fn=>fn(),storage:{setAlarm:async()=>{},deleteAlarm:async()=>{}}};
+    const workspace=new Workspace(ctx,{DB:f.binding,DASHSCOPE_API_KEY:"test"});
+    await workspace.alarm(); await workspace.alarm();
+    assert.equal(peak,3); assert.equal(calls,6);
+    assert.equal((await f.pool.query("SELECT count(*) AS n FROM runs WHERE state='ok'")).rows[0].n,6);
+  } finally {await f.close();}
+});

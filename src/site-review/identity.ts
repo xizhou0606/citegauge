@@ -35,5 +35,6 @@ export function groundedIdentity(value: Identity | null, page: string) {
     if (namesBrand(value.category)) return null;
     question = `有哪些值得考虑的${value.category}，各有什么特点？`;
   }
+  if (!namesBrand(value.category) && !question.includes(value.category)) question = `针对${value.category}，${question}`;
   return { ...value, evidence, aliases, rivals, question };
 }

@@ -35,6 +35,8 @@ export async function readWorkspace(
     return json({
       platforms,
       monitors,
+      sites: (await db.query(`SELECT domain,report->>'url' AS url,report->>'$.identity.brand' AS brand
+        FROM website_reports ORDER BY started DESC`)).rows,
       runs,
       models: Object.fromEntries(models),
       ready: Object.fromEntries(
@@ -44,7 +46,7 @@ export async function readWorkspace(
   }
   if (path.startsWith("/api/industry/")) {
     const row = await db.binding.prepare(`SELECT i.report, l.report->>'at' AS reviewAt FROM monitors m JOIN industry_reviews i
-      ON i.domain = lower(m.config->>'domain') LEFT JOIN latest_site_review l ON l.started=i.started WHERE m.id=?1`).bind(id!).first<{report: string; reviewAt: number | null}>();
+      ON i.domain = lower(m.config->>'domain') LEFT JOIN website_reports l ON l.domain=i.domain AND l.started=i.started WHERE m.id=?1`).bind(id!).first<{report: string; reviewAt: number | null}>();
     return json({ industry: row ? {...JSON.parse(row.report), reviewAt: row.reviewAt} : null });
   }
   if (path.startsWith("/api/initial-sample/")) {

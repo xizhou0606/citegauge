@@ -4,7 +4,7 @@ import { BrandQuestions } from "./brand-questions.jsx";
 import { Industry } from "./industry.jsx";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { FileText, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { api } from "../core/api.js";
 import { Panel, SmallButton } from "./controls.jsx";
@@ -37,7 +37,7 @@ function Dashboard({ view, m, report, industry, ready, refresh, onCreate, route 
       </nav>}
       {view === "competitors" && !mentions && <Industry industry={industry} onAnalyze={() => onCreate(m.domain)}
         onExpand={industry?.reviewAt ? async (sources) => {
-          await api("site-review", {industryAt: industry.reviewAt, expandIndustry: true, sources});
+          await api("site-review", {domain:m.domain, industryAt: industry.reviewAt, expandIndustry: true, sources});
           await refresh();
         } : undefined} />}
       {view === "competitors" && mentions && <Competitors m={m} report={report} filter={filter} />}
@@ -60,30 +60,25 @@ function Dashboard({ view, m, report, industry, ready, refresh, onCreate, route 
     </>
   );
 }
-function EmptyMonitor({ create }) {
+function EmptyMonitor({ create, domain }) {
   return (
     <Panel className="empty-platform">
       <div>
-        <h2>从官网创建监测项</h2>
-        <p>输入官网网址，AI 会识别品牌、生成监测问题，并用千问完成首次采样。</p>
-        <Button id="first-monitor" onClick={() => create()}>
+        <h2>{domain ? "当前网站在此渠道暂无监测问题" : "从官网创建监测项"}</h2>
+        <p>{domain ? domain + " · 可切换采样渠道，或打开官网分析。" : "输入官网网址以生成品牌问题并采样。"}</p>
+        <Button id="first-monitor" onClick={() => create(domain)}>
           <Plus />
-          新建监测项
+          {domain ? "打开官网分析" : "添加网站"}
         </Button>
       </div>
-      <aside className="question-example">
-        <span>
-          <FileText className="inline size-4" /> 监测问题示例
-        </span>
-        <blockquote>小团队如何管理客户跟进？</blockquote>
-      </aside>
+
     </Panel>
   );
 }
-export async function renderDashboard(view, m, ready, refresh, onCreate) {
+export async function renderDashboard(view, m, ready, refresh, onCreate, domain) {
   const request = ++sequence;
   if (view === "website") return panel.render(null);
-  if (!m) return panel.render(<EmptyMonitor create={onCreate} />);
+  if (!m) return panel.render(<EmptyMonitor create={onCreate} domain={domain} />);
   if (view === "crawlers") return panel.render(<CrawlerVisits key={m.id} monitor={m} />);
   panel.render(
     <p className="empty" role="status">

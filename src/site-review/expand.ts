@@ -35,8 +35,8 @@ export function applyAdvice(modules: SavedModule[], output: unknown) {
   });
 }
 
-export async function expandAdvice(env: Env, at: number) {
-  const row = await env.DB.prepare("SELECT started,report FROM latest_site_review WHERE id=1").first<{
+export async function expandAdvice(env: Env, at: number, domain: string) {
+  const row = await env.DB.prepare("SELECT started,report FROM website_reports WHERE domain=?1").bind(domain).first<{
     started: number;
     report: string;
   }>();
@@ -81,14 +81,14 @@ ${adviceInstructions}`,
     return json({ error: "详细建议生成未完成，原报告已保留，可稍后重试。" }, 502);
   }
   const saved = await env.DB.prepare(
-    `UPDATE latest_site_review SET report=?1 WHERE id=1 AND started=?2 AND report->>'at'=?3
-     AND EXISTS (SELECT 1 FROM json_each(latest_site_review.report,'$.modules')
+    `UPDATE website_reports SET report=json_set(report,'$.modules',json(?1)) WHERE domain=?4 AND started=?2 AND report->>'at'=?3
+     AND EXISTS (SELECT 1 FROM json_each(website_reports.report,'$.modules')
                  WHERE coalesce(json_array_length(value,'$.actions'),0)=0)`,
   )
-    .bind(JSON.stringify(report), row.started, at)
+    .bind(JSON.stringify(report.modules), row.started, at, domain)
     .run();
   if (saved.meta.changes) return json({ report });
-  const latest = await env.DB.prepare("SELECT report FROM latest_site_review WHERE id=1").first<{
+  const latest = await env.DB.prepare("SELECT report FROM website_reports WHERE domain=?1").bind(domain).first<{
     report: string;
   }>();
   if (latest) {

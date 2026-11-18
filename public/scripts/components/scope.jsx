@@ -23,8 +23,6 @@ const descriptions = {
 export function Scope({
   view,
   title,
-  domain,
-  onDomain,
   platform,
   platforms,
   channel,
@@ -35,18 +33,10 @@ export function Scope({
   onMonitor,
 }) {
   if (view === "crawlers") {
-    const domains = [...new Set(monitors.map(m => m.domain))].sort();
-    return <>
-      <div className="scope-title"><div><h1 tabIndex={-1}>{title}</h1><p>{descriptions.crawlers}</p></div></div>
-      <div className="scope-filters"><div className="monitor-picker">
-        <Label htmlFor="crawler-domain">官网域名</Label>
-        <WorkspaceSelect id="crawler-domain" value={domain} onChange={onDomain} placeholder="暂无官网"
-          options={domains.map(value => ({ value, label: value }))} />
-      </div></div>
-    </>;
+    return <div className="scope-title"><div><h1 tabIndex={-1}>{title}</h1><p>{descriptions.crawlers}</p></div></div>;
   }
   const items = monitors.filter((m) => m.channel === channel);
-  const label = (m) => [m.brand, m.model, m.question].filter(Boolean).join(" · ");
+  const label = (m) => [m.brandPrompt && !m.brandPrompt.version ? "历史问题" : m.brandPrompt?.mode, m.model, m.question].filter(Boolean).join(" · ");
   const frequencies = new Map();
   for (const m of items) frequencies.set(label(m), (frequencies.get(label(m)) || 0) + 1);
   return (
@@ -87,13 +77,13 @@ export function Scope({
           ))}
         </nav>
         <div className="monitor-picker">
-          <Label htmlFor="monitor">监测项（{items.length}）</Label>
+          <Label htmlFor="monitor">监测问题（{items.length}）</Label>
           <WorkspaceSelect
             id="monitor"
             value={active}
             onChange={onMonitor}
             wide
-            placeholder="暂无监测项"
+            placeholder="本渠道暂无问题"
             options={items.map((m) => {
               const suffix = frequencies.get(label(m)) > 1 ? " · #" + m.id.slice(0, 8) : "";
               return {
