@@ -87,7 +87,7 @@ export async function siteReview(req: Request, env: Env) {
     queries: [...new Set([...(prior?.queries || []), ...comparison.queries])],
     preview: prior?.preview || await sourcePreview(env.BROWSER, comparison.rows)};
 
-  const report = { ...review, industry, modules: checkExamples(review.modules), monitor, url: snapshot.url, title: snapshot.title,
+  const report = { ...review, industry, modules: checkExamples(review.modules.map((module,i) => ({...module, passageText:modules[i].evidence}))), monitor, url: snapshot.url, title: snapshot.title,
     screenshot: snapshot.screenshot, at: Date.now() };
   const domain = new URL(snapshot.url).hostname.replace(/^www\./, "");
   const latest = env.DB.prepare(`INSERT INTO website_reports (domain,started,report) VALUES (?3,?1,?2)

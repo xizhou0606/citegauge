@@ -35,8 +35,8 @@ for (const previous of [0,3]) {
       const questions=brandQuestionIntents.map(intent => "零售团队在"+intent+"时应当考虑哪些客服方案？");
       const profile={url:"https://example.com",at:1,identity:{category:"客服工具"},impression:"零售连锁",monitor,
         modules:[{name:"工单",evidence:"跨门店分派工单"}]};
-      const drafts=questions.map(question=>({section:0,quote:"跨门店分派工单",question}));
-      assert.throws(()=>groundedProbe(profile,0,{...drafts[0],quote:"虚构功能"}));
+      const drafts=questions.map(question=>({anchor:0,question}));
+      assert.throws(()=>groundedProbe(profile,0,{...drafts[0],anchor:42}));
       assert.throws(()=>groundedProbe(profile,1,{...drafts[0],question:"例子这个产品好用吗？"}));
       let calls=0;
       t.mock.method(globalThis,"fetch",async()=>{
