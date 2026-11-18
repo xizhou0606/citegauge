@@ -78,3 +78,13 @@ npx wrangler deploy --dry-run
 | test/ | 指标、渠道与证据解析回归测试 |
 
 [火山方舟联网工具文档](https://docs.volcengine.com/docs/ark/web-search) · [DeepSeek API 文档](https://api-docs.deepseek.com/api/create-chat-completion/) · [Cloudflare Durable Objects](https://developers.cloudflare.com/durable-objects/) · [MIT License](LICENSE)
+
+### AI 爬虫访问统计
+
+登录工作台，打开「AI 爬虫」，选择所监测官网对应的监测项，在「导入访问日志」中上传 Cloudflare HTTP 请求日志。使用 JSONL 格式（每行一个对象），时间格式选 RFC 3339。大文件会按整行分批上传，中断后可重新导入。以下为字段示例，时间应取自实际请求。
+
+```json
+{"RayID":"1234567890abcdef","EdgeStartTimestamp":"2026-11-01T08:30:00Z","ClientRequestHost":"www.example.com","ClientRequestPath":"/products","ClientRequestUserAgent":"GPTBot/1.3","EdgeResponseStatus":200}
+```
+
+统计窗口为近 30 天。同一官网与其 www 域名按 RayID 去重，跨监测项共享。当前匹配 GPTBot、OAI-SearchBot、ClaudeBot、Claude-SearchBot、PerplexityBot 和 Bytespider。展开请求路径可核对时间、状态码、Ray ID 和原始 User-Agent。标识由请求方声明，访问次数只反映已导入的日志，独立于回答引用率。

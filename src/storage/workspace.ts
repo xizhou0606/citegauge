@@ -1,3 +1,4 @@
+import { importCrawlerLogs } from "./crawlers.ts";
 import { prepareQuestions } from "../site-review/brand-questions.ts";
 import { sendReport } from "../delivery/report.ts";
 import { ensureSiteMonitor } from "../site-review/monitor.ts";
@@ -108,6 +109,7 @@ export class Workspace {
     );
     if (!rows.length) return json({ error: "监测项不存在" }, 404);
     const m: Monitor = rows[0].config;
+    if (path === "/api/crawler-logs") return importCrawlerLogs(db, m.domain, b.log);
     if (path === "/api/send-report") return sendReport(db, this.env, m, b);
     if (path === "/api/schedule" && m.channel.endsWith("API")) {
       const daily = b.daily === true;

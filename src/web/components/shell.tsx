@@ -1,5 +1,6 @@
 import {
   Activity,
+  Bot,
   AudioLines,
   BookOpen,
   ChartColumn,
@@ -54,6 +55,7 @@ const views = [
   ["monitoring", Activity, "可见度概览"],
   ["competitors", ChartColumn, "竞品对比"],
   ["sources", Link2, "回答与引用"],
+  ["crawlers", Bot, "AI 爬虫"],
   ["evidence", FolderOpen, "样本复核"],
 ] as const;
 export function WorkspaceShell() {

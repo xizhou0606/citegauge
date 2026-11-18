@@ -1,3 +1,4 @@
+import { crawlerReport } from "./crawlers.ts";
 import { answerReferences } from "../domain/answer-references.ts";
 import { brandQuestionStats } from "./brand-question-stats.ts";
 import { destinations } from "../delivery/chat.ts";
@@ -17,6 +18,7 @@ export async function readWorkspace(
 ) {
   const url = new URL(req.url),
     id = path.split("/").at(-1);
+  if (path.startsWith("/api/crawlers/")) return crawlerReport(db, id!, url.searchParams);
   if (path === "/api/brand-questions") return brandQuestionStats(db.binding,url.searchParams);
   if (path === "/api/destinations") return json(destinations(env));
   if (path === "/api/state") {

@@ -1,3 +1,4 @@
+import { CrawlerVisits } from "./crawler-visits.jsx";
 import { CurrentAnswer } from "./formatted-answer.jsx";
 import { BrandQuestions } from "./brand-questions.jsx";
 import { Industry } from "./industry.jsx";
@@ -83,6 +84,7 @@ export async function renderDashboard(view, m, ready, refresh, onCreate) {
   const request = ++sequence;
   if (view === "website") return panel.render(null);
   if (!m) return panel.render(<EmptyMonitor create={onCreate} />);
+  if (view === "crawlers") return panel.render(<CrawlerVisits key={m.id} monitor={m} />);
   panel.render(
     <p className="empty" role="status">
       正在读取样本…
