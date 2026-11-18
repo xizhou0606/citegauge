@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { fixture } from "./d1-fixture.ts";
-import { compareIndustry, industryRows } from "../src/site-review/industry.ts";
+import { compareIndustry, industryRows, mergeBrands } from "../src/site-review/industry.ts";
 import { siteReview } from "../src/site-review/route.ts";
 import { readWorkspace } from "../src/storage/queries.ts";
 import { reviewDocument } from "../public/scripts/components/review-export.js";
@@ -53,8 +53,9 @@ test("官网分析通过检索与模型生成行业报告，可按域名回读�
     {method: "POST", body: JSON.stringify({url: "https://www.example.com"})}), env);
   assert.equal(response.status, 200);
   const {report} = await response.json();
-  assert.equal(new Set(calls).size, 3);
+  assert.equal(new Set(calls).size, 5);
   assert.equal(report.industry.rows[0].name, "演示乙");
+  assert.equal(report.industry.preview.image, "/9j/abcd");
   assert.ok(reviewDocument(report).includes(row.change.action));
   const read = async (id) => {
     const path = "/api/industry/" + id;
@@ -76,4 +77,13 @@ test("千问检索复用账号密钥，启用联网并校验候选网址", async
     ]});
   });
   assert.deepEqual(await discoverUrls("演示行业", "demo"), ["https://example.com/"]);
+});
+
+test("按原文段落引用，扩展检索保留已核实的品牌", () => {
+  const incoming = {...row, name: "演示丙", quote: undefined, passage: 1};
+  const original = industryRows({rows: [row]}, identity, [page], modules);
+  const found = industryRows({rows: [incoming, {...incoming, name: "演示丁", passage: 90}]}, identity,
+    [{...page, title: "演示丙与演示丁", snippet: "可以导出班表。"}], modules);
+  assert.deepEqual(mergeBrands(original, found).map(r => r.name), ["演示乙", "演示丙"]);
+  assert.equal(found[0].quote, "可以导出班表。");
 });

@@ -1,3 +1,4 @@
+import { sourcePreview } from "./industry-preview.ts";
 import { fillIndustry, saveIndustry } from "./industry-store.ts";
 import { compareIndustry } from "./industry.ts";
 import { checkExamples } from "./claims.ts";
@@ -19,8 +20,8 @@ export async function siteReview(req: Request, env: Env) {
   if (req.method !== "POST") return json({ error: "请求方法无效" }, 405);
   let url;
   try {
-    const body = await req.json<{ url?: unknown; expandAt?: number; industryAt?: number }>();
-    if (Number.isSafeInteger(body.industryAt)) return fillIndustry(env, body.industryAt!);
+    const body = await req.json<{ url?: unknown; expandAt?: number; industryAt?: number; expandIndustry?: boolean }>();
+    if (Number.isSafeInteger(body.industryAt)) return fillIndustry(env, body.industryAt!, body.expandIndustry === true);
     if (Number.isSafeInteger(body.expandAt)) return expandAdvice(env, body.expandAt!);
     url = websiteURL(body.url);
   } catch {
@@ -60,14 +61,15 @@ export async function siteReview(req: Request, env: Env) {
     const section = source === "原文" && snapshot.sections?.find(s => s.heading === evidence);
     return { name, evidence: section ? section.heading + "\n" + section.body.slice(0, 900) : evidence };
   });
-  const industry = await compareIndustry(review.identity, modules, snapshot.url,
+  const comparison = await compareIndustry(review.identity, modules, snapshot.url,
     env.DASHSCOPE_API_KEY, env.BRAVE_SEARCH_API_KEY);
+  const industry = {...comparison, revision: Date.now(), preview: await sourcePreview(env.BROWSER, comparison.rows)};
   const report = { ...review, industry, modules: checkExamples(review.modules), monitor, url: snapshot.url, title: snapshot.title,
     screenshot: snapshot.screenshot, at: Date.now() };
   const latest = env.DB.prepare(`INSERT INTO latest_site_review (id,started,report) VALUES (1,?1,?2)
     ON CONFLICT (id) DO UPDATE SET started=excluded.started,report=excluded.report
     WHERE excluded.started >= latest_site_review.started`).bind(started, JSON.stringify(report));
-  const byDomain = saveIndustry(env.DB, snapshot.url, started, report.at, industry);
+  const byDomain = saveIndustry(env.DB, snapshot.url, started, report.at, industry, snapshot.screenshot);
   await env.DB.batch([latest, byDomain]);
   return json({ report });
 }

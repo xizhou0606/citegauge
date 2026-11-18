@@ -23,10 +23,16 @@ async function search(query: string, token: string) {
   });
 }
 
-export async function industrySources(identity: Identity, key: string, ownUrl: string, token?: string) {
+export async function industrySources(identity: Identity, key: string, ownUrl: string, token?: string, known: string[] = []) {
   const { category, brand } = identity;
-  const queries = [category + " 行业厂商 产品目录", brand + " alternatives competitors",
-    category + " 细分市场 同类品牌"];
+  const omit = known.length ? "，补充这些品牌以外的厂商：" + known.slice(0, 30).join("、") : "";
+  const queries = [
+    category + " 中国本土品牌 同类产品 官网",
+    brand + " global and North American direct competitors official product websites",
+    category + " 欧洲及亚太厂商 产品官网",
+    category + " 垂直细分领域 新兴品牌 官网",
+    category + " software vendor directories market landscape alternatives 行业目录",
+  ].map(q => q + omit);
   const host = new URL(ownUrl).hostname.replace(/^www\./, "");
   const pages = new Map<string, SearchPage>();
   const completed: string[] = [];
@@ -42,7 +48,13 @@ export async function industrySources(identity: Identity, key: string, ownUrl: s
       completed.push(queries[i]);
       for (const url of r.value) if (external(url)) urls.add(url);
     });
-    const candidates = [...urls];
+    // Share the fetch budget among markets before taking a second URL from a domain.
+    const byHost = new Map<string, string>();
+    for (const url of urls) {
+      const domain = new URL(url).hostname.replace(/^www\./, "");
+      if (!byHost.has(domain)) byHost.set(domain, url);
+    }
+    const candidates = [...new Set([...byHost.values(), ...urls])].slice(0, 40);
     for (let i = 0; i < candidates.length; i += 5) {
       const batch = await Promise.allSettled(candidates.slice(i, i + 5).map(readSearchPage));
       for (const r of batch) {

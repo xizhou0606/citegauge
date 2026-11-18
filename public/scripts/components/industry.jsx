@@ -1,42 +1,79 @@
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageShot, Source } from "./industry-evidence.jsx";
 
-export function Industry({ industry, onAnalyze }) {
+const rank = {高: 0, 中: 1, 低: 2};
+
+function Tasks({ groups }) {
+  return <section className="industry-block">
+    <header><h3>本站修改清单</h3><span>{groups.size} 个页面模块</span></header>
+    {!groups.size && <p>现有证据尚不足以提出具体修改。</p>}
+    {[...groups].map(([target, items]) => <article className="industry-module" key={target}>
+      <h4>{target}<Badge variant="secondary">{items[0].change.priority}优先级</Badge></h4>
+      <p className="industry-original"><b>本站现状</b>{items[0].change.evidence}</p>
+      {items.map(({name, change, url}) => <div key={name} className="industry-task">
+        <p><strong>对照差距</strong>{change.gap} <a href={url} target="_blank" rel="noreferrer">{name} ↗</a></p>
+        <div className="industry-action"><strong>建议修改</strong><p>{change.action}</p>
+          {change.example && <blockquote><b>修改示例</b>{change.example}</blockquote>}
+        </div>
+        <p><strong>验收方式</strong>{change.verify}</p>
+      </div>)}
+    </article>)}
+  </section>;
+}
+
+export function Industry({ industry, screenshot, url, onAnalyze, onExpand }) {
   const rows = industry?.rows || [];
-  const ranked = {高: 0, 中: 1, 低: 2};
-  const sorted = [...rows].sort((a, b) => (ranked[a.change?.priority] ?? 3) - (ranked[b.change?.priority] ?? 3));
-  return (
-    <section className="my-5 rounded-lg border bg-card p-4 sm:p-6" aria-label="行业竞品与官网修改建议">
-      <h2>行业竞品与官网修改建议</h2>
-      {industry?.category && <p className="my-2 font-medium">{industry.category} · 收录 {rows.length} 家</p>}
-      <p className="text-sm text-muted-foreground">{industry?.note || "当前官网还没有行业检索报告。"}</p>
-      {!!industry?.queries?.length && (
-        <details className="my-3 text-sm">
-          <summary>查看检索范围</summary>
-          <ul className="mt-2 list-disc pl-5">{industry.queries.map(q => <li key={q}>{q}</li>)}</ul>
-          {industry.at && <time>{new Date(industry.at).toLocaleString("zh-CN")}</time>}
-        </details>
-      )}
-      {sorted.map(({name, segment, url, title, quote, change}) => (
-        <article className="mt-4 border-t pt-4 wrap-anywhere" key={name}>
-          <h3 className="flex flex-wrap items-center gap-2 font-semibold">
-            {name} {change && <Badge variant="secondary">{change.priority}优先级</Badge>}
-          </h3>
-          <p>{segment}</p>
-          <details className="my-2 text-sm">
-            <summary>对照依据</summary>
-            <blockquote className="my-2 border-l-2 pl-3">{quote}</blockquote>
-            <a className="underline" href={url} target="_blank" rel="noreferrer">{title || url}</a>
-            {change && <p className="mt-2">本站 · {change.target} · {change.evidence}</p>}
-          </details>
-          {change ? <dl className="grid gap-2 text-sm">
-            <div><dt className="font-semibold">{change.target}的差距</dt><dd>{change.gap}</dd></div>
-            <div><dt className="font-semibold">建议修改</dt><dd>{change.action}</dd></div>
-            <div><dt className="font-semibold">验收方式</dt><dd>{change.verify}</dd></div>
-          </dl> : <p className="text-sm text-muted-foreground">已收录，现有资料不足以提出具体修改。</p>}
-        </article>
-      ))}
-      {onAnalyze && <Button className="mt-3" variant="outline" onClick={onAnalyze}>重新分析官网</Button>}
+  const [selected, select] = useState("");
+  const [working, setWorking] = useState(false);
+  const [message, setMessage] = useState("");
+  const active = rows.find(r => r.name === selected) || rows[0];
+  const groups = new Map();
+  const changes = rows.filter(r => r.change).sort((a,b) => rank[a.change.priority] - rank[b.change.priority]);
+  for (const row of changes) {
+    if (!groups.has(row.change.target)) groups.set(row.change.target, []);
+    groups.get(row.change.target).push(row);
+  }
+  async function expand() {
+    setWorking(true);
+    setMessage("正在查找其他品牌并逐页核对来源…");
+    try {
+      await onExpand();
+      setMessage("检索已完成。");
+    } catch (e) { setMessage(e.message); }
+    finally { setWorking(false); }
+  }
+  const preview = industry?.preview;
+  return <section className="industry-report" aria-label="行业竞品与官网修改建议">
+    <header className="industry-intro">
+      <div><h2>行业竞品与官网修改建议</h2><p>{industry?.category || "行业对比"}</p></div>
+      <div className="industry-buttons">
+        {onExpand && <Button disabled={working} onClick={expand}>{working ? "检索中…" : "扩展竞品清单"}</Button>}
+        {onAnalyze && <Button variant="outline" onClick={onAnalyze}>重新分析官网</Button>}
+      </div>
+    </header>
+    {message && <p role="status">{message}</p>}
+    <section className="industry-block">
+      <header><h3>行业品牌清单</h3><span>已核实 {rows.length} 家</span></header>
+      <p>{industry?.note || "当前官网还没有行业检索报告。"}</p>
+      {!!industry?.queries?.length && <details className="industry-queries"><summary>查看检索范围</summary>
+        <ul>{industry.queries.map(q => <li key={q}>{q}</li>)}</ul></details>}
+      {!!active && <>
+        <div className="industry-names" role="group" aria-label="选择品牌查看依据">
+          {rows.map(r => <button key={r.name} type="button" aria-pressed={active.name === r.name}
+            onClick={() => select(r.name)}>{r.name}</button>)}
+        </div>
+        <div className="industry-selected"><h4>{active.name}</h4><p>{active.segment}</p><Source row={active} /></div>
+      </>}
     </section>
-  );
+    {(screenshot || industry?.screenshot || preview) && <section className="industry-block">
+      <header><h3>页面截图对照</h3></header>
+      <div className="industry-images">
+        <PageShot image={screenshot || industry?.screenshot} url={url || industry?.url} label="本站官网首屏" />
+        {preview && <PageShot image={preview.image} url={preview.url} label={preview.name + " · 对照来源页"} />}
+      </div>
+    </section>}
+    {!!rows.length && <Tasks groups={groups} />}
+  </section>;
 }

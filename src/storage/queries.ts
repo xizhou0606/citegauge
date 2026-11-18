@@ -38,9 +38,9 @@ export async function readWorkspace(
     });
   }
   if (path.startsWith("/api/industry/")) {
-    const row = await db.binding.prepare(`SELECT i.report FROM monitors m JOIN industry_reviews i
-      ON i.domain = lower(m.config->>'domain') WHERE m.id=?1`).bind(id!).first<{report: string}>();
-    return json({ industry: row ? JSON.parse(row.report) : null });
+    const row = await db.binding.prepare(`SELECT i.report, l.report->>'at' AS reviewAt FROM monitors m JOIN industry_reviews i
+      ON i.domain = lower(m.config->>'domain') LEFT JOIN latest_site_review l ON l.started=i.started WHERE m.id=?1`).bind(id!).first<{report: string; reviewAt: number | null}>();
+    return json({ industry: row ? {...JSON.parse(row.report), reviewAt: row.reviewAt} : null });
   }
   if (path.startsWith("/api/initial-sample/")) {
     const row = await db.binding.prepare("SELECT state FROM runs WHERE id=?1")

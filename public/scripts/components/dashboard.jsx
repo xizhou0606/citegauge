@@ -46,7 +46,11 @@ function Dashboard({ view, m, report, industry, ready, refresh, onCreate }) {
           <Plots report={report} />
         </>
       )}
-      {view === "competitors" && <Industry industry={industry} onAnalyze={() => onCreate(m.domain)} />}
+      {view === "competitors" && <Industry industry={industry} onAnalyze={() => onCreate(m.domain)}
+        onExpand={industry?.reviewAt ? async () => {
+          await api("site-review", {industryAt: industry.reviewAt, expandIndustry: true});
+          await refresh();
+        } : undefined} />}
       {view === "competitors" && <Competitors m={m} report={report} filter={filter} />}
       {view === "sources" && <Sources report={report} filter={filter} />}
       {view === "evidence" && (

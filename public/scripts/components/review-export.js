@@ -35,7 +35,7 @@ export function reviewDocument(r, prompt = false, modules = r.modules) {
     for (const row of industryRows) {
       lines.push("### " + row.name, row.segment, row.quote, row.url);
       const c = row.change;
-      if (c) lines.push(c.priority + "优先级 · " + c.target, "本站依据 · " + c.evidence, c.gap, c.action, c.verify);
+      if (c) lines.push(c.priority + "优先级 · " + c.target, "本站依据 · " + c.evidence, c.gap, c.action, ...(c.example ? ["修改示例 · " + c.example] : []), c.verify);
     }
   }
   if (prompt) lines.push("## 交付要求",

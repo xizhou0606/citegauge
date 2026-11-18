@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { Tabs } from "radix-ui";
 import { ArrowUpRight, BookOpen, CodeXml, Download, Expand, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { SmallButton, AsyncButton } from "./controls.jsx";
+import { SmallButton } from "./controls.jsx";
 import { ModuleAdvice } from "./module-advice.jsx";
 import { Monitor } from "./review-monitor.jsx";
 import { ReviewPrompt } from "./review-prompt.jsx";
@@ -97,12 +97,9 @@ export function SiteReport({ report, actions, onAnalyze, onExpand, onIndustry })
               <h2>整体形象</h2>
               <p>{report.impression}</p>
             </div>
-            <Screenshot report={report} />
+            {!report.industry?.rows.length && <Screenshot report={report} />}
           </section>
-          <Industry industry={report.industry} />
-          {report.identity && !report.industry?.rows.length && (
-            <AsyncButton run={onIndustry}>为此报告生成行业对比</AsyncButton>
-          )}
+          <Industry industry={report.industry} screenshot={report.industry?.rows.length ? report.screenshot : null} url={report.url} onExpand={report.identity ? onIndustry : undefined} />
           <div className="reader-columns">
             <div className="reader-body">
               <h2>

@@ -32,9 +32,10 @@ export async function readSearchPage(input: string): Promise<SearchPage | null> 
     } finally {
       await reader.cancel();
     }
-    let title = "", description = "", body = "";
+    let title = "", description = "", siteName = "", body = "";
     const parser = new HTMLRewriter()
       .on("title", {text(chunk) { title += chunk.text; }})
+      .on('meta[property="og:site_name"]', {element(el) { siteName = el.getAttribute("content") || ""; }})
       .on('meta[name="description"], meta[property="og:description"]', {element(el) {
         description ||= el.getAttribute("content") || "";
       }})
@@ -42,8 +43,8 @@ export async function readSearchPage(input: string): Promise<SearchPage | null> 
         if (body.length < 4500) body += chunk.text;
       }});
     await parser.transform(new Response(new Blob(chunks))).arrayBuffer();
-    const snippet = (description + " " + body).replace(/\s+/g, " ").trim().slice(0, 4500);
-    return title.trim() && snippet ? {url, title: title.trim().slice(0, 240), snippet} : null;
+    const snippet = (siteName + " " + description + " " + body).replace(/\s+/g, " ").trim().slice(0, 4500);
+    return (title.trim() || siteName) && snippet ? {url, title: title.trim().slice(0, 240), snippet} : null;
   }
   return null;
 }
