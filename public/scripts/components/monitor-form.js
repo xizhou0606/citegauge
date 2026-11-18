@@ -1,7 +1,7 @@
 import { openEditor, clean } from "../core/ui.js";
 import { api } from "../core/api.js";
 
-export function newMonitor({ platforms, models, channel, self, onSave }) {
+export function newMonitor({ platforms, models, channel, onSave }) {
   const choices = platforms
     .map(
       (p) =>
@@ -17,7 +17,7 @@ export function newMonitor({ platforms, models, channel, self, onSave }) {
     <label>采样渠道<select class="form-select" name="channel" aria-label="采样渠道">${choices}</select></label>
     <label id="model-field" hidden>模型<select class="form-select" name="model" aria-label="模型" disabled></select></label>`;
   const form = openEditor(
-    self ? "建立引迹自身监测" : "新建监测项",
+    "新建监测项",
     fields,
     async (f) => {
       const { id } = await api("monitors", Object.fromEntries(new FormData(f)));
@@ -36,11 +36,4 @@ export function newMonitor({ platforms, models, channel, self, onSave }) {
   }
   form.elements.channel.onchange = showModels;
   showModels();
-  if (self) {
-    form.elements.brand.value = "CiteGauge";
-    form.elements.aliases.value = "引迹";
-    if (location.hostname.includes(".") && !/^\d+\./.test(location.hostname))
-      form.elements.domain.value = location.hostname;
-    form.elements.question.value = "有哪些开源的中文 GEO 监测工具？";
-  }
 }

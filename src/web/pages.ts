@@ -58,7 +58,7 @@ export function page(path: string, origin: string) {
           JSON.stringify(schema) +
           "</script>") +
     "</head><body>" +
-    (workspace || login ? "" : publicHeader) +
+    (workspace ? "" : publicHeader(login)) +
     (login
       ? loginPage
       : workspace
@@ -77,7 +77,7 @@ export function page(path: string, origin: string) {
               .join("") +
             "</main>"
           : home) +
-    (workspace || login ? "" : publicFooter) +
+    (workspace ? "" : publicFooter) +
     "</body></html>"
   );
 }

@@ -21,7 +21,6 @@ dialog::backdrop {
   margin: 0;
 }
 dialog label,
-.login label,
 .sample-detail form label {
   display: block;
   font-weight: 600;
@@ -31,14 +30,6 @@ dialog label,
 dialog .form-control,
 dialog .form-select {
   margin-top: 4px;
-}
-.login {
-  max-width: 440px;
-  margin: 8vh auto;
-}
-.login h1 {
-  font-size: 25px;
-  margin-bottom: 20px;
 }
 .sample-detail form {
   max-width: 620px;

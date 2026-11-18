@@ -29,8 +29,8 @@
   width: 26px;
   height: 26px;
   border-radius: 7px;
-  color: #246d55;
-  background: #e6f4e9;
+  color: var(--accent);
+  background: var(--mint);
 }
 .k1 .kpi-title i {
   color: #4674aa;
@@ -84,19 +84,19 @@
 }
 .s0,
 .d0 {
-  background: #14705b;
+  background: #454ac6;
 }
 .s1 {
-  background: #5786ce;
+  background: #337b80;
 }
 .s2 {
-  background: #aa79a9;
+  background: #ad658e;
 }
 .d1 {
-  background: #9bbce4;
+  background: #8fbaba;
 }
 .d2 {
-  background: #e0e6e2;
+  background: #dfe3ef;
 }
 .plot {
   position: relative;

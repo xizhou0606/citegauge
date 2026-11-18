@@ -42,7 +42,7 @@
   flex-wrap: wrap;
 }
 .nav-pills {
-  background: #e6ece7;
+  background: var(--line);
   padding: 3px;
   border-radius: 9px;
   gap: 3px;
@@ -51,7 +51,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #4e6459;
+  color: var(--muted);
   font-size: 13px;
   padding: 6px 11px;
   border: 0;
@@ -97,7 +97,7 @@
 .surface {
   padding: 20px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius);
   background: white;
   min-width: 0;
 }
@@ -114,8 +114,9 @@
   font-size: 14px;
 }
 .empty-platform {
+  align-items: center;
   margin-top: 20px;
-  padding: 38px;
+  padding: clamp(36px, 7vw, 84px);
   text-align: center;
 }
 .empty-platform > .bi {

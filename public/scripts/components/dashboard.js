@@ -6,12 +6,14 @@ import { plotsSection, mountPlots, clearPlots } from "../charts/plots.js";
 import { samplingButtons, bindSampling } from "./sampling.js";
 
 let sequence = 0;
+let reportUrl;
 export async function renderDashboard(m, ready, refresh, onCreate) {
   const request = ++sequence,
     panel = $("panel");
+  if (reportUrl) URL.revokeObjectURL(reportUrl);
   clearPlots();
   if (!m) {
-    panel.innerHTML = `<section class="surface empty-platform">${icon("folder2-open")}<h2>该渠道暂无监测项</h2>
+    panel.innerHTML = `<section class="card surface empty-platform">${icon("folder2-open")}<h2>添加第一个监测问题</h2><p class="text-secondary">为当前渠道设置品牌和固定问题，即可开始记录回答。</p>
     <button id="first-monitor" class="btn btn-primary">新建监测项</button></section>`;
     $("first-monitor").onclick = onCreate;
     return;
@@ -22,8 +24,15 @@ export async function renderDashboard(m, ready, refresh, onCreate) {
   const date = (t) => new Date(t).toISOString().slice(0, 10);
   panel.innerHTML = `<section class="monitor-head"><div><p class="brand-domain">${clean(m.brand)} <span>·</span> ${clean(m.domain)}${m.model ? " · " + clean(m.model) : ""}</p>
     <h2>${clean(m.question)}</h2><div class="date-range">${icon("calendar3")}${date(report.start)} — ${date(report.end)} · UTC</div></div>
-    <div class="sampling-actions">${samplingButtons(m, ready)}</div></section>
+    <div class="sampling-actions">${samplingButtons(m, ready)}<a id="export-report" class="btn btn-light btn-sm" href="/api/report/${encodeURIComponent(m.id)}" download="citegauge-${date(report.end)}.json">导出报告</a></div></section>
     ${metricsSection(report.summary)}${plotsSection(report)}${breakdownSection(m, report)}${historySection}`;
+  const exportLink = $("export-report");
+  const blob = new Blob([JSON.stringify({ monitor: m, ...report }, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  exportLink.href = url;
+  reportUrl = url;
   mountPlots(report);
   bindSampling(m, refresh);
   const list = historyList(m, report, refresh);

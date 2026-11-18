@@ -3,7 +3,7 @@
 @import url("./forms.css");
 .console {
   display: grid;
-  grid-template-columns: 212px minmax(0, 1fr);
+  grid-template-columns: 224px minmax(0, 1fr);
   min-height: 100vh;
 }
 .rail {
@@ -13,19 +13,19 @@
   top: 0;
   height: 100dvh;
   padding: 27px 15px 17px;
-  background: #122e29;
-  color: #eff9f1;
+  background: var(--ink);
+  color: #fff;
 }
 .rail > .brand {
-  margin: 0 6px 52px;
+  margin: 0 6px 36px;
 }
 .rail-section {
-  color: #a2baad;
+  color: #b2bace;
   font-size: 12px;
   font-weight: 600;
   margin: 0 13px 10px;
 }
-.platform-nav,
+.rail .platform-nav,
 .rail-foot a,
 .rail-foot button {
   display: flex;
@@ -37,7 +37,7 @@
   border: 0;
   border-radius: 8px;
   text-decoration: none;
-  color: #cfdfd4;
+  color: #d3daea;
   text-align: left;
 }
 .platform-nav {
@@ -52,20 +52,20 @@
   width: 24px;
   text-align: center;
 }
-.platform-nav[aria-pressed="true"] {
-  background: #ccedb9;
-  color: #193529;
+.rail .platform-nav[aria-pressed="true"] {
+  background: #ececff;
+  color: #272b85;
   font-weight: 650;
 }
-.platform-nav[aria-pressed="false"]:hover,
+.rail .platform-nav[aria-pressed="false"]:hover,
 .rail-foot a:hover,
 .rail-foot button:hover {
-  background: #24453d;
+  background: #323e5a;
   color: white;
 }
 .rail-foot {
   margin-top: auto;
-  border-top: 1px solid #335148;
+  border-top: 1px solid #36415a;
   padding-top: 14px;
   font-size: 13px;
 }
@@ -103,29 +103,13 @@
   padding: 25px clamp(18px, 3vw, 46px) 55px;
 }
 
-/* Carry the login panel's ink and chartreuse palette into the workspace. */
-.rail {
-  background: linear-gradient(165deg, #192923, #101a17 88%);
-}
-.rail .brand i,
-.platform-nav[aria-pressed="true"] {
-  background: #d9e7ab;
-}
-.console {
-  background: #f5f6f1;
+
+#platforms {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
 }
 .kpi.k0 {
-  background: #20362d;
-  color: #f8faee;
-  border-color: #20362d;
+  border-top: 3px solid var(--accent);
 }
-.kpi.k0 .kpi-title,
-.kpi.k0 small {
-  color: #d5e3d4;
-}
-.kpi.k0 .kpi-title i {
-  background: #d9e7ab;
-  color: #294030;
-}
-
-#platforms { min-height: 0; overflow-y: auto; }

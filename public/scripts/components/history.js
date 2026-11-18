@@ -2,7 +2,7 @@ import { $, action, clean } from "../core/ui.js";
 import { api } from "../core/api.js";
 import { bindEvidence } from "./evidence.js";
 
-export const historySection = `<section class="surface history"><div class="section-head"><h2 id="history-title">样本历史</h2>
+export const historySection = `<section class="card surface history"><div class="section-head"><h2 id="history-title">样本历史</h2>
 <button id="all-samples" class="btn btn-light btn-sm">查看全部样本</button></div><div id="history"></div></section>`;
 export function historyList(m, data, refresh) {
   let sequence = 0;

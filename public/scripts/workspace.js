@@ -5,8 +5,8 @@ import { renderDashboard } from "./components/dashboard.js";
 import { newMonitor } from "./components/monitor-form.js";
 
 let catalog, platform, channel, active;
-function create(self = false) {
-  newMonitor({ platforms: catalog.platforms, models: catalog.models, channel, self, onSave: load });
+function create() {
+  newMonitor({ platforms: catalog.platforms, models: catalog.models, channel, onSave: load });
 }
 async function select(p, c, id) {
   platform = p;
@@ -72,7 +72,6 @@ window.addEventListener("session-expired", () => {
   location.replace("/login");
 });
 $("add").onclick = () => create();
-$("self").onclick = () => create(true);
 sessionStorage.removeItem("cg-token");
 load().catch((error) => status(error.message));
 window.addEventListener("pageshow", (e) => {
