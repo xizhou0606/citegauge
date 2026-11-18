@@ -26,7 +26,7 @@
   font-weight: 600;
   margin: 0 13px 10px;
 }
-.feature-nav .nav-link,
+.rail .platform-nav,
 .rail-foot a,
 .rail-foot button {
   display: flex;
@@ -41,16 +41,20 @@
   color: var(--muted-foreground);
   text-align: left;
 }
-.feature-nav .nav-link {
+.platform-nav {
   font-size: 15px;
   margin-bottom: 5px;
 }
-.feature-nav .nav-link[aria-current="page"] {
+.platform-nav small {
+  margin-left: auto;
+  font: 12px monospace;
+}
+.rail .platform-nav[aria-pressed="true"] {
   background: var(--secondary);
   color: var(--foreground);
   font-weight: 650;
 }
-.feature-nav .nav-link:hover,
+.rail .platform-nav[aria-pressed="false"]:hover,
 .rail-foot a:hover,
 .rail-foot button:hover {
   background: var(--secondary);
@@ -101,7 +105,7 @@
   padding: 25px clamp(18px, 3vw, 46px) 55px;
 }
 
-.feature-nav {
+#platforms {
   display: flex;
   flex-direction: column;
   min-height: 0;

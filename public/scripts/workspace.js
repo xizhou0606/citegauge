@@ -2,25 +2,20 @@ import "./core/validation.js";
 import { bindWebsiteReview } from "./components/site-review.js";
 import { $, action, status } from "./core/ui.js";
 import { api, requestJSON } from "./core/api.js";
-import { scopeSection } from "./components/scope.js";
+import { platformNav, scopeSection } from "./components/scope.js";
 import { renderDashboard } from "./components/dashboard.js";
 
 let catalog, platform, channel, active;
 function showView() {
-  const links = [...document.querySelectorAll(".feature-nav a")];
-  const current = links.find(link => link.hash === location.hash) || links[0];
-  const view = current.hash.slice(1);
-  const monitoring = view !== "website";
+  const monitoring = location.hash === "#monitoring";
   $("website-panel").hidden = monitoring;
   $("app").hidden = !monitoring || !catalog;
   $("tools").hidden = !monitoring || !catalog;
-  $("crumb").textContent = current.textContent;
-  if ($("scope-heading")) $("scope-heading").textContent = current.textContent;
-  for (const link of links) {
-    if (link === current) link.setAttribute("aria-current", "page");
+  $("crumb").textContent = monitoring ? platform?.name || "模型监测" : "官网分析";
+  for (const link of document.querySelectorAll(".workspace-views a")) {
+    if (link.hash === (monitoring ? "#monitoring" : "#website")) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   }
-  return view;
 }
 function create() {
   location.hash = "website";
@@ -39,14 +34,18 @@ async function select(p, c, id) {
     "cg-selection",
     JSON.stringify({ platform: p.id, channel, id: active }),
   );
+  platformNav(catalog.platforms, catalog.monitors, p, (platformId) => {
+    location.hash = "monitoring";
+    const next = catalog.platforms.find((x) => x.id === platformId);
+    const available = catalog.monitors.find((m) =>
+      next.channels.includes(m.channel),
+    );
+    select(next, available?.channel || next.channels[0], available?.id).catch(
+      (e) => status(e.message),
+    );
+  });
   scopeSection({
     platform,
-    platforms: catalog.platforms,
-    onPlatform: (platformId) => {
-      const next = catalog.platforms.find(p => p.id === platformId);
-      const first = catalog.monitors.find(m => next.channels.includes(m.channel));
-      select(next, first?.channel || next.channels[0], first?.id).catch(e => status(e.message));
-    },
     channel,
     active,
     monitors: catalog.monitors,
@@ -54,14 +53,9 @@ async function select(p, c, id) {
     onMonitor: (id) =>
       select(platform, channel, id).catch((e) => status(e.message)),
   });
-  await refreshView();
-}
-async function refreshView() {
-  const view = showView();
-  if (!catalog || !platform) return;
+  showView();
   await renderDashboard(
-    view,
-    catalog.monitors.find(m => m.id === active),
+    monitor,
     catalog.ready[channel],
     () => load(active),
     () => create(),
@@ -96,12 +90,12 @@ window.addEventListener("session-expired", () => {
   location.replace("/login");
 });
 $("add").onclick = () => create();
-window.addEventListener("hashchange", () => refreshView().catch(e => status(e.message)));
+window.addEventListener("hashchange", showView);
 showView();
 bindWebsiteReview({
   refresh: load,
   settled: (id) => {
-    if (showView() !== "website" && active === id) return load(id);
+    if (location.hash === "#monitoring" && active === id) return load(id);
   },
   open: async (id) => {
     await load(id);

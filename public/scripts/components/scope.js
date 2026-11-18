@@ -4,10 +4,22 @@ function brandLogo(id) {
   return `<img class="brand-logo" src="/vendor/brands/${encodeURIComponent(id)}.svg" width="20" height="20" alt="">`;
 }
 
+export function platformNav(platforms, monitors, platform, select) {
+  picker($("platform-picker"), "选择模型平台", platforms.map(p => ({ value: p.id, text: p.name })), platform.id, select);
+  $("platforms").innerHTML = platforms
+    .map((p) => {
+      const count = monitors.filter((m) =>
+        p.channels.includes(m.channel),
+      ).length;
+      return `<button class="nav-link platform-nav" aria-label="${clean(p.name)}，${count} 个监测项" data-platform="${clean(p.id)}" aria-pressed="${p.id === platform.id}">
+      ${brandLogo(p.id)}${clean(p.name)}<small>${count}</small></button>`;
+    })
+    .join("");
+  for (const b of $("platforms").querySelectorAll("button"))
+    b.onclick = () => select(b.dataset.platform);
+}
 export function scopeSection({
   platform,
-  platforms,
-  onPlatform,
   channel,
   monitors,
   active,
@@ -26,15 +38,14 @@ export function scopeSection({
   };
   $("scope").innerHTML =
     `<div class="scope-title"><div class="platform-mark">${brandLogo(platform.id)}</div>
-    <div><h1><span id="scope-heading">监测范围</span></h1><p>${items.length} 个监测项 · ${clean(channel)}</p></div></div>
-    <div class="scope-filters"><div class="monitor-picker">平台<div class="dropdown" id="platform-picker"></div></div><nav class="nav nav-pills" aria-label="采样渠道">${platform.channels
+    <div><h1>${clean(platform.name)}监测概览</h1><p>${items.length} 个监测项 · ${clean(channel)}</p></div></div>
+    <div class="scope-filters"><nav class="nav nav-pills" aria-label="采样渠道">${platform.channels
       .map(
         (c) => `<button
     data-channel="${clean(c)}" aria-pressed="${channel === c}" class="nav-link ${channel === c ? "active" : ""}">${brandLogo(c === "火山方舟 API" ? "volcengine" : platform.id)}${clean(c)}</button>`,
       )
       .join("")}</nav>
     <div class="monitor-picker">监测项<div class="dropdown" id="monitor"></div></div></div>`;
-  picker($("platform-picker"), "选择平台", platforms.map(p => ({ value: p.id, text: p.name })), platform.id, onPlatform);
   picker($("monitor"), "选择监测项", items.map(option), active, onMonitor, "暂无监测项");
   for (const b of $("scope").querySelectorAll("[data-channel]"))
     b.onclick = () => onChannel(b.dataset.channel);
