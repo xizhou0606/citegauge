@@ -80,15 +80,24 @@ export async function compareIndustry(identity: Identity | null, modules: Module
   const jobs = [];
   for (let i = 0; i < pages.length; i += 5) jobs.push(pages.slice(i, i + 5));
   let rows = base.rows;
+  const failures = new Set<string>();
   let failed = 0;
   for (let i = 0; i < jobs.length; i += 4) {
     const groups = await Promise.allSettled(jobs.slice(i, i + 4).map(group => compareGroup(identity, modules, group, key)));
     for (const g of groups) {
       if (g.status === "fulfilled") rows = mergeBrands(rows, g.value);
-      else failed++;
+      else {
+        failed++;
+        const e = g.reason;
+        const reason = /subrequest/i.test(String(e?.message)) ? "请求额度" :
+          e?.statusCode ? "上游 HTTP " + Number(e.statusCode) :
+          e?.name === "TimeoutError" ? "请求超时" : "响应格式";
+        failures.add(reason);
+        console.warn("Industry comparison group failed", {reason, type: e?.name});
+      }
     }
   }
-  const note = coverage + (failed ? `其中 ${failed} 批材料未完成比对。` : "") +
+  const note = coverage + (failed ? `其中 ${failed} 批材料未完成比对（${[...failures].join("、")}）。` : "") +
     (rows.length ? "名单按公开资料核实并去重。" : "本轮未核实到同业品牌。");
   return {...result, rows, note};
 }

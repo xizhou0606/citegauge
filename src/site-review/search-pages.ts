@@ -2,10 +2,12 @@ import { websiteURL } from "./capture.ts";
 import type { SearchPage } from "./industry-search.ts";
 
 // Only public-page text is evidence. The search model supplies candidate addresses.
-export async function readSearchPage(input: string): Promise<SearchPage | null> {
+export async function readSearchPage(input: string, budget: { remaining: number }): Promise<SearchPage | null> {
   let url = websiteURL(input);
   const signal = AbortSignal.timeout(8000);
   for (let hop = 0; hop <= 2; hop++) {
+    if (budget.remaining <= 0) return null;
+    budget.remaining--;
     const response = await fetch(url, { redirect: "manual", signal, headers: { Accept: "text/html" } });
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get("location");

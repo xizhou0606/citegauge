@@ -55,8 +55,10 @@ export async function industrySources(identity: Identity, key: string, ownUrl: s
       if (!byHost.has(domain)) byHost.set(domain, url);
     }
     const candidates = [...new Set([...byHost.values(), ...urls])].slice(0, 40);
-    for (let i = 0; i < candidates.length; i += 5) {
-      const batch = await Promise.allSettled(candidates.slice(i, i + 5).map(readSearchPage));
+    // Reserve subrequests for model synthesis, evidence captures, D1 and authentication.
+    const budget = {remaining: 27};
+    for (let i = 0; i < candidates.length && budget.remaining > 0; i += 5) {
+      const batch = await Promise.allSettled(candidates.slice(i, i + 5).map(url => readSearchPage(url, budget)));
       for (const r of batch) {
         if (r.status === "fulfilled" && r.value && external(r.value.url)) pages.set(r.value.url, r.value);
       }
