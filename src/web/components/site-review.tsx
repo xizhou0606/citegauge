@@ -25,14 +25,16 @@ export function WebsiteInput() {
 }
 export function WebsitePanel() {
   return (
-    <section id="website-panel" aria-labelledby="website-title">
-      <h1 id="website-title">官网形象分析</h1>
-      <p className="text-muted-foreground my-3">
-        输入官网网址，AI 会从首屏和正文识别品牌，按模块给出修改建议，并自动创建监测问题、发起首次采样。
-      </p>
-      <form id="website-form">
-        <WebsiteInput />
-      </form>
+    <section id="website-panel" aria-label="官网分析">
+      <div id="website-entry">
+        <h1 id="website-title">官网形象分析</h1>
+        <p className="text-muted-foreground my-3">
+          输入官网网址，查看品牌形象、页面改进建议和 AI 修改提示词。
+        </p>
+        <form id="website-form">
+          <WebsiteInput />
+        </form>
+      </div>
       <p id="website-status" role="status" aria-live="polite"></p>
       <div id="website-result"></div>
     </section>

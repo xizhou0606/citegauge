@@ -1,121 +1,148 @@
-import { useEffect, useState } from "react";
-import { api } from "../core/api.js";
-import { status } from "../core/ui.js";
-import { AsyncButton, Disclosure, Panel, SmallButton } from "./controls.jsx";
+import { useRef, useState } from "react";
+import { Tabs } from "radix-ui";
+import { ArrowUpRight, BookOpen, CodeXml, Download, Expand, Plus } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { SmallButton } from "./controls.jsx";
+import { Monitor } from "./review-monitor.jsx";
+import { ReviewPrompt } from "./review-prompt.jsx";
 import { downloadMarkdown, moduleFields, reviewDocument } from "./review-export.js";
 
-function Monitor({ report, actions }) {
-  const m = report.monitor;
-  const [note, setNote] = useState("");
-  useEffect(() => {
-    let current = true,
-      timer;
-    if (!m) return;
-    async function poll(attempt) {
-      try {
-        const { state } = await api("initial-sample/" + encodeURIComponent(m.id));
-        if (!current) return;
-        setNote(
-          {
-            ok: "首次采样已完成",
-            failed: "首次采样失败，可进入监测结果查看原因并重试",
-            pending: "千问正在回答监测问题…",
-            queued: "首次采样已排队",
-          }[state],
-        );
-        if (state === "ok" || state === "failed") {
-          if (attempt > 0) await actions.settled(m.id);
-        } else if (attempt < 17) timer = setTimeout(() => poll(attempt + 1), 4000);
-      } catch {
-        if (current) setNote("可在监测结果中查看采样状态");
-      }
-    }
-    poll(0);
-    return () => {
-      current = false;
-      clearTimeout(timer);
-    };
-  }, [m, actions]);
-  if (!m)
-    return (
-      m === null && (
-        <p className="surface">页面中缺少可核对的品牌名称。可以提交含品牌介绍的官网页面继续分析。</p>
-      )
-    );
+function Screenshot({ report }) {
+  if (!report.screenshot) return null;
+  const image = "data:image/jpeg;base64," + report.screenshot;
   return (
-    <Panel className="site-summary">
-      <h2>{m.brand} · 品牌监测</h2>
-      {report.identity?.brand === m.brand && <small>品牌识别依据 · {report.identity.evidence}</small>}
-      {!!m.aliases.length && <small>品牌别名 · {m.aliases.join("、")}</small>}
-      {!!m.rivals.length && <small>官网提到的竞品 · {m.rivals.join("、")}</small>}
-      <p>{m.question}</p>
-      <AsyncButton id="open-site-monitor" run={() => actions.open(m.id)}>
-        查看监测结果
-      </AsyncButton>
-      <small role="status">{note}</small>
-    </Panel>
+    <Dialog>
+      <DialogTrigger asChild>
+        <button className="review-shot" type="button" aria-label="放大查看首屏截图">
+          <img src={image} alt="分析时的官网首屏" />
+          <span>
+            <Expand size={14} />
+            查看首屏
+          </span>
+        </button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-4xl max-h-[92dvh] overflow-auto" aria-describedby={undefined}>
+        <DialogTitle>官网首屏截图</DialogTitle>
+        <img src={image} alt="分析时抓取的完整首屏" />
+      </DialogContent>
+    </Dialog>
   );
 }
-export function SiteReport({ report, actions }) {
+export function SiteReport({ report, actions, onAnalyze }) {
+  const [view, setView] = useState("report"),
+    [scope, setScope] = useState("all");
+  const tabBar = useRef(null);
   const host = new URL(report.url).hostname;
-  async function copy(modules) {
-    await navigator.clipboard.writeText(reviewDocument(report, true, modules));
-    status("已复制修改提示词");
+  const brand = report.monitor?.brand || report.identity?.brand || report.title || host;
+  function showPrompt(index) {
+    setScope(String(index));
+    setView("prompt");
+    tabBar.current.querySelector('[data-reader="prompt"]').focus();
+    tabBar.current.scrollIntoView({ block: "start" });
+  }
+  function jump(id) {
+    const heading = document.getElementById(id);
+    heading?.focus({ preventScroll: true });
+    heading?.scrollIntoView({ block: "start" });
   }
   return (
-    <>
-      <Panel className="site-summary">
-        <h2>官网整体形象</h2>
-        <p>{report.impression}</p>
-        <a href={report.url} target="_blank" rel="noreferrer">
-          {report.title || report.url} ↗
-        </a>
-        <small>
-          {host} · {new Date(report.at).toLocaleString()}
-        </small>
-        <div className="flex flex-wrap gap-2 mt-3">
-          <SmallButton onClick={() => downloadMarkdown(host + "-官网报告.md", reviewDocument(report))}>
-            导出完整报告
-          </SmallButton>
-          <SmallButton
-            onClick={() => downloadMarkdown(host + "-AI修改提示词.md", reviewDocument(report, true))}
-          >
-            导出 AI 修改提示词
-          </SmallButton>
-          <AsyncButton run={() => copy(report.modules)}>复制全部提示词</AsyncButton>
+    <article className="review-reader">
+      <header className="reader-heading">
+        <div>
+          <p className="reader-kicker">官网分析报告</p>
+          <h1>{brand}</h1>
+          <div className="reader-meta">
+            <a href={report.url} target="_blank" rel="noreferrer">
+              {host} <ArrowUpRight size={14} />
+            </a>
+            <time dateTime={new Date(report.at).toISOString()}>
+              {new Date(report.at).toLocaleString("zh-CN", { hour12: false })}
+            </time>
+          </div>
         </div>
-        <Disclosure title="查看首屏截图">
-          <img
-            alt="分析时抓取的官网首屏"
-            width="1280"
-            height="960"
-            src={"data:image/jpeg;base64," + report.screenshot}
-          />
-        </Disclosure>
-      </Panel>
-      <Monitor report={report} actions={actions} />
-      <h2 className="module-heading">按模块修改</h2>
-      {report.modules.map((m, i) => (
-        <Panel className="site-module" key={i}>
-          <h3>{m.name}</h3>
-          <blockquote>
-            <strong>{m.source === "截图" ? "首屏观察" : "页面原文"}</strong> {m.evidence}
-          </blockquote>
-          <dl>
-            {moduleFields
-              .filter(([key]) => m[key])
-              .map(([key, label]) => (
-                <div key={key}>
-                  <dt>{label}</dt>
-                  <dd>{m[key]}</dd>
-                </div>
+        <SmallButton onClick={onAnalyze}>
+          <Plus />
+          发起新分析
+        </SmallButton>
+      </header>
+      <Tabs.Root value={view} onValueChange={setView}>
+        <div className="reader-toolbar" ref={tabBar}>
+          <Tabs.List aria-label="报告阅读视图" className="reader-tabs">
+            <Tabs.Trigger value="report">
+              <BookOpen size={16} />
+              分析报告
+            </Tabs.Trigger>
+            <Tabs.Trigger value="prompt" data-reader="prompt">
+              <CodeXml size={16} />
+              AI 修改提示词
+            </Tabs.Trigger>
+          </Tabs.List>
+          {view === "report" && (
+            <SmallButton
+              variant="ghost"
+              onClick={() => downloadMarkdown(host + "-官网报告.md", reviewDocument(report))}
+            >
+              <Download />
+              下载报告
+            </SmallButton>
+          )}
+        </div>
+        <Tabs.Content value="report" forceMount hidden={view !== "report"}>
+          <section className="reader-summary">
+            <div>
+              <h2>整体形象</h2>
+              <p>{report.impression}</p>
+            </div>
+            <Screenshot report={report} />
+          </section>
+          <div className="reader-columns">
+            <div className="reader-body">
+              <h2>
+                模块修改建议 <span>{report.modules.length}</span>
+              </h2>
+              {report.modules.map((m, i) => (
+                <section className="reader-module" key={i}>
+                  <h3 id={"review-module-" + i} tabIndex={-1}>
+                    {m.name}
+                  </h3>
+                  <blockquote>
+                    <strong>{m.source === "截图" ? "首屏观察" : "页面原文"}</strong>
+                    {m.evidence}
+                  </blockquote>
+                  <dl>
+                    {moduleFields
+                      .filter(([key]) => m[key])
+                      .map(([key, label]) => (
+                        <div key={key}>
+                          <dt>{label}</dt>
+                          <dd>{m[key]}</dd>
+                        </div>
+                      ))}
+                  </dl>
+                  <SmallButton variant="outline" onClick={() => showPrompt(i)}>
+                    <CodeXml />
+                    查看本模块提示词
+                  </SmallButton>
+                </section>
               ))}
-          </dl>
-          <AsyncButton className="self-start mt-3" run={() => copy([m])}>
-            复制本模块修改提示词
-          </AsyncButton>
-        </Panel>
-      ))}
-    </>
+            </div>
+            <aside className="reader-aside">
+              <nav aria-label="模块目录">
+                <h3>模块目录</h3>
+                {report.modules.map((m, i) => (
+                  <button key={i} onClick={() => jump("review-module-" + i)}>
+                    {m.name}
+                  </button>
+                ))}
+              </nav>
+              <Monitor report={report} actions={actions} />
+            </aside>
+          </div>
+        </Tabs.Content>
+        <Tabs.Content value="prompt">
+          <ReviewPrompt report={report} scope={scope} choose={setScope} />
+        </Tabs.Content>
+      </Tabs.Root>
+    </article>
   );
 }

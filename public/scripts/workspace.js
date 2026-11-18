@@ -1,5 +1,5 @@
 import "./core/validation.js";
-import { bindWebsiteReview } from "./components/site-review.js";
+import { bindWebsiteReview, openWebsiteEntry } from "./components/site-review.js";
 import { $, action, status } from "./core/ui.js";
 import { api, requestJSON } from "./core/api.js";
 import { createElement } from "react";
@@ -27,9 +27,7 @@ function showView() {
 function create() {
   location.hash = "website";
   showView();
-  const field = $("website-url");
-  field.focus();
-  field.select();
+  openWebsiteEntry();
 }
 async function select(p, c, id) {
   platform = p;

@@ -6,7 +6,17 @@ import { SiteReport } from "./site-report.jsx";
 
 export function bindWebsiteReview(actions) {
   const root = createRoot($("website-result"));
-  const renderReport = (report) => root.render(createElement(SiteReport, { report, actions }));
+  function renderReport(report) {
+    $("website-entry").hidden = !form.contains(document.activeElement) || submitted;
+    root.render(
+      createElement(SiteReport, {
+        key: report.at + report.url,
+        report,
+        actions,
+        onAnalyze: openWebsiteEntry,
+      }),
+    );
+  }
   const form = $("website-form"),
     field = $("website-url"),
     status = $("website-status");
@@ -20,12 +30,12 @@ export function bindWebsiteReview(actions) {
     button.disabled = true;
     field.readOnly = true;
     form.setAttribute("aria-busy", "true");
-    root.render(null);
+
     status.textContent = "正在抓取官网、识别品牌并分析页面模块…";
     try {
       const { report } = await api("site-review", { url });
       renderReport(report);
-      status.textContent = report.monitor ? "官网分析完成，品牌监测已就绪。" : "官网分析完成。";
+      status.textContent = "";
       if (report.monitor)
         actions.refresh(report.monitor.id).catch((error) => {
           status.textContent = error.message;
@@ -57,4 +67,11 @@ export function bindWebsiteReview(actions) {
     .catch(() => {
       if (!submitted) status.textContent = "上次报告读取失败，仍可输入网址重新分析。";
     });
+}
+
+export function openWebsiteEntry() {
+  $("website-entry").hidden = false;
+  const field = $("website-url");
+  field.focus();
+  field.select();
 }
