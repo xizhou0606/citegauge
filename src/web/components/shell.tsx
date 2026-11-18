@@ -53,7 +53,7 @@ const views = [
   ["website", Globe, "官网分析"],
   ["monitoring", Activity, "可见度概览"],
   ["competitors", ChartColumn, "竞品对比"],
-  ["sources", Link2, "引用来源"],
+  ["sources", Link2, "回答与引用"],
   ["evidence", FolderOpen, "样本复核"],
 ] as const;
 export function WorkspaceShell() {

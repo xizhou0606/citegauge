@@ -7,7 +7,7 @@ const labels = {
 export const allSamples = { filter: "all", value: "", label: "全部样本", offset: 0 };
 
 const origins = new Map([
-  ["#monitoring", "可见度概览"], ["#sources", "引用来源"], ["#competitors?section=mentions", "品牌提及对比"],
+  ["#monitoring", "可见度概览"], ["#sources", "回答与引用"], ["#competitors?section=mentions", "品牌提及对比"],
 ]);
 
 export function evidenceHash(id, end, filter, value = "", origin = "") {

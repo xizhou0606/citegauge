@@ -1,3 +1,4 @@
+import { answerReferences } from "../domain/answer-references.ts";
 import { brandQuestionStats } from "./brand-question-stats.ts";
 import { destinations } from "../delivery/chat.ts";
 import type { Database } from "./d1.ts";
@@ -88,12 +89,18 @@ export async function readWorkspace(
       : json({ error: "未附截图" }, 404);
   }
   if (path.startsWith("/api/evidence/")) {
-    const fields = url.searchParams.get("view") === "answer" ? "runs.id,runs.state,runs.detail" : "runs.*";
+    const answerOnly = url.searchParams.get("view") === "answer";
+    const fields = answerOnly ? `runs.id,runs.state,runs.detail,
+      CASE WHEN json_valid(raw) THEN raw->'$.output.search_info.search_results' END AS candidates` : "runs.*";
     const { rows } = await db.query(
       `SELECT ${fields},EXISTS(SELECT 1 FROM screenshots WHERE run=runs.id) AS "hasScreenshot" FROM runs WHERE id=?1`,
       [id],
     );
-    return rows.length ? json(rows[0]) : json({ error: "样本不存在" }, 404);
+    if (!rows.length) return json({error:"样本不存在"},404);
+    const {candidates,...run} = rows[0];
+    if (answerOnly && candidates && run.detail?.answer)
+      run.detail.references = answerReferences(run.detail.answer,JSON.parse(candidates));
+    return json(run);
   }
   return json({ error: "路径无效" }, 404);
 }

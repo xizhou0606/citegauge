@@ -61,3 +61,19 @@
 .sample-markdown p { margin: .55em 0; }
 .sample-markdown blockquote { padding-left: 1em; border-left: 3px solid var(--border); }
 .sample-markdown pre { padding: 1em; background: var(--secondary); border-radius: 8px; overflow: auto; }
+.current-answer { margin: 16px 0; }
+.answer-question { margin-top: 10px; color: var(--muted-foreground); }
+.formatted-answer { min-width: 0; overflow-wrap: anywhere; }
+.formatted-answer footer { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 12px; font-size: 14px; }
+.formatted-answer footer h3 { font-weight: 650; }
+.formatted-answer footer p { margin: 5px 0; }
+.formatted-answer a { text-decoration: underline; }
+.sample-markdown :is(h1,h2,h3,h4,h5,h6) { font-weight: 650; }
+.sample-markdown :is(ol,ul) { margin: .6em 0; padding-inline-start: 1.6em; }
+.sample-markdown ol { list-style: decimal; }
+.sample-markdown ul { list-style: disc; }
+.sample-markdown li + li { margin-top: .3em; }
+.sample-markdown table { border-collapse: collapse; }
+.sample-markdown :is(th,td) { border: 1px solid var(--border); text-align: start; padding: 6px 9px; min-width: 6em; }
+.sample-markdown th { background: var(--secondary); }
+.sample-markdown .answer-citation { font-size: .8em; vertical-align: super; color: var(--signal); }

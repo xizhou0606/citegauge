@@ -4,7 +4,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { markdown } from "../core/markdown.js";
+import { FormattedAnswer } from "./formatted-answer.jsx";
 import { api } from "../core/api.js";
 import { status } from "../core/ui.js";
 import { AsyncButton, Disclosure } from "./controls.jsx";
@@ -100,24 +100,12 @@ export function Evidence({ run, m, refresh }) {
       <p>
         {d.model} · 命中 {d.matched.join("、") || "无"} · 竞品 {d.rivals.join("、") || "无"}
       </p>
-      <div className="sample-markdown" dangerouslySetInnerHTML={{ __html: markdown(d.answer) }} />
+      <FormattedAnswer detail={d} />
       {d.page && (
         <a href={d.page} target="_blank" rel="noreferrer">
           原始页面 ↗
         </a>
       )}
-      <p>引用来源</p>
-      {d.urls === null
-        ? "不可观测"
-        : d.urls.length
-          ? d.urls.map((u, i) => (
-              <p key={i}>
-                <a href={u} target="_blank" rel="noreferrer">
-                  {u}
-                </a>
-              </p>
-            ))
-          : "已核对，未见引用"}
       {run.hasScreenshot && <AsyncButton run={() => download(run)}>下载原始截图</AsyncButton>}
       <Disclosure title={d.review ? "查看或修改人工复核" : "人工复核"}>
         <ReviewForm run={run} m={m} refresh={refresh} />

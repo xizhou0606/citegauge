@@ -56,6 +56,7 @@ export async function report(db: Database, monitor: Monitor, end: number) {
     start,
     end,
     summary,
+    latestAnswer: (await db.query(`SELECT id FROM runs WHERE ${cohort} AND state='ok' ORDER BY at DESC,id DESC LIMIT 1`,args)).rows[0]?.id ?? null,
     days,
     rivals: monitor.rivals.map((name) => ({
       name,

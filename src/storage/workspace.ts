@@ -1,3 +1,4 @@
+import { prepareQuestions } from "../site-review/brand-questions.ts";
 import { sendReport } from "../delivery/report.ts";
 import { ensureSiteMonitor } from "../site-review/monitor.ts";
 import type { Identity } from "../site-review/identity.ts";
@@ -15,6 +16,7 @@ import { json } from "../runtime/response.ts";
 export class Workspace {
   private ctx: DurableObjectState;
   private env: Env;
+  private questionJobs = new Map<number, Promise<Response>>();
 
   constructor(ctx: DurableObjectState, env: Env) {
     this.ctx = ctx;
@@ -45,6 +47,18 @@ export class Workspace {
   async fetch(req: Request) {
     const db = new Database(this.env.DB);
     const path = new URL(req.url).pathname;
+    if (path === "/internal/ensure-questions" && req.method === "POST") {
+      const {at} = await req.json<{at:number}>();
+      let job = this.questionJobs.get(at);
+      if (!job) {
+        job = prepareQuestions(this.env,at).then(async result => {
+          if (result.ok) await this.ctx.blockConcurrencyWhile(() => syncAlarm(db,this.ctx.storage));
+          return result;
+        }).finally(() => this.questionJobs.delete(at));
+        this.questionJobs.set(at,job);
+      }
+      return (await job).clone();
+    }
     if (path === "/internal/arm-questions" && req.method === "POST") {
       await this.ctx.blockConcurrencyWhile(() => syncAlarm(db, this.ctx.storage));
       return json({queued:true});

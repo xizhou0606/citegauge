@@ -1,3 +1,4 @@
+import { CurrentAnswer } from "./formatted-answer.jsx";
 import { BrandQuestions } from "./brand-questions.jsx";
 import { Industry } from "./industry.jsx";
 import { useState } from "react";
@@ -40,6 +41,7 @@ function Dashboard({ view, m, report, industry, ready, refresh, onCreate, route 
         } : undefined} />}
       {view === "competitors" && mentions && <Competitors m={m} report={report} filter={filter} />}
       {view === "sources" && <>
+        <CurrentAnswer key={report.latestAnswer || m.id} sample={report.latestAnswer} question={m.question} />
         {m.channel === "通义千问 API" && <BrandQuestions domain={m.domain} />}
         <Sources report={report} filter={filter} />
       </>}

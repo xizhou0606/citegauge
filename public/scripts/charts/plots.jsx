@@ -76,7 +76,7 @@ export function Plots({ report }) {
             </li>
           ))}
         </ul>
-        <a className="report-follow" href="#sources">查看引用来源 →</a>
+        <a className="report-follow" href="#sources">查看回答与引用 →</a>
       </Panel>
     </div>
   );

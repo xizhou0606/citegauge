@@ -16,7 +16,7 @@ function Logo({ id }) {
 const descriptions = {
   monitoring: "查看 AI 回答中品牌被提及、官网被引用和明确推荐的频率。",
   competitors: "对照同行官网找出可改进的模块，或比较 AI 回答中的品牌提及。",
-  sources: "查看回答引用了哪些页面，以及官网缺席时引用了谁。",
+  sources: "阅读模型回答，查看正文引用的网页及官网被引情况。",
   evidence: "阅读原始回答，核对引用，并标记 AI 是否明确推荐了品牌。",
 };
 export function Scope({
