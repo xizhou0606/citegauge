@@ -6,7 +6,9 @@ import { SiteReport } from "./site-report.jsx";
 
 export function bindWebsiteReview(actions) {
   const root = createRoot($("website-result"));
+  let activeReport;
   function renderReport(report) {
+    activeReport = report;
     $("website-entry").hidden = !form.contains(document.activeElement) || submitted;
     root.render(
       createElement(SiteReport, {
@@ -14,6 +16,10 @@ export function bindWebsiteReview(actions) {
         report,
         actions,
         onAnalyze: openWebsiteEntry,
+        onExpand: async () => {
+          const expanded = await api("site-review", { expandAt: report.at });
+          if (activeReport === report) renderReport(expanded.report);
+        },
       }),
     );
   }

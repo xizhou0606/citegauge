@@ -126,3 +126,14 @@
   .reader-meta time { padding-left: 0; border: 0; }
   .reader-module dl div { display: block; }
 }
+
+.expand-advice { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-block: 12px; }
+.module-advice { margin: 20px 0; }
+.module-advice h4 { font-size: 15px; }
+.module-advice ol { list-style: decimal; margin: 12px 0 12px 1.6em; }
+.module-advice li { padding: 10px 0 10px 5px; border-top: 1px solid var(--border); }
+.module-advice li::marker { color: var(--signal); font-weight: 650; }
+.module-advice h5 { font-weight: 650; font-size: 15px; }
+.module-advice dl { margin: 6px 0 0; }
+.module-advice dl div { padding: 5px 0; }
+.module-advice dl div:nth-child(2) dd { border-left: 2px solid var(--border); padding-left: 10px; }

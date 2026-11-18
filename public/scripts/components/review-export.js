@@ -3,9 +3,18 @@ export const moduleFields = [
   ["change", "修改步骤"], ["acceptance", "验收条件"],
 ];
 
+export const adviceFields = [
+  ["instruction", "实施步骤"], ["example", "修改示例"], ["verify", "验收方法"],
+];
+
 function moduleText(m) {
+  const actions = (m.actions || []).map((action, i) => [
+    `### ${i + 1}. ${action.target}`,
+    ...adviceFields.map(([key,label]) => `**${label}**
+${action[key]}`),
+  ].join("\n\n"));
   return [`## ${m.name}`, `依据（${m.source}）\n${m.evidence}`,
-    ...moduleFields.filter(([key]) => m[key]).map(([key, label]) => `### ${label}\n${m[key]}`)].join("\n\n");
+    ...moduleFields.filter(([key]) => m[key]).map(([key, label]) => `### ${label}\n${m[key]}`), ...actions].join("\n\n");
 }
 
 export function reviewDocument(r, prompt = false, modules = r.modules) {

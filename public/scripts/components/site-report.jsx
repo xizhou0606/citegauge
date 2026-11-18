@@ -3,6 +3,7 @@ import { Tabs } from "radix-ui";
 import { ArrowUpRight, BookOpen, CodeXml, Download, Expand, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SmallButton } from "./controls.jsx";
+import { ModuleAdvice } from "./module-advice.jsx";
 import { Monitor } from "./review-monitor.jsx";
 import { ReviewPrompt } from "./review-prompt.jsx";
 import { downloadMarkdown, moduleFields, reviewDocument } from "./review-export.js";
@@ -28,9 +29,11 @@ function Screenshot({ report }) {
     </Dialog>
   );
 }
-export function SiteReport({ report, actions, onAnalyze }) {
+export function SiteReport({ report, actions, onAnalyze, onExpand }) {
   const [view, setView] = useState("report"),
     [scope, setScope] = useState("all");
+  const [expanding, setExpanding] = useState(false);
+  const [detailNote, setDetailNote] = useState("");
   const tabBar = useRef(null);
   const host = new URL(report.url).hostname;
   const brand = report.monitor?.brand || report.identity?.brand || report.title || host;
@@ -100,6 +103,28 @@ export function SiteReport({ report, actions, onAnalyze }) {
               <h2>
                 模块修改建议 <span>{report.modules.length}</span>
               </h2>
+              {report.modules.some((m) => !m.actions?.length) && (
+                <div className="expand-advice">
+                  <SmallButton
+                    disabled={expanding}
+                    onClick={async () => {
+                      setExpanding(true);
+                      setDetailNote("正在按原报告证据细化各模块建议…");
+                      try {
+                        await onExpand();
+                        setDetailNote("");
+                      } catch (e) {
+                        setDetailNote(e.message);
+                      } finally {
+                        setExpanding(false);
+                      }
+                    }}
+                  >
+                    生成详细修改清单
+                  </SmallButton>
+                  <small role="status">{detailNote}</small>
+                </div>
+              )}
               {report.modules.map((m, i) => (
                 <section className="reader-module" key={i}>
                   <h3 id={"review-module-" + i} tabIndex={-1}>
@@ -119,6 +144,7 @@ export function SiteReport({ report, actions, onAnalyze }) {
                         </div>
                       ))}
                   </dl>
+                  <ModuleAdvice actions={m.actions} />
                   <SmallButton variant="outline" onClick={() => showPrompt(i)}>
                     <CodeXml />
                     查看本模块提示词
