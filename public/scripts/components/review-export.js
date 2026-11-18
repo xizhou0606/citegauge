@@ -1,5 +1,3 @@
-import { action, status } from "../core/ui.js";
-
 export const moduleFields = [
   ["strength", "优势"], ["weakness", "不足"], ["impact", "对访客的影响"],
   ["change", "修改步骤"], ["acceptance", "验收条件"],
@@ -35,15 +33,4 @@ export function downloadMarkdown(name, content) {
   a.download = name;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 30000);
-}
-
-export function bindExport(target, report) {
-  const file = new URL(report.url).hostname;
-  target.querySelector("[data-export-review]").onclick = () => downloadMarkdown(file + "-官网报告.md", reviewDocument(report));
-  target.querySelector("[data-export-prompt]").onclick = () => downloadMarkdown(file + "-AI修改提示词.md", reviewDocument(report, true));
-  for (const b of target.querySelectorAll("[data-prompt]")) b.onclick = action(async () => {
-    const modules = b.dataset.prompt === "all" ? report.modules : [report.modules[Number(b.dataset.prompt)]];
-    await navigator.clipboard.writeText(reviewDocument(report, true, modules));
-    status("已复制修改提示词");
-  });
 }

@@ -1,5 +1,5 @@
 import { percent } from "../core/ui.js";
-const metrics = [
+export const metrics = [
   { name: "品牌提及率", hit: "mentions", base: "valid" },
   {
     name: "官网引用率",
@@ -80,6 +80,3 @@ export function trendConfig(report, animation, colors = []) {
     },
   };
 }
-export const trendLegend = metrics
-  .map((m, i) => `<span><i class="swatch s${i}"></i>${m.name}</span>`)
-  .join("");

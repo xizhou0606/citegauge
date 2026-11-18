@@ -1,34 +1,11 @@
-import { $, clean, percent } from "../core/ui.js";
-import { trendConfig, trendLegend } from "./trends.js";
+import { $ } from "../core/ui.js";
+import { trendConfig } from "./trends.js";
 let charts = [];
 export function clearPlots() {
   for (const chart of charts) chart.destroy();
   charts = [];
 }
 const slices = ["官网被引", "已核对无官网", "来源不可观测"];
-export function plotsSection(report) {
-  const c = report.summary;
-  const portions = [
-    c.citations,
-    c.observable - c.citations,
-    c.valid - c.observable,
-  ];
-  const table = report.days
-    .map(
-      (
-        d,
-      ) => `<tr><td>${clean(d.day)}</td><td>${d.valid}</td><td>${percent(d.mentions, d.valid)}</td>
-    <td>${percent(d.citations, d.observable)}</td><td>${percent(d.recommended, d.reviewed)}</td></tr>`,
-    )
-    .join("");
-  return `<div class="plot-grid"><section class="card surface"><div class="section-head"><h2>${report.days.length === 1 ? "单日可见度对比" : "可见度趋势"}</h2><span class="caption">最近 30 天 · UTC</span></div>
-  <div class="legend">${trendLegend}</div>${report.days.length ? '<div class="plot"><canvas id="trend-chart" role="img" aria-label="品牌提及、官网引用与明确推荐率，数据见下方明细"></canvas></div>' : '<p class="empty">尚无采样记录</p>'}
-  <div class="chart-data"><button class="btn btn-light btn-sm" data-bs-toggle="collapse" data-bs-target="#daily-table" aria-expanded="false" aria-controls="daily-table">查看每日明细（${report.days.length} 天有样本）</button><div class="collapse" id="daily-table"><div class="table-responsive"><table class="table table-sm">
-  <thead><tr><th>日期</th><th>有效</th><th>提及率</th><th>引用率</th><th>推荐率</th></tr></thead><tbody>${table}</tbody></table></div></div></div></section>
-  <section class="card surface"><div class="section-head"><h2>引用分布</h2><span class="caption">按有效回答</span></div>
-  <div class="donut"><canvas id="citation-chart" role="img" aria-label="引用状态分布，数据见下方列表"></canvas><div><strong>${c.valid}</strong><span>有效样本</span></div></div>
-  <ul class="distribution">${slices.map((label, i) => `<li><span><i class="swatch d${i}"></i>${label}</span><b>${portions[i]} 条</b></li>`).join("")}</ul></section></div>`;
-}
 export function mountPlots(report) {
   const motion = matchMedia("(prefers-reduced-motion: reduce)").matches
     ? false

@@ -26,7 +26,7 @@
   font-weight: 600;
   margin: 0 13px 10px;
 }
-.rail .platform-nav,
+.feature-nav .feature-link,
 .rail-foot a,
 .rail-foot button {
   display: flex;
@@ -40,26 +40,24 @@
   text-decoration: none;
   color: var(--muted-foreground);
   text-align: left;
+  justify-content: flex-start;
 }
-.platform-nav {
+.feature-nav .feature-link {
   font-size: 15px;
   margin-bottom: 5px;
 }
-.platform-nav small {
-  margin-left: auto;
-  font: 12px monospace;
-}
-.rail .platform-nav[aria-pressed="true"] {
+.feature-nav .feature-link[aria-current="page"] {
   background: var(--secondary);
   color: var(--foreground);
   font-weight: 650;
 }
-.rail .platform-nav[aria-pressed="false"]:hover,
+.feature-nav .feature-link:hover,
 .rail-foot a:hover,
 .rail-foot button:hover {
   background: var(--secondary);
   color: var(--foreground);
 }
+.rail-foot svg { width: 1em; height: 1em; }
 .rail-foot {
   margin-top: auto;
   border-top: 1px solid var(--border);
@@ -105,7 +103,7 @@
   padding: 25px clamp(18px, 3vw, 46px) 55px;
 }
 
-#platforms {
+.feature-nav {
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -114,4 +112,4 @@
 .k0 strong { color: var(--signal); }
 .brand-logo { flex: none; object-fit: contain; }
 .platform-mark .brand-logo { width: 28px; height: 28px; }
-.nav-pills .brand-logo { width: 16px; height: 16px; }
+.scope-filters .brand-logo { width: 16px; height: 16px; }

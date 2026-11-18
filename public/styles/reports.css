@@ -120,8 +120,7 @@
   list-style: none;
 }
 .distribution li,
-.source-row,
-.ranking-row {
+.source-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -129,8 +128,7 @@
   padding: 4px 0;
 }
 .distribution b,
-.source-row b,
-.ranking-row b {
+.source-row b {
   font:
     600 12px system-ui,
     sans-serif;

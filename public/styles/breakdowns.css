@@ -1,11 +1,6 @@
-.breakdown {
-  grid-template-columns: 1fr 1fr;
-}
-.ranking,
 .source-list {
   margin-top: 12px;
 }
-.ranking-row,
 .source-row {
   width: 100%;
   border: 0;
@@ -15,23 +10,11 @@
   font-size: 13px;
   padding: 7px 0;
 }
-.ranking-row:hover,
 .source-row:hover {
   color: var(--primary);
   text-decoration: underline;
 }
-.ranking-row span {
-  width: 40%;
-  overflow-wrap: anywhere;
-}
-.ranking-row .progress {
-  flex: 1;
-  height: 7px;
-  background: var(--secondary);
-}
-.ranking-row .progress-bar { background: var(--chart-1); }
-.source-list,
-.ranking {
+.source-list {
   max-height: 210px;
   overflow: auto;
 }

@@ -41,27 +41,6 @@
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
 }
-.nav-pills {
-  background: var(--secondary);
-  padding: 3px;
-  border-radius: 9px;
-  gap: 3px;
-}
-.nav-pills .nav-link {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--muted-foreground);
-  font-size: 13px;
-  padding: 6px 11px;
-  border: 0;
-}
-.nav-pills .nav-link.active {
-  background: var(--card);
-  color: var(--primary);
-  box-shadow: 0 1px 3px #303b4b20;
-  font-weight: 650;
-}
 .monitor-picker {
   display: flex;
   align-items: center;
@@ -71,8 +50,8 @@
   max-width: 100%;
   white-space: nowrap;
 }
-.monitor-picker .dropdown {
-  width: min(310px, 50vw);
+.monitor-picker [data-slot="native-select-wrapper"] {
+  max-width: min(310px, 50vw);
   min-width: 0;
 }
 .monitor-head {
@@ -129,7 +108,7 @@
   font-size: clamp(22px, 2.3vw, 32px);
 }
 .empty-platform p { color: var(--muted-foreground); font-size: 14px; max-width: 26em; }
-.empty-platform .btn { margin-top: 6px; }
+.empty-platform button { margin-top: 6px; }
 .question-example {
   background: var(--card);
   border: 1px solid var(--border);
@@ -138,7 +117,7 @@
   padding: clamp(20px, 3vw, 34px);
 }
 .question-example span { color: var(--signal); font-size: 12px; }
-.question-example .bi { margin-right: 6px; }
+.question-example svg { margin-right: 6px; }
 .question-example blockquote {
   border-top: 1px solid var(--border);
   margin: 17px 0 0;
@@ -152,8 +131,7 @@
 #status:empty {
   display: none;
 }
-#status:not(:empty),
-#dialog-note:not(:empty) {
+#status:not(:empty) {
   padding: 10px 14px;
   background: #fff5d6;
   border-radius: 6px;

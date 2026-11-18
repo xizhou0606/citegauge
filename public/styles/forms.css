@@ -1,28 +1,11 @@
-.modal label,
-.sample-detail form label {
-  display: block;
-  font-weight: 600;
-  font-size: 13px;
-  margin-bottom: 12px;
-}
-.modal .form-control,
-.modal .form-select {
-  margin-top: 4px;
-}
 .sample-detail form {
   max-width: 620px;
   margin: 14px 0;
   padding: 15px;
   background: var(--background);
-  border-radius: 9px;
+  border-radius: var(--radius);
 }
-
-.modal-content { border-radius: var(--radius); }
-.modal-body { max-height: 65dvh; overflow-y: auto; }
-.dropdown-toggle { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
-.dropdown-menu { max-width: min(440px, 90vw); max-height: 55vh; overflow-y: auto; }
-.dropdown-item { white-space: normal; overflow-wrap: anywhere; }
-.dropdown-item.active { background: var(--primary); }
-
-.form-check-input:checked { background-color: var(--primary); border-color: var(--primary); }
-.modal-body { overflow-wrap: anywhere; }
+.sample-detail fieldset legend {
+  margin-bottom: .65rem;
+  font-weight: 600;
+}
