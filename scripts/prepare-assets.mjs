@@ -51,3 +51,5 @@ execFileSync(
   ],
   { stdio: "inherit" },
 );
+
+await import("./build-site-sdk.mjs");

@@ -11,6 +11,9 @@ const ignored = new Set([
   "dist",
   "coverage",
   "public/vendor",
+  "public/docs/sdk",
+  "packages/citegauge/dist",
+  "sdk-guide/.vitepress/cache",
 ]);
 const problems = [];
 let count = 0;

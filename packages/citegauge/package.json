@@ -1,0 +1,36 @@
+{
+  "name": "citegauge",
+  "version": "0.1.0",
+  "description": "Website traffic and AI crawler analytics for Node.js",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xizhou0606/citegauge.git",
+    "directory": "packages/citegauge"
+  },
+  "license": "MIT",
+  "scripts": {
+    "prepack": "node --input-type=module -e \"import {rmSync} from 'node:fs'; rmSync(new URL('./dist/',import.meta.url),{recursive:true,force:true})\" && tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "isbot": "5.2.3",
+    "jiti": "2.7.0",
+    "on-headers": "1.1.0"
+  }
+}

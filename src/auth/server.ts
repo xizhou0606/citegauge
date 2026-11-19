@@ -1,3 +1,4 @@
+import { manageSdk } from "../site-sdk/manage.ts";
 import { crawlerInspection } from "../crawler-inspection/route.ts";
 import { brandPreview } from "../site-review/brand-preview.ts";
 import { siteReview } from "../site-review/route.ts";
@@ -62,6 +63,7 @@ export async function privateApi(req: Request, env: Env) {
     if ((await req.clone().arrayBuffer()).byteLength > limit)
       return json({ error: "样本过大" }, 413);
   }
+  if (url.pathname === "/api/site-sdk") return manageSdk(req,env.DB);
   if (["/api/crawler-inspect", "/api/crawler-resource-logs", "/api/crawler-resource-traffic"].includes(url.pathname))
     return crawlerInspection(req, env.DB);
   if (url.pathname === "/api/industry-preview") return brandPreview(req, env);

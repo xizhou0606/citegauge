@@ -1,5 +1,4 @@
-const crawlers = ["GPTBot", "OAI-SearchBot", "ClaudeBot", "Claude-SearchBot", "PerplexityBot", "Bytespider"];
-const signature = new RegExp("(?:^|[\\s(;])(" + crawlers.join("|") + ")(?=/|[\\s;)]|$)", "i");
+import { identifyCrawler } from "../../packages/citegauge/src/bots.ts";
 
 function parseVisit(line: string, domain: string, paths?: ReadonlySet<string>) {
   const row = JSON.parse(line);
@@ -7,8 +6,7 @@ function parseVisit(line: string, domain: string, paths?: ReadonlySet<string>) {
   const agent = row.ClientRequestUserAgent ?? "";
   if (typeof host !== "string" || typeof agent !== "string") throw Error();
   if (host.toLowerCase().replace(/^www\./, "") !== domain) return null;
-  const name = signature.exec(agent)?.[1];
-  const bot = crawlers.find(value => value.toLowerCase() === name?.toLowerCase());
+  const bot = identifyCrawler(agent);
 
   const { RayID: id, EdgeStartTimestamp: stamp, EdgeResponseStatus: status } = row;
   const uri = row.ClientRequestPath ?? row.ClientRequestURI;

@@ -18,7 +18,7 @@ const descriptions = {
   monitoring: "查看 AI 回答中品牌被提及、官网被引用和明确推荐的频率。",
   competitors: "对照同行官网找出可改进的模块，或比较 AI 回答中的品牌提及。",
   sources: "阅读模型回答，查看正文引用的网页及官网被引情况。",
-  crawlers: "输入任意公开官网网址，查询 robots.txt 和 Sitemap 的可访问状态及已有日志中的请求次数。",
+  crawlers: "查看当前官网的访问量、AI 爬虫请求以及 XML / TXT 文件访问情况。",
   evidence: "阅读原始回答，核对引用，并标记 AI 是否明确推荐了品牌。",
 };
 export function Scope({

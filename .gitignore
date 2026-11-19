@@ -8,3 +8,7 @@ node_modules/
 public/vendor/
 
 .local-admin*.txt
+packages/citegauge/dist/
+public/sdk/
+public/docs/sdk/
+sdk-guide/.vitepress/cache/

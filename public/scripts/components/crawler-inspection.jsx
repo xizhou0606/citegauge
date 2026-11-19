@@ -1,3 +1,4 @@
+import { SiteSdk } from "./site-sdk.jsx";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -28,9 +29,9 @@ function ResourceResults({ result }) {
       <p>检查时间 {new Date(result.checked).toLocaleString()} · Sitemap 来自{result.source}</p>
     </div>
     {result.omitted > 0 && <p>另有 {result.omitted} 个声明地址未检查，可填入自定义 Sitemap 单独查询。</p>}
-    <p>{observed ? `近 30 天已导入日志合计 ${total} 次请求，其中 ${ai} 次带已知 AI 爬虫标识。` :
+    <p>{observed ? `近 30 天已采集请求合计 ${total} 次请求，其中 ${ai} 次带已知 AI 爬虫标识。` :
       "近 30 天暂无日志，历史请求次数未知。"}</p>
-    <p>历史次数取自已导入日志，按主机和路径匹配，同路径的查询参数合并计算。自定义路径可在下方重新导入完整日志。HTTP 状态反映本次公开访问。</p>
+    <p>历史次数取自 SDK 与导入日志，按主机和路径匹配，同路径的查询参数合并计算。自定义路径可在下方重新导入完整日志。HTTP 状态反映本次公开访问。</p>
     {result.resources.map(resource => {
       const url = new URL(resource.url);
       const row = traffic.find(item => item.host === url.hostname && item.path === url.pathname);
@@ -39,13 +40,13 @@ function ResourceResults({ result }) {
         <a className="break-all underline" href={resource.url} target="_blank" rel="noreferrer">{resource.url}</a>
         {resource.finalUrl !== resource.url && <p className="break-all">跳转至 {resource.finalUrl}</p>}
         <p>{resource.status ? `HTTP ${resource.status} · ` : ""}{resource.finding}</p>
-        <p>已导入请求 {row?.observed || row?.requests ? row.requests : "—"} 次 ·
+        <p>已记录请求 {row?.observed || row?.requests ? row.requests : "—"} 次 ·
           带 AI 爬虫标识 {row?.observed || row?.requests ? row.ai : "—"} 次</p>
         {row?.latest && <p>最近一次记录 {new Date(row.latest).toLocaleString()}</p>}
         {row?.examples?.length > 0 && <details>
           <summary>最近请求记录（{row.examples.length} 条）</summary>
           <ul>{row.examples.map((event, i) => <li className="break-all" key={i}>
-            {new Date(event.at).toLocaleString()} · HTTP {event.status} · {event.agent || "无 User-Agent"} · Ray ID {event.id}
+            {new Date(event.at).toLocaleString()} · HTTP {event.status} · {event.agent || "无 User-Agent"} · 请求 ID {event.id}
           </li>)}</ul>
         </details>}
       </article>;
@@ -73,6 +74,7 @@ export function CrawlerInspection({ domain, monitor }) {
     finally { setBusy(false); }
   }
   return <div className="grid gap-4">
+    {monitor && <SiteSdk key={monitor.domain} monitor={monitor} />}
     <Panel className="grid min-w-0 gap-4 p-5">
       <form onSubmit={submit} className="grid gap-3">
         <Label htmlFor="inspect-site">目标官网 URL</Label>

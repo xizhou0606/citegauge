@@ -1,3 +1,4 @@
+import { ingest } from "./site-sdk/ingest.ts";
 import { privateApi, hasWorkspaceSession } from "./auth/server.ts";
 import { page } from "./web/pages.tsx";
 import { articles } from "./web/articles.ts";
@@ -14,6 +15,7 @@ export default {
   async fetch(req: Request, env: Env) {
     const url = new URL(req.url),
       path = url.pathname;
+    if (path === "/collect/v1") return ingest(req,env.DB);
     if (path.startsWith("/api/")) return privateApi(req, env);
     if (!["GET", "HEAD"].includes(req.method))
       return new Response(null, { status: 405 });
