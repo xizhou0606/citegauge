@@ -1,0 +1,60 @@
+@import url("./atelier-workspace.css");
+@import url("./atelier-interaction.css");
+
+:root { --display: "Iowan Old Style", "Songti SC", "Noto Serif CJK SC", "STSong", Georgia, serif; }
+::selection { color: #183b2e; background: #d4e7b9; }
+.brand i { width: 34px; height: 34px; border-radius: 11px; background: var(--primary); color: #fcf7db; }
+.brand i svg { width: 22px; }
+.brand b { font-size: 21px; letter-spacing: -.055em; }
+.public-header, .public-footer, body > .public-main { width: min(1512px, 94%); }
+.public-header { border: 0; min-height: 74px; }
+.public-main .hero {
+  display: grid; grid-template-columns: 1fr; position: relative; isolation: isolate; overflow: hidden;
+  margin: 0; padding: clamp(36px, 5vw, 78px); min-height: clamp(430px, 39vw, 635px);
+  background: #e6ebda; border: 1px solid var(--border); border-radius: 26px;
+}
+.coast-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; z-index: -2; }
+.hero::after { content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(90deg,#faf7e9 0%,#fbf7e9e8 25%,#f9f5e7a6 44%,transparent 66%); }
+.intro { max-width: min(49%, 36rem); }
+.hero h1 { font-family: var(--display); font-size: clamp(46px,5.3vw,84px); line-height: 1.12; letter-spacing: -.065em; }
+.hero h1 em { font: inherit; color: #2e614c; }
+.intro p { font-size: clamp(15px,1.2vw,18px); color: #344c40; }
+.site-input { align-items: center; padding: 5px; background: #fffef9; border: 1px solid #bac6b5; border-radius: 13px; box-shadow: 0 5px 18px #2136250c; }
+.site-input:focus-within { box-shadow: 0 0 0 3px #6f966533; border-color: var(--ring); }
+.site-input input { background: transparent; border: 0; box-shadow: none; outline: none; height: 40px; }
+.site-input input:focus-visible { box-shadow: none; }
+.site-input button { height: 40px; }
+.actions { margin-top: 18px; }
+.text-action { text-decoration: underline; text-underline-offset: 5px; }
+.public-lower { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(16px,3vw,46px); padding-block: clamp(24px,3.4vw,56px); }
+.report-preview { background: #f0f3e9; padding: clamp(22px,2.5vw,38px); }
+.report-question { margin-block: 14px; }
+.report-reading strong { font-family: var(--display); }
+.resources { border: 0; padding: 5px 0; }
+.resources h2 { font-family: var(--display); font-size: 29px; margin: 0 0 15px; }
+.guides { display: grid; grid-template-columns: 1fr; gap: 9px; }
+.guides .guide-card { align-items: center; padding: 16px; border: 1px solid var(--border); border-radius: 13px; background: var(--card); }
+.guide-card h3 { margin: 0 0 2px; }
+.guide-card > svg { width: 17px; height: 17px; }
+.article h1, .article h2, .login-box h1, .signal-title { font-family: var(--display); }
+.article section { border-color: #c5cfc1; }
+body > .login-page { background: var(--background); }
+.signal-panel {
+  background: linear-gradient(145deg,#102e29f5 16%,#1f4537bb 55%,#14342cd6),url("/art/citegauge-coast.webp") 72% center/cover;
+}
+.signal-panel .login-brand svg, .signal-title em { color: #e8e2a4; stroke: currentColor; }
+.login-control:focus-within > svg { color: var(--signal); }
+.login-control input:focus-visible { border-color: var(--ring); box-shadow: 0 0 0 3px #789b682d; }
+#login-submit { background: var(--primary); }
+#login-submit:hover { background: #183e32; }
+@media(max-width:780px) {
+  .public-main .hero { min-height: 0; padding: 30px 22px max(190px,33vw); }
+  .hero::after { background: linear-gradient(180deg,#faf7eb 0%,#faf7ebf0 45%,#faf7eb68 68%,transparent 82%); }
+  .coast-art { object-position: 76% bottom; height: 45%; top: auto; }
+  .intro { max-width: 100%; }
+  .hero h1 { font-size: clamp(43px,8vw,66px); margin-bottom: 15px; }
+  .public-lower { grid-template-columns: minmax(0,1fr); }
+  .actions { gap: 12px; }
+  .public-header { min-height: 62px; }
+}

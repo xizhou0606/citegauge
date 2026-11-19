@@ -7,15 +7,15 @@ export function Home() {
   return (
     <main className="public-main">
       <section className="hero">
+        <img className="coast-art" src="/art/citegauge-coast.webp" alt="" fetchPriority="high" />
         <div className="intro">
           <h1>
-            你的官网，
+            你的品牌，
             <br />
-            给人什么印象？
+            <em>AI 看得见吗？</em>
           </h1>
           <p>
-            只需一个官网网址。AI
-            会识别品牌，逐块分析官网的优势、不足和改法，并自动监测品牌在千问回答中的表现。
+            输入官网，看看 AI 如何理解你的品牌、推荐了哪些竞品，以及哪些页面值得改进。
           </p>
           <form id="site-entry" action="/workspace" method="get">
             <WebsiteInput />
@@ -29,8 +29,9 @@ export function Home() {
             </a>
           </div>
         </div>
-        <ReportPreview />
       </section>
+      <div className="public-lower">
+      <ReportPreview />
       <section className="resources">
         <h2>使用指南</h2>
         <div className="guides">
@@ -51,6 +52,7 @@ export function Home() {
           })}
         </div>
       </section>
+      </div>
     </main>
   );
 }

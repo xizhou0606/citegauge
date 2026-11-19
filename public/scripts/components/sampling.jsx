@@ -1,3 +1,4 @@
+import { FilePicker } from "./file-picker.jsx";
 import { historicalProbe } from "../../../src/domain/brand-question-intents.ts";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -80,7 +81,7 @@ export function Sampling({ m, ready, refresh }) {
       </Label>
       <Label className="grid gap-2">
         页面截图（可选，PNG 或 JPEG，限 1 MiB）
-        <Input name="image" type="file" accept="image/png,image/jpeg" />
+        <FilePicker name="image" accept="image/png,image/jpeg" />
       </Label>
     </FormDialog>
   );

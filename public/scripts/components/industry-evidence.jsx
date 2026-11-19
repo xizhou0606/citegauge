@@ -1,3 +1,4 @@
+import { Disclosure } from "./controls.jsx";
 import { Expand, ArrowUpRight } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -22,10 +23,9 @@ export function PageShot({ image, label, url }) {
 }
 
 export function Source({ row }) {
-  return <details className="industry-source">
-    <summary>对照依据</summary>
+  return <Disclosure className="industry-source" title="对照依据">
     <blockquote>{row.quote}</blockquote>
     {row.provenance && <span>{row.provenance} · </span>}
     <a href={row.url} target="_blank" rel="noreferrer">{row.title || row.url} ↗</a>
-  </details>;
+  </Disclosure>;
 }

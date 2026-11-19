@@ -1,0 +1,23 @@
+:root {
+  --vp-c-brand-1: #2a634b;
+  --vp-c-brand-2: #356e55;
+  --vp-c-brand-3: #234e3f;
+  --vp-c-brand-soft: #e5efdc;
+  --vp-c-bg: #fffef9;
+  --vp-c-bg-alt: #eff3e9;
+  --vp-c-text-1: #20372c;
+}
+.dark {
+  --vp-c-brand-1: #aad3ad;
+  --vp-c-brand-2: #89ba95;
+  --vp-c-brand-3: #417351;
+  --vp-c-brand-soft: #233f30;
+  --vp-c-bg: #19251f;
+  --vp-c-bg-alt: #121d17;
+  --vp-c-text-1: #e6eee2;
+}
+.vp-doc h1, .vp-doc h2 { font-family: "Iowan Old Style","Songti SC",Georgia,serif; }
+@media(prefers-reduced-motion:no-preference) {
+  .VPDoc .content-container { animation: doc-arrive .3s ease-out; }
+  @keyframes doc-arrive { from { opacity: .4; transform: translateY(5px); } }
+}

@@ -4,25 +4,25 @@
 @import url("./report-preview.css");
 @import url("./motion.css");
 :root {
-  --background: #fff;
-  --foreground: #20242b;
+  --background: #f8f7f1;
+  --foreground: #192f28;
   --card: #fff;
-  --primary: #25282e;
+  --primary: #234e3f;
   --primary-foreground: #fff;
-  --secondary: #f1f3f6;
-  --muted-foreground: #56606e;
-  --border: #dce1e7;
-  --ring: #54789b;
-  --sidebar: #fff;
+  --secondary: #eaf0e5;
+  --muted-foreground: #54655c;
+  --border: #d7ded1;
+  --ring: #497e65;
+  --sidebar: #eff2e9;
   --surface-shadow: 0 2px 7px rgba(47, 64, 86, .045);
-  --signal: #4b6d90;
+  --signal: #296347;
   --radius: .875rem;
-  --chart-1: #496f96;
-  --chart-2: #4383b6;
-  --chart-3: #737289;
-  --chart-4: #91a9bd;
-  --chart-5: #d5dce4;
-  --font: "Geist", "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --chart-1: #326c55;
+  --chart-2: #a35e36;
+  --chart-3: #675c88;
+  --chart-4: #91af98;
+  --chart-5: #d7ded0;
+  --font: "Instrument Sans", "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
 }
 body {
   font-family: var(--font);

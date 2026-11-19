@@ -1,3 +1,7 @@
+import "../core/validation.js";
+import { WorkspaceSelect } from "./workspace-select.jsx";
+import { Building2, Globe2, RefreshCw } from "lucide-react";
+import { Disclosure } from "./controls.jsx";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Button } from "../../../src/components/ui/button";
@@ -29,15 +33,14 @@ function Accounts({slots, tenants, refresh}) {
     } catch (err) { setError(err.message); }
     finally { setBusy(false); }
   }
-  return <details className="rounded-xl border bg-card p-5">
-    <summary className="font-semibold">开通企业账号</summary>
+  return <Disclosure className="rounded-xl border bg-card p-5" title="开通企业账号">
     {slots.length || known.length ? <form onSubmit={submit} className="mt-4 grid max-w-xl gap-3">
       <Label htmlFor="tenant">所属企业</Label>
-      <select id="tenant" name="tenant" required value={target} onChange={e=>setTarget(e.target.value)} className="rounded-md border p-2">
-        <option value="">选择已有企业或空闲数据库</option>
-        {known.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}
-        {slots.map(id=><option key={id} value={id}>新企业 · {id}</option>)}
-      </select>
+      <WorkspaceSelect id="tenant" name="tenant" value={target} onChange={setTarget}
+        placeholder="选择已有企业或空闲数据库" options={[
+          ...known.map(t => ({value:t.id, label:t.name})),
+          ...slots.map(id => ({value:id, label:"新企业 · "+id})),
+        ]} />
       <Label htmlFor="company">企业名称</Label>
       <Input key={target} id="company" name="name" defaultValue={selected?.name || ""} readOnly={!!selected} maxLength={80} required />
       <Label htmlFor="account">登录账号</Label>
@@ -50,19 +53,19 @@ function Accounts({slots, tenants, refresh}) {
       <Input id="generated-password" readOnly value={result.password} onFocus={e=>e.target.select()}/>
       <Button variant="outline" onClick={()=>setResult(null)}>已保存，隐藏密码</Button>
     </div>}
-  </details>;
+  </Disclosure>;
 }
 
 function Tenant({tenant}) {
   const rows = tenant.projects;
-  return <Card><CardHeader><CardTitle><h2>{tenant.name}</h2></CardTitle>
+  return <Card className="tenant-card"><CardHeader><CardTitle><h2><Building2 aria-hidden="true" />{tenant.name}</h2></CardTitle>
     {rows && <p className="text-sm text-muted-foreground">{rows.length} 个网站 · {rows.filter(p=>p.state==="reporting").length} 个已收到 SDK 上报</p>}
   </CardHeader><CardContent>
     {rows === null ? <p role="alert">企业数据库暂时无法读取，请检查绑定后刷新。</p> :
       rows.length === 0 ? <p>该企业尚未添加网站。</p> :
       <ul className="divide-y">{rows.map(p=><li key={p.domain} className="grid gap-2 py-3 sm:grid-cols-2">
-        <div className="min-w-0"><strong className="break-all">{p.domain}</strong><p className="text-sm text-muted-foreground">{p.monitors} 个 GEO 监测项</p></div>
-        <div><strong className={p.state==="reporting" ? "text-emerald-700" : ""}>{labels[p.state]}</strong>
+        <div className="min-w-0"><strong className="project-domain"><Globe2 aria-hidden="true" />{p.domain}</strong><p className="text-sm text-muted-foreground">{p.monitors} 个 GEO 监测项</p></div>
+        <div><strong className="sdk-state" data-state={p.state}>{labels[p.state]}</strong>
           {p.lastSeen != null && <p className="text-sm">最近上报 {new Date(p.lastSeen).toLocaleString("zh-CN")}</p>}</div>
       </li>)}</ul>}
   </CardContent></Card>;
@@ -82,9 +85,9 @@ function Console() {
   },[page,version]);
   const refresh = ()=>setVersion(v=>v+1);
   return <div className="grid gap-5">
-    <div className="flex items-center justify-between gap-3"><h1 className="text-3xl font-bold">项目接入</h1>
-      <Button variant="outline" onClick={refresh}>刷新</Button></div>
-    <p>按企业查看监测的网站、SDK 接入状态和最近上报时间。</p>
+    <header className="project-heading"><div><h1 className="text-3xl font-bold">项目接入</h1>
+      <p>按企业查看监测的网站、SDK 接入状态和最近上报时间。</p></div>
+      <Button variant="outline" onClick={refresh}><RefreshCw size={15} />刷新</Button></header>
     {error && <p role="alert">{error}</p>}
     {!data && !error && <p role="status">正在读取企业项目…</p>}
     {data?.tenants.map(t=><Tenant key={t.id} tenant={t}/>)}

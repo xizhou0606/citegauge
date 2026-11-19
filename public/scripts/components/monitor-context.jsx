@@ -1,3 +1,4 @@
+import { Disclosure } from "./controls.jsx";
 import { CalendarDays } from "lucide-react";
 import { Sampling } from "./sampling.jsx";
 import { ReportActions } from "./report-actions.jsx";
@@ -5,10 +6,9 @@ import { ReportActions } from "./report-actions.jsx";
 export function MonitorContext({ m, report, ready, refresh, overview }) {
   const date = t => new Date(t).toISOString().slice(0, 10);
   const period = date(report.start) + " — " + date(report.end) + " · UTC";
-  if (!overview) return <details className="monitor-context">
-    <summary>{m.brand} · 监测范围与问题</summary>
+  if (!overview) return <Disclosure className="monitor-context" title={<>{m.brand} · 监测范围与问题</>}>
     <p>{m.question}</p><small>{m.domain} · {m.channel} · {period}</small>
-  </details>;
+  </Disclosure>;
   return <section className="monitor-head">
     <div><p className="brand-domain">{m.brand} · {m.domain}{m.model && " · " + m.model}</p>
       <h2>{m.question}</h2><div className="date-range"><CalendarDays size={15} />{period}</div>

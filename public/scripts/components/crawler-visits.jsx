@@ -1,8 +1,8 @@
+import { FilePicker } from "./file-picker.jsx";
 import { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { DataTable, FormDialog, Panel, SmallButton } from "./controls.jsx";
+import { Disclosure, DataTable, FormDialog, Panel, SmallButton } from "./controls.jsx";
 import { api } from "../core/api.js";
 
 import { CrawlerFiles, fileTotals } from "./crawler-files.jsx";
@@ -17,7 +17,7 @@ export function LogImport({ monitor, domain = monitor?.domain, urls, imported })
     await imported(`新增 ${result.added} 条，重复 ${result.duplicates} 条，范围外请求 ${result.skipped} 条。`);
   }}>
     <Label htmlFor="crawler-log">Cloudflare HTTP 请求日志（JSONL）</Label>
-    <Input type="file" name="log" id="crawler-log" accept=".jsonl,.ndjson,.json,.txt" required />
+    <FilePicker name="log" id="crawler-log" accept=".jsonl,.ndjson,.json,.txt" required />
     <p>每行一条请求。导出 RayID、EdgeStartTimestamp（RFC 3339）、ClientRequestHost、ClientRequestPath、ClientRequestUserAgent 和 EdgeResponseStatus。</p>
     {progress && <p role="status">{progress}</p>}
     <p>仅统计 {domain} 及其 www 域名。重复导入同一请求只计一次。</p>
@@ -66,9 +66,8 @@ export function CrawlerVisits({ monitor }) {
       {total === 0 ? <p>{data.observed ? "近 30 天未记录此类请求。" : "近 30 天暂无请求记录，次数未知。"}</p> : <>
       <DataTable headings={["请求路径", "爬虫", "HTTP 状态", "访问时间"]}>
         {data.records.map(row => <TableRow key={JSON.stringify([row.request_id, row.at, row.host, row.path])}>
-          <TableCell className="whitespace-normal break-all"><details>
-            <summary>{row.path}</summary><p>{row.host}</p><p>Ray ID · {row.request_id}</p><p>{row.agent}</p>
-          </details></TableCell>
+          <TableCell className="whitespace-normal break-all"><Disclosure title={row.path}><p>{row.host}</p><p>Ray ID · {row.request_id}</p><p>{row.agent}</p>
+          </Disclosure></TableCell>
           <TableCell>{row.bot || "未识别为 AI 爬虫"}</TableCell><TableCell>{row.status}</TableCell>
           <TableCell>{new Date(row.at).toLocaleString()}</TableCell>
         </TableRow>)}

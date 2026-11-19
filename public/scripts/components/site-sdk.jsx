@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { api } from "../core/api.js";
 import { Panel, SmallButton } from "./controls.jsx";
 
 export function SiteSdk({monitor}) {
+  const [confirmOpen,setConfirmOpen] = useState(false);
   const [stats,setStats] = useState(null);
   const [error,setError] = useState("");
   const [token,setToken] = useState("");
@@ -16,7 +20,7 @@ export function SiteSdk({monitor}) {
     return () => {active=false;};
   },[path,refresh]);
   async function create() {
-    if (stats.configured && !window.confirm("重置后旧密钥立即失效。继续重置？")) return;
+    setConfirmOpen(false);
     setBusy(true);
     try {
       const result = await api(path+(stats.configured?"&rotate=1":""),{});
@@ -36,10 +40,17 @@ export function SiteSdk({monitor}) {
     {stats && <>
       <p>{stats.lastSeen ? "最近上报 "+new Date(stats.lastSeen).toLocaleString() :
         stats.configured ? "等待官网首次上报" : "创建本站密钥后，按接入文档安装 SDK。"}</p>
-      <div><SmallButton disabled={busy} onClick={create}>{stats.configured?"重置采集密钥":"创建采集密钥"}</SmallButton></div>
+      <div>{stats.configured ? <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogTrigger asChild><SmallButton disabled={busy}>重置采集密钥</SmallButton></DialogTrigger>
+        <DialogContent><DialogTitle>重置采集密钥？</DialogTitle>
+          <DialogDescription>{monitor.domain} 的旧密钥将立即失效。请在网站服务端配置新密钥后继续上报。</DialogDescription>
+          <DialogFooter><DialogClose asChild><Button variant="outline">取消</Button></DialogClose>
+            <Button variant="destructive" onClick={create}>确认重置</Button></DialogFooter>
+        </DialogContent>
+      </Dialog> : <SmallButton disabled={busy} onClick={create}>创建采集密钥</SmallButton>}</div>
     </>}
     {token && <div><label htmlFor="site-sdk-token">请保存到服务端环境变量 CITEGAUGE_TOKEN（仅显示一次）</label>
-      <input id="site-sdk-token" className="block w-full border p-2" value={token} readOnly onFocus={e=>e.target.select()} />
+      <Input id="site-sdk-token" className="block w-full border p-2" value={token} readOnly onFocus={e=>e.target.select()} />
       <SmallButton onClick={()=>setToken("")}>已保存，隐藏密钥</SmallButton></div>}
     {error && <div><SmallButton onClick={()=>setRefresh(n=>n+1)}>重新读取接入状态</SmallButton></div>}
   </Panel>;

@@ -1,5 +1,4 @@
 .monitor-context { margin: 12px 0 18px; padding: 9px 12px; background: var(--secondary); border-radius: 7px; }
-.monitor-context summary { font-size: 14px; font-weight: 600; }
 .monitor-context p { margin: 8px 0 4px; }
 .monitor-context small, .citation-status small { color: var(--muted-foreground); }
 .view-switch, .evidence-filters { display: flex; gap: 6px; flex-wrap: wrap; }

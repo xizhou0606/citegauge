@@ -1,5 +1,6 @@
 import {
   Activity,
+  Menu,
   ChartNoAxesCombined,
   AudioLines,
   BookOpen,
@@ -61,6 +62,9 @@ export function WorkspaceShell({tenant,operator}: {tenant?:string;operator?:bool
     <div className="console">
       <aside className="rail">
         <Brand />
+        <Button className="rail-menu-toggle" id="rail-menu-toggle" variant="ghost" aria-expanded="false" aria-controls="rail-tools">
+          <Menu size={17} />更多
+        </Button>
         <div className="rail-section">工作台</div>
         <nav className="feature-nav" aria-label="工作台功能">
           {views.map(([id, Icon, label]) => (
@@ -72,7 +76,7 @@ export function WorkspaceShell({tenant,operator}: {tenant?:string;operator?:bool
             </Button>
           ))}
         </nav>
-        <div className="rail-foot">
+        <div className="rail-foot" id="rail-tools">
           {operator && <a href="/admin/projects"><Layers />平台管理 · 项目接入</a>}
           <a href="/methodology">
             <BookOpen />

@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,6 +17,7 @@ export function AsyncButton({ run, disabled, ...props }) {
   const [busy, setBusy] = useState(false);
   return (
     <SmallButton
+      aria-busy={busy}
       disabled={disabled || busy}
       onClick={async () => {
         setBusy(true);
@@ -32,13 +34,14 @@ export function AsyncButton({ run, disabled, ...props }) {
     />
   );
 }
-export function Disclosure({ title, children }) {
+export function Disclosure({ title, children, className = "" }) {
+  const [open, setOpen] = useState(false);
   return (
-    <Collapsible>
+    <Collapsible open={open} onOpenChange={setOpen} className={"disclosure " + className}>
       <CollapsibleTrigger asChild>
-        <SmallButton>{title}</SmallButton>
+        <button type="button" className="disclosure-toggle"><span>{title}</span><ChevronDown aria-hidden="true" size={16} /></button>
       </CollapsibleTrigger>
-      <CollapsibleContent>{children}</CollapsibleContent>
+      <CollapsibleContent forceMount inert={!open} className="disclosure-content"><div>{children}</div></CollapsibleContent>
     </Collapsible>
   );
 }

@@ -1,3 +1,4 @@
+import "./components/mobile-menu.js";
 import "./core/validation.js";
 import { bindWebsiteReview, openWebsiteEntry } from "./components/site-review.js";
 import { $, action, status } from "./core/ui.js";

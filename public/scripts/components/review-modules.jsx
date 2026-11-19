@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CheckCircle2, CircleAlert, CodeXml } from "lucide-react";
-import { SmallButton } from "./controls.jsx";
+import { Disclosure, SmallButton } from "./controls.jsx";
 import { ModuleAdvice } from "./module-advice.jsx";
 import { WorkspaceSelect } from "./workspace-select.jsx";
 
@@ -47,14 +47,13 @@ export function ReviewModules({ modules, showPrompt, onExpand }) {
         <Findings module={m} />
         {m.evidence && <blockquote><strong>{m.source === "截图" ? "首屏截图依据" : "官网原文依据"}</strong>{m.evidence}</blockquote>}
         {m.impact && <p className="module-impact"><strong>对访客的影响</strong>{m.impact}</p>}
-        <details className="module-steps">
-          <summary>修改建议{m.actions?.length ? " · " + m.actions.length + " 项" : ""}</summary>
+        <Disclosure className="module-steps" title={<>修改建议{m.actions?.length ? " · " + m.actions.length + " 项" : ""}</>}>
           {m.change && <p><strong>修改步骤</strong>{m.change}</p>}
           {m.acceptance && <p><strong>验收条件</strong>{m.acceptance}</p>}
           <ModuleAdvice actions={m.actions} />
           {!m.actions?.length && <SmallButton onClick={expand} disabled={busy}>生成详细修改清单</SmallButton>}
           <SmallButton onClick={() => showPrompt(current)}><CodeXml />查看本模块提示词</SmallButton>
-        </details>
+        </Disclosure>
         {message && <p role="status">{message}</p>}
       </article>
     </div>

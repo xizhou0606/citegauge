@@ -2,7 +2,7 @@ import { FormattedAnswer } from "./formatted-answer.jsx";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../core/api.js";
 import { percent } from "../core/ui.js";
-import { Panel, SmallButton } from "./controls.jsx";
+import { Disclosure, Panel, SmallButton } from "./controls.jsx";
 
 function Question({row, reload}) {
   const [answer, setAnswer] = useState(null);
@@ -30,7 +30,7 @@ function Question({row, reload}) {
   return <li className="brand-probe">
     <header><strong>{row.intent}</strong><span>{percent(row.citations,row.observable)} · 官网被引 {row.citations} / 可判定 {row.observable}</span></header>
     <p>{row.question}</p>
-    <details className="caption"><summary>出题依据 · {row.section}</summary><p>{row.quote}</p></details>
+    <Disclosure className="caption" title={<>出题依据 · {row.section}</>}><p>{row.quote}</p></Disclosure>
     <div className="probe-actions">
       {row.sample && !pending && <SmallButton aria-expanded={answer?.id === row.sample} onClick={() => show(row.sample)}>{answer?.id === row.sample ? "收起回答" : "阅读最近回答"}</SmallButton>}
       {row.previousSample && <SmallButton aria-expanded={answer?.id === row.previousSample} onClick={() => show(row.previousSample)}>

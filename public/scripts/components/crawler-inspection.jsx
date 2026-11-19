@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Panel } from "./controls.jsx";
+import { Disclosure, Panel } from "./controls.jsx";
 import { LogImport } from "./crawler-visits.jsx";
 import { api } from "../core/api.js";
 
@@ -42,12 +42,11 @@ function ResourceResults({ result }) {
         <p>已记录请求 {row?.observed || row?.requests ? row.requests : "—"} 次 ·
           带 AI 爬虫标识 {row?.observed || row?.requests ? row.ai : "—"} 次</p>
         {row?.latest && <p>最近一次记录 {new Date(row.latest).toLocaleString()}</p>}
-        {row?.examples?.length > 0 && <details>
-          <summary>最近请求记录（{row.examples.length} 条）</summary>
+        {row?.examples?.length > 0 && <Disclosure title={<>最近请求记录（{row.examples.length} 条）</>}>
           <ul>{row.examples.map((event, i) => <li className="break-all" key={i}>
             {new Date(event.at).toLocaleString()} · HTTP {event.status} · {event.agent || "无 User-Agent"} · 请求 ID {event.id}
           </li>)}</ul>
-        </details>}
+        </Disclosure>}
       </article>;
     })}
     {[...hosts].map(([domain, addresses]) => <div key={domain} className="flex flex-wrap items-center gap-2">

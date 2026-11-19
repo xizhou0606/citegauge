@@ -1,3 +1,4 @@
+import { Disclosure } from "./controls.jsx";
 import { useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { BrandAdvice, BrandScreenshot } from "./brand-comparison.jsx";
@@ -41,15 +42,15 @@ export function Industry({ industry, screenshot, url, onAnalyze, onExpand }) {
       <header><h3>行业品牌清单</h3><span>已核实 {rows.length} 家</span></header>
       {!!rows.length && <p>对标排名按采购替代关系排序：直接竞品、细分替代、关系待核实。同类按本站修改优先级从高到低排列，同级按品牌名排序。</p>}
       <p>{industry?.note || "当前官网还没有行业检索报告。"}</p>
-      {!!industry?.queries?.length && <details className="industry-queries"><summary>查看检索范围</summary>
-        <ul>{industry.queries.map(q => <li key={q}>{q}</li>)}</ul></details>}
-      {onExpand && <details className="industry-queries"><summary>补充已知产品页</summary>
+      {!!industry?.queries?.length && <Disclosure className="industry-queries" title="查看检索范围">
+        <ul>{industry.queries.map(q => <li key={q}>{q}</li>)}</ul></Disclosure>}
+      {onExpand && <Disclosure className="industry-queries" title="补充已知产品页">
         <label className="block my-2">每行一个公开网址，最多 12 个
           <Textarea value={sourceText} onChange={e => setSourceText(e.target.value)} />
         </label>
         <Button size="sm" variant="outline" disabled={working || !sourceText.trim()}
           onClick={() => expand(sourceText.trim().split(/\s+/))}>核对这些来源</Button>
-      </details>}
+      </Disclosure>}
       {!!active && <>
         <div className="industry-names" role="group" aria-label="选择品牌查看依据">
           {rows.map((r, index) => <button key={r.name} type="button" aria-pressed={active.name === r.name}

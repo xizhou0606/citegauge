@@ -35,7 +35,7 @@ export function page(path: string, origin: string, access?: {tenant:string; oper
   ) : workspace ? (
     <WorkspaceShell tenant={access?.tenant} operator={access?.operator} />
   ) : admin ? (
-    <main className="mx-auto grid max-w-5xl gap-6 px-4 py-8">
+    <main className="platform-console mx-auto grid max-w-5xl gap-6 px-4 py-8">
       <nav><a href="/workspace">← 返回工作台</a> · 平台管理</nav>
       <div id="project-console"></div>
     </main>
@@ -76,6 +76,7 @@ export function page(path: string, origin: string, access?: {tenant:string; oper
               <script type="module" src="/vendor/workspace.js" />
             </>
           )}
+          <link rel="stylesheet" href="/styles/atelier.css" />
           {!workspace && !login && !admin && (
             <script
               type="application/ld+json"

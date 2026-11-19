@@ -52,11 +52,11 @@ function mountSignal(canvas, ctx) {
     canvas.height = Math.round(height * scale);
     ctx.setTransform(scale, 0, 0, scale, 0, 0);
     ink = ctx.createLinearGradient(0, 0, width, height * .3);
-    ink.addColorStop(0, "#9c8bea");
-    ink.addColorStop(.36, "#d7b6ff");
-    ink.addColorStop(.65, "#b4bfff");
-    ink.addColorStop(.86, "#8be3e1");
-    ink.addColorStop(1, "#b6f2dc");
+    ink.addColorStop(0, "#79a68a");
+    ink.addColorStop(.36, "#f8e7a1");
+    ink.addColorStop(.65, "#b4ceb1");
+    ink.addColorStop(.86, "#8ac8b7");
+    ink.addColorStop(1, "#fcdaa3");
     draw();
   }
 
