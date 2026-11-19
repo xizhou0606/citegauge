@@ -7,7 +7,9 @@ import { SiteSdk } from "./site-sdk.jsx";
 
 import { TrafficSource } from "./traffic-source.jsx";
 
-const sections = [["overview","流量概览"],["inspect","文件检查"],["sdk","SDK 接入"]];
+import { TrafficInsights } from "./traffic-insights.jsx";
+
+const sections = [["overview","流量概览"],["insights","访问分析"],["inspect","文件检查"],["sdk","SDK 接入"]];
 function TrafficOverview({monitor}) {
   const [days,setDays] = useState(30);
   const [refresh,setRefresh] = useState(0);
@@ -57,6 +59,6 @@ export function WebsiteTraffic({monitor,domain}) {
     {section==="inspect" ? <CrawlerInspection domain={domain} /> : !monitor ?
       <Panel className="grid gap-3 p-5"><p>添加监测网站后可查看流量并配置 SDK。</p>
         <a className="underline" href="#website">打开官网分析</a></Panel> :
-      section==="sdk" ? <SiteSdk monitor={monitor} /> : <TrafficOverview key={monitor.domain} monitor={monitor} />}
+      section==="insights" ? <TrafficInsights key={monitor.domain} monitor={monitor}/> : section==="sdk" ? <SiteSdk monitor={monitor} /> : <TrafficOverview key={monitor.domain} monitor={monitor} />}
   </div>;
 }

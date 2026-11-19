@@ -19,6 +19,7 @@ const batch = z.object({events:z.array(z.object({
   id:z.string().regex(/^[a-f0-9]{16}$/), at:z.number().int().safe(),
   host:z.string().max(253),path:z.string().min(1).max(2048).regex(/^\/[^?#\x00-\x1f]*$/),
   status:z.number().int().min(100).max(599),agent:z.string().max(1024),
+  logs:z.literal(false).optional(),
   visitor:z.string().regex(/^[a-f0-9]{64}$/).nullable(),
 })).min(1).max(16)});
 
@@ -63,7 +64,7 @@ export async function ingest(req: Request, db: D1Database) {
       FROM json_each(?2) WHERE value->>'bot'<>'' OR lower(value->>'path') LIKE '%.txt'
       OR lower(value->>'path') LIKE '%.xml' OR lower(value->>'path') LIKE '%.xml.gz'`).bind(domain,rows),
     db.prepare(`INSERT INTO crawler_log_days(domain,day,first_seen,last_seen)
-      SELECT ?1,(value->>'at')/86400000,min(value->>'at'),max(value->>'at') FROM json_each(?2) WHERE true GROUP BY 2
+      SELECT ?1,(value->>'at')/86400000,min(value->>'at'),max(value->>'at') FROM json_each(?2) WHERE coalesce(value->>'logs',1) GROUP BY 2
       ON CONFLICT(domain,day) DO UPDATE SET first_seen=min(first_seen,excluded.first_seen),
       last_seen=max(last_seen,excluded.last_seen)`).bind(domain,rows),
     db.prepare("UPDATE sdk_sites SET last_seen=? WHERE domain=?").bind(now,domain),

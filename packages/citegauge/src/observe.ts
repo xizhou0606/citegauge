@@ -29,22 +29,24 @@ export function observe(config: CiteGaugeConfig, token: string, emit: (event: Vi
       const {path,contentType} = snapshot;
       if (!path.startsWith("/") || path.length > 2048) return;
       const agent = (request.headers["user-agent"] || "").slice(0,1024);
+      const recordLogs = config.collect?.requestLogs !== false;
       const file = /\.(xml(?:\.gz)?|txt)$/i.test(path);
       const bot = identifyCrawler(agent);
       const status = response.statusCode;
       const headers = request.headers;
-      const isPage = !file && !bot && request.method === "GET" && status >= 200 && status < 300
+      const isPage = config.collect?.pageviews !== false && !file && !bot && request.method === "GET" && status >= 200 && status < 300
         && /^text\/html\b/i.test(contentType)
         && (!headers["sec-fetch-dest"] || headers["sec-fetch-dest"] === "document")
         && !/prefetch|prerender/i.test(String(headers["sec-purpose"] || headers.purpose || ""))
         && !isbot(agent);
-      if (!isPage && !file && !bot) return;
+      if (!isPage && !(recordLogs && (file || bot))) return;
       const identity = isPage && (config.visitorId?.(request) || [request.socket.remoteAddress,agent].join("\n"));
       const visitor = identity ? createHmac("sha256",token).update(identity).digest("hex") : null;
       const ray = headers["cf-ray"];
       const rayId = typeof ray === "string" && /^([\da-f]{16})(?:-[A-Z]+)?$/i.exec(ray);
       emit({id:rayId ? rayId[1].toLowerCase() : randomBytes(8).toString("hex"),
-        host,path,status,at:Date.now(),agent: isPage ? "" : agent,visitor});
+        host,path:isPage ? "/" : path,status,at:Date.now(),agent: isPage ? "" : agent,visitor,
+        ...(recordLogs ? {} : {logs:false as const})});
     } catch {
       // The site's handler may already have disposed of the request.
     }

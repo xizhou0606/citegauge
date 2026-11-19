@@ -20,15 +20,21 @@ function sourceQueries(db: D1Database, domain: string, table: "sdk_pageviews" | 
   ];
 }
 
-export async function trafficReport(db: D1Database, domain: string, days: number, end = Date.now()) {
-  if (![1,7,30].includes(days)) return json({error:"请选择今天、近 7 天或近 30 天"},400);
+export function trafficWindow(days: number, end: number) {
+  if (![1,7,30].includes(days)) return;
   const start = Math.floor((end+offset)/day)*day-offset-(days-1)*day;
-  const step = days === 1 ? hour : day;
+  return {start,end,step:days===1 ? hour : day};
+}
+
+export async function trafficReport(db: D1Database, domain: string, days: number, end = Date.now()) {
+  const window = trafficWindow(days,end);
+  if (!window) return json({error:"请选择今天、近 7 天或近 30 天"},400);
+  const {start,step} = window;
   const results = await db.batch<Record<string,number>>([
     ...sourceQueries(db,domain,"sdk_pageviews",start,end,step),
     ...sourceQueries(db,domain,"browser_pageviews",start,end,step),
-    db.prepare(`SELECT coalesce(device,'legacy') AS device,count(*) AS pv FROM browser_pageviews
-      WHERE domain=? AND at BETWEEN ? AND ? GROUP BY device ORDER BY pv DESC`).bind(domain,start,end),
+    db.prepare(`SELECT CASE WHEN device_sampled=0 THEN 'disabled' ELSE coalesce(device,'legacy') END AS category,count(*) AS pv FROM browser_pageviews
+      WHERE domain=? AND at BETWEEN ? AND ? GROUP BY category ORDER BY pv DESC`).bind(domain,start,end),
   ]);
   function source(index: number) {
     const site = results[index].results[0];
@@ -41,5 +47,5 @@ export async function trafficReport(db: D1Database, domain: string, days: number
     return {enabled:!!site,lastSeen:site?.last_seen ?? null,...totals,trend};
   }
   const server = source(0);
-  return json({domain,start,end,days,...server,configured:server.enabled,browser:{...source(3),devices:results[6].results}});
+  return json({domain,start,end,days,...server,configured:server.enabled,browser:{...source(3),devices:results[6].results.map(row=>({device:row.category,pv:row.pv}))}});
 }

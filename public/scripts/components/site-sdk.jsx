@@ -40,9 +40,10 @@ export function SiteSdk({monitor}) {
     {stats?.browser && <section className="grid gap-2">
       <h3>浏览器接入 · 页面访问</h3>
       {stats.browser.enabled ? <>
-        <p>在网站前端入口调用一次。发布后打开网站，即可在流量概览查看浏览器 PV 和 UV。</p>
-        <pre><code>{'import citegauge from "citegauge/browser";\n' +
-          (stats.browser.workspace ? 'citegauge.init({ workspace: "' + stats.browser.workspace + '" });' : 'citegauge.init();')}</code></pre>
+        <p>在前端项目根目录创建 citegauge.ts，在应用入口导入配置。<a className="underline" href="/docs/sdk/collection.html">查看全部采集开关</a></p>
+        <pre><code>{'// citegauge.ts\nimport { defineConfig } from "citegauge/browser";\nexport default defineConfig({ enabled: true' +
+          (stats.browser.workspace ? ', workspace: "' + stats.browser.workspace + '"' : '') + ' });\n\n' +
+          '// src/main.ts\nimport citegauge from "citegauge/browser";\nimport config from "../citegauge";\ncitegauge.init(config);'}</code></pre>
       </> : <SmallButton disabled={busy} onClick={async ()=>{
         setBusy(true);
         try { await api(path+"&browser=1",{}); setRefresh(n=>n+1); }

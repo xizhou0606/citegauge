@@ -16,6 +16,9 @@ export default {
   async fetch(req: Request, env: Env) {
     const url = new URL(req.url),
       path = url.pathname;
+    if (req.method==="GET" && /^\/sdk\/citegauge-0\.[12]\.0\.tgz$/.test(path))
+      return Response.redirect("https://registry.npmjs.org/citegauge/-/"+path.slice(5),302);
+    if (path === "/collect/browser/v2") return browserVisit(req,env,2);
     if (path === "/collect/browser/v1") return browserVisit(req,env);
     if (path === "/collect/v1") return collect(req,env);
     if (path.startsWith("/api/")) return privateApi(req, env);

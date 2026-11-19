@@ -4,6 +4,8 @@ description: 配置字段、TypeScript 类型签名、init、flush 和 close 的
 
 # 配置与生命周期
 
+浏览器使用独立的[流量采集开关](./collection.md)。下面是 Node 服务端 API。
+
 ## citegauge.ts
 
 | 选项 | 用途 |
@@ -15,13 +17,15 @@ description: 配置字段、TypeScript 类型签名、init、flush 和 close 的
 
 ## TypeScript 类型
 
-以下为 `citegauge` v0.2.0 导出的类型与函数签名。只使用配置文件时，调用无参数的 `init()` 即可。
+以下为 `citegauge` v0.3.0 导出的类型与函数签名。只使用配置文件时，调用无参数的 `init()` 即可。
 
 ```ts
 import type { IncomingMessage } from 'node:http'
 
 export interface CiteGaugeConfig {
   domain: string
+  enabled?: boolean
+  collect?: { pageviews?: boolean; requestLogs?: boolean }
   token?: string
   endpoint?: string
   visitorId?: (request: IncomingMessage) => string | undefined

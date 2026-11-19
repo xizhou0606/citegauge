@@ -2,7 +2,7 @@ import { TableRow, TableCell } from "@/components/ui/table";
 import { TrafficTrend } from "../charts/traffic.jsx";
 import { Disclosure, DataTable } from "./controls.jsx";
 
-const deviceNames = {phone:"手机",desktop:"电脑",tablet:"平板",unknown:"未识别",legacy:"历史未记录"};
+const deviceNames = {phone:"手机",desktop:"电脑",tablet:"平板",unknown:"未识别",legacy:"历史未记录",disabled:"未启用设备统计"};
 const date = new Intl.DateTimeFormat("zh-CN",{timeZone:"Asia/Shanghai",month:"numeric",day:"numeric"});
 const hour = new Intl.DateTimeFormat("zh-CN",{timeZone:"Asia/Shanghai",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
 const formatDay = at=>date.format(at);

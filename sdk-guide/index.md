@@ -1,5 +1,5 @@
 ---
-description: 安装 citegauge v0.2.0，在 Node.js HTTP/1 服务启动时加载配置，验证首次上报并排查常见错误。
+description: 安装 citegauge v0.3.0，在 Node.js HTTP/1 服务启动时加载配置，验证首次上报并排查常见错误。
 ---
 
 # TypeScript SDK 快速接入
@@ -11,7 +11,7 @@ description: 安装 citegauge v0.2.0，在 Node.js HTTP/1 服务启动时加载�
 在网站项目中安装 SDK。使用 Node 服务端入口时，运行环境需要 Node.js 22.18 或更高版本。
 
 ```sh
-npm install https://citegauge.liushurui0606.workers.dev/sdk/citegauge-0.2.0.tgz
+npm install https://citegauge.liushurui0606.workers.dev/sdk/citegauge-0.3.0.tgz
 ```
 
 ## 浏览器接入
@@ -20,8 +20,11 @@ npm install https://citegauge.liushurui0606.workers.dev/sdk/citegauge-0.2.0.tgz
 
 ```ts
 import citegauge from 'citegauge/browser'
-citegauge.init()
+import config from '../citegauge'
+citegauge.init(config)
 ```
+
+可以从包内复制 citegauge.example.ts 为 citegauge.ts，详见[完整配置及开关表](./collection.md)。默认开启所有内置维度。
 
 发布后打开官网，在「网站流量 → 流量概览」查看浏览器最近上报时间。启用了 CSP 的网站需要在 connect-src 中允许 https://citegauge.liushurui0606.workers.dev 。
 

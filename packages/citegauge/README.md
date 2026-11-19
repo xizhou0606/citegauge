@@ -4,12 +4,24 @@ TypeScript SDK for browser page views and server-side traffic.
 
 ## Browser
 
+Copy the included citegauge.example.ts to your frontend project as citegauge.ts to see every switch.
+
 Enable browser analytics for the website in CiteGauge, then call this once in the frontend entry point. Customer workspaces use the public workspace option displayed in the dashboard.
 
 ```ts
-import citegauge from 'citegauge/browser'
-citegauge.init()
+// citegauge.ts (frontend project root)
+import { defineConfig } from 'citegauge/browser'
+export default defineConfig({ enabled: true, collect: { forms: false }, routes: ['/', '/pricing'] })
 ```
+
+```ts
+// src/main.ts
+import citegauge from 'citegauge/browser'
+import config from '../citegauge'
+citegauge.init(config)
+```
+
+Built-in measurements default to enabled. Set individual flags to false or use enabled: false to disable all tracking. See the [full TypeScript configuration and metric definitions](https://citegauge.liushurui0606.workers.dev/docs/sdk/collection.html).
 
 ## Node HTTP/1
 

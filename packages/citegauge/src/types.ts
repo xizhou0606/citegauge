@@ -2,6 +2,8 @@ import type { IncomingMessage } from "node:http";
 
 export interface CiteGaugeConfig {
   domain: string;
+  enabled?: boolean;
+  collect?: { pageviews?: boolean; requestLogs?: boolean };
   token?: string;
   endpoint?: string;
   /** Use an existing anonymous site identifier when available. Never return a login or email. */
@@ -16,4 +18,5 @@ export interface Visit {
   status: number;
   agent: string;
   visitor: string | null;
+  logs?: false;
 }

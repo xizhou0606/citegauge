@@ -17,6 +17,9 @@ let active: Promise<CiteGaugeClient> | undefined;
 async function start(options?: CiteGaugeConfig): Promise<CiteGaugeClient> {
   const file = resolve(process.cwd(),"citegauge.ts");
   const config: CiteGaugeConfig = options ?? await createJiti(import.meta.url).import<CiteGaugeConfig>(file,{default:true});
+  if (config?.enabled === false || (config?.collect?.pageviews === false && config.collect.requestLogs === false)) {
+    return {flush:async()=>{},close:async()=>{active=undefined;}};
+  }
   const domain = config?.domain?.toLowerCase().replace(/^www\./,"");
   const token = config?.token ?? process.env.CITEGAUGE_TOKEN;
   if (!domain || !/^[a-z\d.-]+\.[a-z\d-]+$/.test(domain) || !token) throw Error("请配置 citegauge.ts 的 domain 和 CITEGAUGE_TOKEN");

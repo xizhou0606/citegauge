@@ -1,3 +1,4 @@
+import { recordMeasurements } from "./measurements.ts";
 import { isbot } from "isbot";
 import type { Env } from "../runtime/env.ts";
 import { tenantKey, verifiedBinding } from "../tenants/scope.ts";
@@ -28,7 +29,7 @@ function deviceType(headers: Headers, agent: string) {
   return "unknown";
 }
 
-export async function browserVisit(req: Request, env: Env) {
+export async function browserVisit(req: Request, env: Env, version = 1) {
   const origin = req.headers.get("origin") ?? "";
   const match = /^https:\/\/([a-z0-9.-]+)$/.exec(origin);
   const ack = (status: number) => new Response(null,{status,headers:{
@@ -42,11 +43,12 @@ export async function browserVisit(req: Request, env: Env) {
   if (isbot(agent)) return ack(204);
   const tenant = new URL(req.url).searchParams.get("workspace");
   if (tenant !== null && !tenantKey.test(tenant)) return ack(400);
-  const ids = await payload(req);
-  if (!ids) return ack(400);
   const db = tenant === null ? env.DB : await verifiedBinding(env,tenant);
   if (!db) return ack(204);
   const domain = match[1].replace(/^www\./,"");
+  if (version===2) return ack(await recordMeasurements(req,db,domain,()=>deviceType(req.headers,agent)) ? 204 : 400);
+  const ids = await payload(req);
+  if (!ids) return ack(400);
   const now = Date.now();
   await db.batch([
     db.prepare(`INSERT OR IGNORE INTO browser_pageviews(domain,event_id,visitor,at,device)
