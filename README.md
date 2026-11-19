@@ -1,6 +1,6 @@
 # 引迹 CiteGauge
 
-引迹是部署在 Cloudflare Workers 上的开源 GEO（生成式引擎优化）监测工具。用同一道问题持续采样，把 AI 回答里的品牌提及、竞品和官网引用关联到可复核的证据。适合单个品牌团队自托管，每个部署有一个私有管理员工作台。
+引迹是部署在 Cloudflare Workers 上的开源 GEO（生成式引擎优化）监测工具。用同一道问题持续采样，把 AI 回答里的品牌提及、竞品和官网引用关联到可复核的证据。支持多家企业使用同一部署。企业账号登录各自的工作台，平台管理员在「平台管理 · 项目接入」查看各企业的网站和 SDK 上报状态。
 
 CiteGauge is an MIT-licensed, self-hosted GEO monitor for Chinese and international AI answer engines. Track a fixed question over time, distinguish API responses from consumer-web observations, and inspect the evidence behind every mention and citation.
 
@@ -47,7 +47,7 @@ npm run auth:admin
 npm run dev
 ```
 
-打开 http://127.0.0.1:8787/login。首次初始化会创建 D1 表与管理员账号，默认账号为 `admin`，随机初始密码保存在项目目录的 `.local-admin.txt`。登录只需账号和密码。重复运行初始化会保留已有账号；忘记密码时运行 `npm run auth:admin -- --reset` 获取新密码，同时注销现有会话。工作台使用 Better Auth username 插件与 HttpOnly 会话 Cookie。管理账号通过部署脚本维护。
+打开 http://127.0.0.1:8787/login。首次初始化会创建 D1 表与管理员账号，默认账号为 `admin`，随机初始密码保存在项目目录的 `.local-admin.txt`。登录只需账号和密码。重复运行初始化会保留已有账号；忘记密码时运行 `npm run auth:admin -- --reset` 获取新密码，同时注销现有会话。工作台使用 Better Auth username 插件与 HttpOnly 会话 Cookie。平台管理员通过部署脚本维护，客户账号在平台管理页开通。详见[企业开户与数据库配置](deployment/tenants.md)。
 
 网页人工取样无需供应商 API Key。配置自动采样时，将对应变量加入 .dev.vars，见下方部署说明。
 
@@ -59,7 +59,7 @@ npm run dev
 
 ## 代码与验证
 
-TypeScript Worker 提供路由和权限检查。D1 保存认证、监测、证据和截图，Durable Object alarm 唤醒每日采样。公开页面返回可直接读取的 HTML 和 JSON-LD。私有 API 校验 Better Auth 管理员会话，响应禁止缓存。URL、问题和原始回答可能包含客户资料，请只将可公开的信息放入 GitHub。
+TypeScript Worker 提供路由和权限检查。D1 保存认证、监测、证据和截图，Durable Object alarm 唤醒每日采样。公开页面返回可直接读取的 HTML 和 JSON-LD。私有 API 校验 Better Auth 会话和企业归属。客户业务数据存放在各自的独立 D1，平台管理接口另行校验管理员身份。URL、问题和原始回答可能包含客户资料，请只将可公开的信息放入 GitHub。
 
 ```sh
 npm test

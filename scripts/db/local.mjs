@@ -15,6 +15,6 @@ for (const [key, value] of Object.entries({
 }
 if (next !== original) writeFileSync(file, next, { mode: 0o600 });
 const run = spawnSync(process.execPath, [
-  "node_modules/wrangler/bin/wrangler.js", "d1", "migrations", "apply", "DB", "--local",
+  "scripts/db/migrate-tenants.mjs", "--local",
 ], { stdio: "inherit" });
 if (run.status !== 0) throw Error("本地 D1 初始化失败");
