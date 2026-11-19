@@ -11,7 +11,7 @@ description: 安装 citegauge v0.3.0，在 Node.js HTTP/1 服务启动时加载�
 在网站项目中安装 SDK。使用 Node 服务端入口时，运行环境需要 Node.js 22.18 或更高版本。
 
 ```sh
-npm install https://citegauge.liushurui0606.workers.dev/sdk/citegauge-0.3.0.tgz
+npm install citegauge@0.3.0
 ```
 
 ## 浏览器接入
