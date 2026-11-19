@@ -1,3 +1,4 @@
+import { schedulerEnv } from "../tenants/scope.ts";
 import { importCrawlerLogs } from "./crawlers.ts";
 import { historicalProbe } from "../domain/brand-question-intents.ts";
 import pLimit from "p-limit";
@@ -18,15 +19,16 @@ import { json } from "../runtime/response.ts";
 
 export class Workspace {
   private ctx: DurableObjectState;
-  private env: Env;
+  private environment: Promise<Env>;
 
 
   constructor(ctx: DurableObjectState, env: Env) {
     this.ctx = ctx;
-    this.env = env;
+    this.environment = schedulerEnv(env, ctx.id);
   }
   async alarm() {
-    const db = new Database(this.env.DB);
+    const env = await this.environment;
+    const db = new Database(env.DB);
     const { rows } = await db.query(
       "SELECT * FROM monitors WHERE due>0 AND due<=?1 ORDER BY due,sequence LIMIT 6",
       [Date.now()],
@@ -39,7 +41,7 @@ export class Workspace {
       }
       await collectOnce(
         db,
-        this.env,
+        env,
         r.config,
         r.config.daily ? "daily-" + r.id + "-" + r.due : "initial-" + r.id,
       );
@@ -49,13 +51,14 @@ export class Workspace {
         r.due,
       ]);
     }));
-    const outcomes = await Promise.allSettled([runQuestionJob(this.env), ...samples]);
+    const outcomes = await Promise.allSettled([runQuestionJob(env), ...samples]);
     const failed = outcomes.find(result => result.status === "rejected");
     if (failed) throw failed.reason;
     await this.ctx.blockConcurrencyWhile(() => syncAlarm(db, this.ctx.storage));
   }
   async fetch(req: Request) {
-    const db = new Database(this.env.DB);
+    const env = await this.environment;
+    const db = new Database(env.DB);
     const path = new URL(req.url).pathname;
     if (path === "/internal/arm-questions" && req.method === "POST") {
       await this.ctx.blockConcurrencyWhile(() => syncAlarm(db, this.ctx.storage));
@@ -64,7 +67,7 @@ export class Workspace {
     if (path === "/internal/site-monitor" && req.method === "POST") {
       const { url, identity } = await req.json<{ url: string; identity: Identity }>();
       return this.ctx.blockConcurrencyWhile(async () => {
-        const monitor = await ensureSiteMonitor(this.env.DB, url, identity);
+        const monitor = await ensureSiteMonitor(env.DB, url, identity);
         await syncAlarm(db, this.ctx.storage);
         return json(monitor);
       });
@@ -74,7 +77,7 @@ export class Workspace {
       [{ error: "采样中断，请重新采样" }, Date.now() - 120000],
     );
     if (req.method === "GET")
-      return await readWorkspace(req, path, db, this.env);
+      return await readWorkspace(req, path, db, env);
     if (req.method !== "POST") return json({ error: "路径无效" }, 404);
     let b;
     try {
@@ -86,11 +89,11 @@ export class Workspace {
     if (path === "/api/monitors") {
       let m;
       try {
-        m = monitorFrom(b, modelCatalog(this.env));
+        m = monitorFrom(b, modelCatalog(env));
       } catch (e) {
         return json({ error: (e as Error).message }, 400);
       }
-      if (m.daily && !ready(this.env, m.channel, m.model))
+      if (m.daily && !ready(env, m.channel, m.model))
         return json({ error: "请先配置自动采样渠道" }, 409);
       await db.query("INSERT INTO monitors(id,config,due) VALUES(?1,?2,?3)", [
         m.id,
@@ -109,10 +112,10 @@ export class Workspace {
     if (historicalProbe(m) && (path === "/api/sample" || (path === "/api/schedule" && b.daily === true)))
       return json({error:"此题已归档，请在回答与引用中选择客户搜索问题。"},409);
     if (path === "/api/crawler-logs") return importCrawlerLogs(db, m.domain, b.log);
-    if (path === "/api/send-report") return sendReport(db, this.env, m, b);
+    if (path === "/api/send-report") return sendReport(db, env, m, b);
     if (path === "/api/schedule" && m.channel.endsWith("API")) {
       const daily = b.daily === true;
-      if (daily && !ready(this.env, m.channel, m.model))
+      if (daily && !ready(env, m.channel, m.model))
         return json({ error: "请配置渠道密钥" }, 409);
       await db.query("UPDATE monitors SET config=?1,due=?2 WHERE id=?3", [
         { ...m, daily },
@@ -128,9 +131,9 @@ export class Workspace {
       return json({ error: "缺少采样编号" }, 400);
     const id = m.id + "-" + b.key;
     if (m.channel.endsWith("API")) {
-      if (!ready(this.env, m.channel, m.model))
+      if (!ready(env, m.channel, m.model))
         return json({ error: "该 API 渠道尚未配置密钥或模型" }, 409);
-      await collectOnce(db, this.env, m, id);
+      await collectOnce(db, env, m, id);
     } else {
       const error = await saveImported(db, m, id, b);
       if (error) return json({ error }, 400);

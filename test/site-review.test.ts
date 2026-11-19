@@ -85,7 +85,7 @@ test("同一官网重复建项保留原问题，首次采样只执行一次", as
     assert.deepEqual(again, first);
     assert.equal(first.model, "qwen3.7-flash");
     assert.equal(first.daily, false);
-    const workspace = new Workspace({ blockConcurrencyWhile: fn => fn(),
+    const workspace = new Workspace({ id:{name:"owner-v1"},blockConcurrencyWhile: fn => fn(),
       storage: { deleteAlarm: async () => {}, setAlarm: async () => {} } }, { DB: f.binding });
     await workspace.alarm();
     await ensureSiteMonitor(f.binding, "https://example.com/", identity);

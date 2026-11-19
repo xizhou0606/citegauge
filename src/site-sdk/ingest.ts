@@ -3,6 +3,17 @@ import { identifyCrawler } from "../../packages/citegauge/src/bots.ts";
 import { tokenHash } from "./manage.ts";
 import { z } from "zod";
 
+import { verifiedBinding } from "../tenants/scope.ts";
+import type { Env } from "../runtime/env.ts";
+
+const credential = /^Bearer (cg_[a-f0-9]{64}(?:\.([a-z][a-z0-9]{0,23}))?)$/;
+
+export async function collect(req: Request, env: Env) {
+  const tenant = credential.exec(req.headers.get("authorization") || "")?.[2];
+  const db = tenant ? await verifiedBinding(env, tenant) : env.DB;
+  return db ? ingest(req, db) : json({error:"网站密钥无效"},401);
+}
+
 const limit = 260000;
 const batch = z.object({events:z.array(z.object({
   id:z.string().regex(/^[a-f0-9]{16}$/), at:z.number().int().safe(),
@@ -30,7 +41,7 @@ async function read(req: Request) {
 
 export async function ingest(req: Request, db: D1Database) {
   if (req.method !== "POST") return json({error:"需要 POST"},405);
-  const bearer = /^Bearer (cg_[a-f0-9]{64})$/.exec(req.headers.get("authorization") || "");
+  const bearer = credential.exec(req.headers.get("authorization") || "");
   if (!bearer) return json({error:"需要网站采集密钥"},401);
   const hash = await tokenHash(bearer[1]);
   const site = await db.prepare("SELECT domain FROM sdk_sites WHERE token_hash=?").bind(hash).first<{domain:string}>();

@@ -1,3 +1,4 @@
+import { scheduler } from "../tenants/scope.ts";
 import { armQuestions } from "./question-queue.ts";
 import { sourcePreview } from "./industry-preview.ts";
 import { fillIndustry, previousIndustry, reconcileChanges, saveIndustry } from "./industry-store.ts";
@@ -67,7 +68,7 @@ export async function siteReview(req: Request, env: Env) {
   }
   let monitor: Monitor | null = null;
   if (review.identity) {
-    const workspace = env.WORKSPACE.get(env.WORKSPACE.idFromName("owner-v1"));
+    const workspace = scheduler(env);
     const created = await workspace.fetch("https://workspace/internal/site-monitor", {
       method: "POST", body: JSON.stringify({ url: snapshot.url, identity: review.identity }),
     });

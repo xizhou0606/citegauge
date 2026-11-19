@@ -56,7 +56,7 @@ const views = [
   ["sources", Link2, "回答与引用"],
   ["traffic", ChartNoAxesCombined, "网站流量"],
 ] as const;
-export function WorkspaceShell() {
+export function WorkspaceShell({tenant,operator}: {tenant?:string;operator?:boolean} = {}) {
   return (
     <div className="console">
       <aside className="rail">
@@ -73,6 +73,7 @@ export function WorkspaceShell() {
           ))}
         </nav>
         <div className="rail-foot">
+          {operator && <a href="/admin/projects"><Layers />平台管理 · 项目接入</a>}
           <a href="/methodology">
             <BookOpen />
             监测方法
@@ -94,7 +95,7 @@ export function WorkspaceShell() {
       <main className="console-main">
         <header className="topbar">
           <div>
-            工作台 <span>/</span> <strong id="crumb">官网分析</strong>
+            {tenant || "工作台"} <span>/</span> <strong id="crumb">官网分析</strong>
           </div>
           <div id="tools" hidden>
             <Button id="add" size="sm">

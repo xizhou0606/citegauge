@@ -31,8 +31,9 @@ for (const id of [...platforms.map((platform) => platform.id), "volcengine"]) {
 }
 
 await build({
-  entryPoints: ["public/scripts/workspace.js"],
-  outfile: fileURLToPath(new URL("workspace.js", output)),
+  entryPoints: {workspace:"public/scripts/workspace.js", projects:"public/scripts/components/project-console.jsx"},
+  jsx: "automatic",
+  outdir: fileURLToPath(output),
   bundle: true,
   format: "esm",
   minify: true,

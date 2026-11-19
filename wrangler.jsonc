@@ -13,6 +13,11 @@
     "database_name": "citegauge-prod",
     "database_id": "da1f451e-b39b-4de0-9499-54922fe21512",
     "migrations_dir": "migrations/d1"
+  }, {
+    "binding": "TENANT_ORG01",
+    "database_name": "citegauge-tenant-org01",
+    "database_id": "61364f88-c5f1-4c18-bab5-eb9e6b55714d",
+    "migrations_dir": "migrations/d1"
   }],
   "browser": { "binding": "BROWSER" },
   "assets": { "directory": "./public", "binding": "ASSETS" },

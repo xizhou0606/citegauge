@@ -1,8 +1,9 @@
+import { scheduler } from "../tenants/scope.ts";
 import type { Env } from "../runtime/env.ts";
 import { prepareQuestions } from "./brand-questions.ts";
 
 export function armQuestions(env: Env) {
-  return env.WORKSPACE.get(env.WORKSPACE.idFromName("owner-v1")).fetch("https://workspace/internal/arm-questions",{method:"POST"});
+  return scheduler(env).fetch("https://workspace/internal/arm-questions",{method:"POST"});
 }
 
 export async function runQuestionJob(env: Env) {

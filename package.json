@@ -11,6 +11,7 @@
     "check:lines": "node scripts/check-lines.mjs",
     "auth:admin": "node --env-file-if-exists=.env scripts/setup-admin.mjs",
     "db:local": "node scripts/db/local.mjs",
+    "db:migrate:all": "node scripts/db/migrate-tenants.mjs",
     "db:migrate": "wrangler d1 migrations apply DB",
     "build:ui": "node scripts/prepare-assets.mjs"
   },

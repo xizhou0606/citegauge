@@ -4,12 +4,13 @@ import { LoginPage } from "./components/login.tsx";
 import { articles } from "./articles.ts";
 import { Home } from "./components/home.tsx";
 import { repo, PublicHeader, PublicFooter, WorkspaceShell } from "./components/shell.tsx";
-export function page(path: string, origin: string) {
+export function page(path: string, origin: string, access?: {tenant:string; operator:boolean} | null) {
   const a = articles[path],
     workspace = path === "/workspace",
+    admin = path === "/admin/projects",
     login = path === "/login";
   const title =
-    (login ? "登录工作台" : workspace ? "监测工作台" : (a?.title ?? "开源 GEO 品牌监测平台")) +
+    (admin ? "项目接入 · 平台管理" : login ? "登录工作台" : workspace ? "监测工作台" : (a?.title ?? "开源 GEO 品牌监测平台")) +
     " | 引迹 CiteGauge";
   const description =
     a?.summary ??
@@ -32,7 +33,12 @@ export function page(path: string, origin: string) {
   const content = login ? (
     <LoginPage />
   ) : workspace ? (
-    <WorkspaceShell />
+    <WorkspaceShell tenant={access?.tenant} operator={access?.operator} />
+  ) : admin ? (
+    <main className="mx-auto grid max-w-5xl gap-6 px-4 py-8">
+      <nav><a href="/workspace">← 返回工作台</a> · 平台管理</nav>
+      <div id="project-console"></div>
+    </main>
   ) : a ? (
     <Article article={a} />
   ) : (
@@ -51,7 +57,7 @@ export function page(path: string, origin: string) {
           <meta property="og:title" content={title} />
           <meta property="og:description" content={description} />
           <link rel="canonical" href={origin + path} />
-          <meta name="robots" content={workspace || login ? "noindex,nofollow" : "index,follow"} />
+          <meta name="robots" content={workspace || login || admin ? "noindex,nofollow" : "index,follow"} />
           <link rel="stylesheet" href="/vendor/ui.css" />
           <link rel="stylesheet" href="/styles/site.css" />
           {login && (
@@ -61,6 +67,7 @@ export function page(path: string, origin: string) {
               <script type="module" src="/scripts/login-signal.js" />
             </>
           )}
+          {admin && <script type="module" src="/vendor/projects.js" />}
           {workspace && (
             <>
               <link rel="stylesheet" href="/styles/console.css" />
@@ -69,7 +76,7 @@ export function page(path: string, origin: string) {
               <script type="module" src="/vendor/workspace.js" />
             </>
           )}
-          {!workspace && !login && (
+          {!workspace && !login && !admin && (
             <script
               type="application/ld+json"
               dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }}
@@ -78,9 +85,9 @@ export function page(path: string, origin: string) {
           {path === "/" && <script type="module" src="/scripts/site-entry.js" />}
         </head>
         <body>
-          {!workspace && !login && <PublicHeader />}
+          {!workspace && !login && !admin && <PublicHeader />}
           {content}
-          {!workspace && !login && <PublicFooter />}
+          {!workspace && !login && !admin && <PublicFooter />}
         </body>
       </html>,
     )

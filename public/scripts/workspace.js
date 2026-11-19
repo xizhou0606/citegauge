@@ -122,6 +122,7 @@ async function load(id, requestedDomain) {
 }
 $("lock").onclick = action(async () => {
   await requestJSON("/api/auth/sign-out", {});
+  sessionStorage.removeItem("cg-selection");
   location.replace("/login");
 });
 window.addEventListener("session-expired", () => {

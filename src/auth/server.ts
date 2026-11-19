@@ -1,3 +1,6 @@
+import { businessEnv, membership, operator, scheduler, verifiedBinding } from "../tenants/scope.ts";
+import { inventory } from "../tenants/projects.ts";
+import { addAccount } from "../tenants/accounts.ts";
 import { manageSdk } from "../site-sdk/manage.ts";
 import { crawlerInspection } from "../crawler-inspection/route.ts";
 import { brandPreview } from "../site-review/brand-preview.ts";
@@ -54,8 +57,9 @@ export async function privateApi(req: Request, env: Env) {
   }
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user) return json({ error: "请先登录工作台" }, 401);
-  if (session.user.id !== "workspace-admin")
-    return json({ error: "没有工作台访问权限" }, 403);
+  const isOperator = session.user.id === operator;
+  const adminRoute = url.pathname.startsWith("/api/admin/");
+  if (adminRoute && !isOperator) return json({error:"需要平台管理员权限"},403);
   if (req.method === "POST") {
     if (!req.headers.get("content-type")?.includes("application/json"))
       return json({ error: "需要 JSON" }, 415);
@@ -63,18 +67,32 @@ export async function privateApi(req: Request, env: Env) {
     if ((await req.clone().arrayBuffer()).byteLength > limit)
       return json({ error: "样本过大" }, 413);
   }
-  if (url.pathname === "/api/site-sdk") return manageSdk(req,env.DB);
+  if (adminRoute) {
+    if (url.pathname === "/api/admin/projects" && req.method === "GET") return inventory(req,env);
+    if (url.pathname === "/api/admin/accounts" && req.method === "POST") return addAccount(req,env);
+    return json({error:"路径无效"},404);
+  }
+  if (!isOperator) {
+    const member = await membership(env,session.user.id);
+    if (!member) return json({error:"没有企业工作台访问权限"},403);
+    const db = await verifiedBinding(env,member.id);
+    if (!db) return json({error:"企业数据库尚未就绪"},503);
+    env = businessEnv(env,member.id,db);
+  }
+  if (url.pathname === "/api/site-sdk") return manageSdk(req,env.DB,env.tenant);
   if (["/api/crawler-inspect", "/api/crawler-resource-logs", "/api/crawler-resource-traffic"].includes(url.pathname))
     return crawlerInspection(req, env.DB);
   if (url.pathname === "/api/industry-preview") return brandPreview(req, env);
   if (url.pathname === "/api/site-review") return siteReview(req, env);
-  return env.WORKSPACE.get(env.WORKSPACE.idFromName("owner-v1")).fetch(req);
+  return scheduler(env).fetch(req);
 }
 
-export async function hasWorkspaceSession(req: Request, env: Env) {
-  if (!req.headers.has("Cookie")) return false;
+export async function workspaceAccess(req: Request, env: Env) {
+  if (!req.headers.has("Cookie")) return null;
   const session = await workspaceAuth(env).api.getSession({
     headers: req.headers,
   });
-  return session?.user.id === "workspace-admin";
+  if (!session?.user) return null;
+  const tenant = await membership(env,session.user.id);
+  return tenant ? {tenant:tenant.name, operator:session.user.id === operator} : null;
 }

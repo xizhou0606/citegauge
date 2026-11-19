@@ -24,6 +24,11 @@ form.onsubmit = async (event) => {
       password: password.value,
     });
     form.reset();
+    sessionStorage.removeItem("cg-selection");
+    if (new URLSearchParams(location.search).get("next") === "projects") {
+      location.replace("/admin/projects");
+      return;
+    }
     location.replace(location.hash === "#monitoring" ? "/workspace#monitoring" : "/workspace");
   } catch (e) {
     error.textContent = e.message;

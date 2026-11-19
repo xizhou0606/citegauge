@@ -12,6 +12,8 @@ export type ModelCredentials = Partial<
 >;
 
 export interface Env extends ModelCredentials {
+  [binding: `TENANT_${string}`]: D1Database | undefined;
+  tenant?: string;
   BRAVE_SEARCH_API_KEY?: string;
   SLACK_BOT_TOKEN?: string;
   SLACK_SIGNING_SECRET?: string;

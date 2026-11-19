@@ -33,14 +33,14 @@ export function LoginPage() {
         </nav>
         <div className="login-box">
           <h1 id="login-heading">登录工作台</h1>
-          <p className="login-intro">使用管理员账号查看品牌监测结果与采样证据。</p>
+          <p className="login-intro">使用企业账号查看所属网站的监测结果与采样证据。</p>
           <form id="login-form" method="post" action="/login">
             <div className="login-field">
               <Label htmlFor="username">账号</Label>
               <div className="login-control">
                 <UserRound aria-hidden="true" />
                 <Input id="username" name="username" autoComplete="username" autoCapitalize="none"
-                  spellCheck={false} placeholder="输入管理员账号" required />
+                  spellCheck={false} placeholder="输入登录账号" required />
               </div>
             </div>
             <div className="login-field">

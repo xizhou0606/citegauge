@@ -5,7 +5,7 @@ export async function tokenHash(token: string) {
   return Array.from(new Uint8Array(hash),b => b.toString(16).padStart(2,"0")).join("");
 }
 
-export async function manageSdk(req: Request, db: D1Database) {
+export async function manageSdk(req: Request, db: D1Database, tenant?: string) {
   const url = new URL(req.url);
   const id = url.searchParams.get("monitor");
   const monitor = id && await db.prepare("SELECT config->>'domain' AS domain FROM monitors WHERE id=?").bind(id).first<{domain:string}>();
@@ -21,7 +21,8 @@ export async function manageSdk(req: Request, db: D1Database) {
   }
   if (req.method !== "POST") return json({error:"需要 GET 或 POST"},405);
   const token = "cg_" + crypto.randomUUID().replaceAll("-","") + crypto.randomUUID().replaceAll("-","");
-  const hash = await tokenHash(token);
+  const credential = tenant ? token + "." + tenant : token;
+  const hash = await tokenHash(credential);
   if (url.searchParams.get("rotate") === "1") {
     const result = await db.prepare("UPDATE sdk_sites SET token_hash=? WHERE domain=?").bind(hash,domain).run();
     if (!result.meta.changes) return json({error:"请先创建采集密钥"},409);
@@ -30,5 +31,5 @@ export async function manageSdk(req: Request, db: D1Database) {
       .bind(domain,hash).run();
     if (!result.meta.changes) return json({error:"此官网已有采集密钥"},409);
   }
-  return json({token},201);
+  return json({token: credential},201);
 }

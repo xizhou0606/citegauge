@@ -47,7 +47,7 @@ for (const previous of [0,3]) {
         return Response.json({id:"req",model:"qwen3.7-flash",choices:[{index:0,finish_reason:"stop",
           message:{role:"assistant",content:JSON.stringify({questions:tasks.map(task=>questions[task.index])})}}]});
       });
-      const ctx={blockConcurrencyWhile: fn=>fn(),storage:{setAlarm:async()=>{},deleteAlarm:async()=>{}}};
+      const ctx={id:{name:"owner-v1"},blockConcurrencyWhile: fn=>fn(),storage:{setAlarm:async()=>{},deleteAlarm:async()=>{}}};
       const env={DB:f.binding,DASHSCOPE_API_KEY:"test"};
       const workspace=new Workspace(ctx,env);
       env.WORKSPACE={idFromName:()=>1,get:()=>({fetch:(url,init)=>workspace.fetch(new Request(url,init))})};
@@ -84,7 +84,7 @@ for (const previous of [0,3]) {
 test("同一报告时间的两个官网分别读取、排队，错误域名无法启动另一站任务",async () => {
   const f=await fixture();
   try {
-    const ctx={blockConcurrencyWhile: fn=>fn(),storage:{setAlarm:async()=>{},deleteAlarm:async()=>{}}};
+    const ctx={id:{name:"owner-v1"},blockConcurrencyWhile: fn=>fn(),storage:{setAlarm:async()=>{},deleteAlarm:async()=>{}}};
     const env={DB:f.binding};
     const workspace=new Workspace(ctx,env);
     env.WORKSPACE={idFromName:()=>1,get:()=>({fetch:(url,init)=>workspace.fetch(new Request(url,init))})};
@@ -116,7 +116,7 @@ test("采样批次并行执行三项，同样的首次任务不会产生第二�
       const m={...monitor,id:"test-"+i,brandPrompt:{intent:"测试",at:1,version:customerQuestionVersion}};
       await f.pool.query("INSERT INTO monitors(id,config,due) VALUES(?1,?2,1)",[m.id,m]);
     }
-    const ctx={blockConcurrencyWhile:fn=>fn(),storage:{setAlarm:async()=>{},deleteAlarm:async()=>{}}};
+    const ctx={id:{name:"owner-v1"},blockConcurrencyWhile:fn=>fn(),storage:{setAlarm:async()=>{},deleteAlarm:async()=>{}}};
     const workspace=new Workspace(ctx,{DB:f.binding,DASHSCOPE_API_KEY:"test"});
     await workspace.alarm(); await workspace.alarm();
     assert.equal(peak,3); assert.equal(calls,6);

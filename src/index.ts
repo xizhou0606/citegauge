@@ -1,5 +1,5 @@
-import { ingest } from "./site-sdk/ingest.ts";
-import { privateApi, hasWorkspaceSession } from "./auth/server.ts";
+import { collect } from "./site-sdk/ingest.ts";
+import { privateApi, workspaceAccess } from "./auth/server.ts";
 import { page } from "./web/pages.tsx";
 import { articles } from "./web/articles.ts";
 import type { Env } from "./runtime/env.ts";
@@ -15,19 +15,21 @@ export default {
   async fetch(req: Request, env: Env) {
     const url = new URL(req.url),
       path = url.pathname;
-    if (path === "/collect/v1") return ingest(req,env.DB);
+    if (path === "/collect/v1") return collect(req,env);
     if (path.startsWith("/api/")) return privateApi(req, env);
     if (!["GET", "HEAD"].includes(req.method))
       return new Response(null, { status: 405 });
-    const restricted = path === "/workspace" || path === "/login";
+    const admin = path === "/admin/projects";
+    const restricted = admin || path === "/workspace" || path === "/login";
+    const access = restricted ? await workspaceAccess(req, env) : null;
     if (restricted) {
-      const signedIn = await hasWorkspaceSession(req, env);
-      const destination = signedIn ? "/workspace" : "/login";
+      if (admin && access && !access.operator) return new Response("需要平台管理员权限", {status:403,headers:{"Cache-Control":"no-store"}});
+      const destination = access ? (admin ? path : "/workspace") : "/login";
       if (path !== destination)
         return new Response(null, {
           status: 303,
           headers: {
-            Location: destination,
+            Location: admin && !access ? "/login?next=projects" : destination,
             "Cache-Control": "private, no-store",
             Vary: "Cookie",
           },
@@ -35,7 +37,7 @@ export default {
     }
     if (path === "/robots.txt")
       return text(
-        "User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /workspace\nSitemap: " +
+        "User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /workspace\nDisallow: /admin/\nSitemap: " +
           url.origin +
           "/sitemap.xml",
         "text/plain",
@@ -65,7 +67,7 @@ export default {
       restricted ||
       (path in articles && Object.hasOwn(articles, path))
     ) {
-      return new Response(page(path, url.origin), {
+      return new Response(page(path, url.origin, access), {
         headers: {
           "Content-Type": "text/html; charset=utf-8",
           "X-Content-Type-Options": "nosniff",

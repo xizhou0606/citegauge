@@ -10,7 +10,7 @@ Node.js 版本由 .nvmrc 指定，npm 版本由 package.json 的 packageManager 
 
 1. 创建 D1 数据库，把数据库名称、ID 和绑定 DB 写入 wrangler.jsonc，迁移目录为 migrations/d1。自托管副本须使用自己的数据库 ID 和 HTTPS 域名。
 2. 将 BETTER_AUTH_URL 指向最终访问域名，以 Wrangler Secret 设置独立的随机 BETTER_AUTH_SECRET（至少 32 个字符）。
-3. 新版本上线前运行 `npm run db:migrate -- --remote`。首次运行 `npm run auth:admin -- --remote` 初始化管理员，凭据保存在 .local-admin-production.txt。显式重置使用附加参数 --reset，并撤销之前的会话。
+3. 新版本上线前运行 `npm run db:migrate:all -- --remote`。首次运行 `npm run auth:admin -- --remote` 初始化管理员，凭据保存在 .local-admin-production.txt。显式重置使用附加参数 --reset，并撤销之前的会话。
 4. 合并到 main 触发 Cloudflare Workers Builds。独立部署可用 `npm run deploy`。验证登录、工作台数据读取、退出后的会话撤销。
 5. 已有 PostgreSQL 部署应先备份并制定数据导入计划。更改绑定和初始化新库不会复制现有记录。
 
@@ -45,3 +45,5 @@ Node.js 版本由 .nvmrc 指定，npm 版本由 package.json 的 packageManager 
 Slack 应用需要 chat:write 权限，机器人应加入目标频道。Telegram 群组需要加入机器人，向个人会话投递时先在 Telegram 中启动机器人。本功能只做出站发送，无需注册入站 webhook。请在 Workers 的 Settings → Variables and Secrets 配置变量。真实密钥仅存为 Secret。发送状态不明时，先核对目标会话再决定是否另发一份。
 
 参考 [Chat SDK 渠道 API](https://chat-sdk.dev/docs/api/channel)。
+
+企业工作台、平台接入清单及新增客户流程见[多租户部署](tenants.md)。
