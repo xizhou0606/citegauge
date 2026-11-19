@@ -46,5 +46,7 @@ export function groundedProbe(profile: Profile, value: unknown, anchors = questi
     throw Error("问题透露了具体厂商");
   const copied = anchors.some(({quote}) => fold(quote).length >= 8 && fold(outgoing).includes(fold(quote)));
   if (copied) throw Error("问题复述官网原句");
-  return {question:outgoing,mode:"客户搜索",section:selected.section,quote:selected.quote};
+  const need = /[。！？?!]$/.test(outgoing) ? outgoing : outgoing + "。";
+  const request = "请推荐最多 5 款能满足上述需求的具体工具或平台，按适配程度从高到低排列。请用「名次、工具或平台名称、适配理由」三列表格回答，每行一款；只列有依据的产品，并附来源。";
+  return {question:need + request,mode:"客户搜索",section:selected.section,quote:selected.quote};
 }

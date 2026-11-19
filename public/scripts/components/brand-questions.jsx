@@ -84,7 +84,7 @@ export function BrandQuestions({domain, at}) {
     <h2>客户搜索问题与官网引用率</h2>
     <p className="caption">{domain} · 通义千问 qwen-plus 联网提问 · 最近 30 天</p>
     {data?.rows?.length ? <>
-      <p>模拟潜在客户在 AI 中搜索。以下 {data.rows.length} 道问题均根据网站定位和客户需求生成。</p>
+      <p>{data.rows.length} 道客户选型问题。每题请 AI 按该场景的适配程度列出具体平台和推荐理由。</p>
       <strong className="probe-rate">{percent(data.totals.citations,data.totals.observable)}</strong>
       <p>官网被引 {data.totals.citations} 份 / 可判定 {data.totals.observable} 份 · 来源不可判定 {data.totals.valid-data.totals.observable} 份</p>
       <ol>{data.rows.map(row => <Question key={row.id + (row.sample || "")} row={row} reload={reload} />)}</ol>

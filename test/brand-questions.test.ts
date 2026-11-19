@@ -7,7 +7,7 @@ import { siteReview } from "../src/site-review/route.ts";
 import { groundedProbe } from "../src/site-review/grounded-probes.ts";
 import { brandQuestionStats } from "../src/storage/brand-question-stats.ts";
 import { Workspace } from "../src/storage/workspace.ts";
-import { brandQuestionIntents } from "../src/domain/brand-question-intents.ts";
+import { brandQuestionIntents, customerQuestionVersion } from "../src/domain/brand-question-intents.ts";
 import { fixture } from "./d1-fixture.ts";
 
 const source = [{index:1,url:"https://example.com"}, {index:2,url:"https://other.com/path"}];
@@ -51,13 +51,13 @@ for (const previous of [0,3]) {
       const workspace=new Workspace(ctx,env);
       env.WORKSPACE={idFromName:()=>1,get:()=>({fetch:(url,init)=>workspace.fetch(new Request(url,init))})};
       await f.pool.query("INSERT INTO website_reports VALUES('example.com',1,?1)",[profile]);
-      const legacy={...monitor,id:"legacy",question:"请分析例子官网",brandPrompt:{at:1,intent:"历史",version:2}};
+      const legacy={...monitor,id:"legacy",question:"请分析例子官网",brandPrompt:{at:1,intent:"历史",version:4}};
       await f.pool.query("INSERT INTO monitors(id,config,due) VALUES(?1,?2,0)",[legacy.id,legacy]);
       await f.pool.query("INSERT INTO runs(id,monitor,at,state,detail) VALUES('legacy-hit',?1,?2,'ok',?3)",[legacy.id,Date.now(),{cited:true}]);
       for (let i=0;i<previous;i++) {
-        const id="demo-probe-1-v4-"+i;
+        const id="demo-probe-1-v"+customerQuestionVersion+"-"+i;
         const {question,...basis}=groundedProbe(profile,drafts[i]);
-        const config={...monitor,id,question,brandPrompt:{at:1,intent:brandQuestionIntents[i],version:4,...basis}};
+        const config={...monitor,id,question,brandPrompt:{at:1,intent:brandQuestionIntents[i],version:customerQuestionVersion,...basis}};
         await f.pool.query("INSERT INTO monitors(id,config,due) VALUES(?1,?2,0)",[id,config]);
         await f.pool.query("INSERT INTO runs(id,monitor,at,state,detail) VALUES(?1,?2,?3,'ok',?4)",
           ["r"+i,id,Date.now(),{cited:[true,false,null][i]}]);
@@ -112,7 +112,7 @@ test("采样批次并行执行三项，同样的首次任务不会产生第二�
       return Response.json({request_id:"sample",output:{choices:[{finish_reason:"stop",message:{role:"assistant",content:"答案"}}],search_info:{search_results:[]}}});
     });
     for (let i=0;i<6;i++) {
-      const m={...monitor,id:"test-"+i,brandPrompt:{intent:"测试",at:1,version:4}};
+      const m={...monitor,id:"test-"+i,brandPrompt:{intent:"测试",at:1,version:customerQuestionVersion}};
       await f.pool.query("INSERT INTO monitors(id,config,due) VALUES(?1,?2,1)",[m.id,m]);
     }
     const ctx={blockConcurrencyWhile:fn=>fn(),storage:{setAlarm:async()=>{},deleteAlarm:async()=>{}}};
@@ -133,6 +133,9 @@ test("官网材料可含品牌，客户实发问题拒绝品牌、域名和官�
     assert.throws(()=>groundedProbe(profile,{anchor:0,question}));
   }
   const question="招聘团队每天收到很多简历，怎样快速筛出符合岗位要求的人？";
-  assert.equal(groundedProbe(profile,{anchor:0,question}).question,question);
+  const outgoing=groundedProbe(profile,{anchor:0,question}).question;
+  assert.ok(outgoing.startsWith(question));
+  assert.match(outgoing,/具体工具或平台.*适配程度从高到低.*名次、工具或平台名称、适配理由/);
+  assert.doesNotMatch(outgoing,/例子|HireVue|Northwind|example\.com/);
   assert.ok(groundedProbe(profile,{anchor:0,question}).quote.includes("例子"));
 });
