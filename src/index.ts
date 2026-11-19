@@ -43,7 +43,7 @@ export default {
     if (path === "/sitemap.xml")
       return text(
         '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
-          ["/", ...Object.keys(articles)]
+          ["/", "/docs/sdk/", ...Object.keys(articles)]
             .map((p) => "<url><loc>" + url.origin + p + "</loc></url>")
             .join("") +
           "</urlset>",
@@ -51,7 +51,9 @@ export default {
       );
     if (path === "/llms.txt")
       return text(
-        "# 引迹 CiteGauge\n\n开源 GEO 监测工具。记录固定问题的回答、品牌提及和引用证据。\n\n" +
+        "# 引迹 CiteGauge\n\n> 开源 GEO 监测平台与网站流量采集 SDK。\n\n## TypeScript SDK\n\n" +
+          "- [SDK 全文](" + url.origin + "/docs/sdk/llms-full.txt)：安装、配置、API、指标与验证。\n" +
+          "- [SDK 文档索引](" + url.origin + "/docs/sdk/llms.txt)：按任务选择 Markdown 页面。\n\n## 平台文档\n\n" +
           Object.entries(articles)
             .map(([p, a]) => "- [" + a.title + "](" + url.origin + p + ")")
             .join("\n") +

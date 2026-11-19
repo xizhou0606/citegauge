@@ -27,7 +27,10 @@ export function SiteSdk({monitor}) {
   }
   return <Panel className="grid gap-3 p-5">
     <header className="flex flex-wrap items-center justify-between gap-3">
-      <h2>{monitor.domain} · SDK 接入</h2><a className="underline" href="/docs/sdk/">TypeScript 接入文档</a>
+      <h2>{monitor.domain} · SDK 接入</h2><div className="flex flex-wrap gap-3">
+        <a className="underline" href="/docs/sdk/">TypeScript 接入文档</a>
+        <a className="underline" href="/docs/sdk/llms-full.txt">AI 文档全文</a>
+      </div>
     </header>
     {error && <p role="alert">{error}</p>}
     {stats && <>

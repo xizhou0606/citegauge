@@ -82,7 +82,7 @@ npx wrangler deploy --dry-run
 
 ### 网站流量与爬虫访问统计
 
-Node.js 站点可以通过 npm 安装 TypeScript SDK，在根目录创建 citegauge.ts 并在服务启动时调用 citegauge.init()。工作台按域名签发采集密钥并展示 PV、估算 UV 和爬虫记录。[SDK 接入文档](https://citegauge.liushurui0606.workers.dev/docs/sdk/)
+Node.js 站点可以通过 npm 安装 TypeScript SDK，在根目录创建 citegauge.ts 并在服务启动时调用 citegauge.init()。工作台按域名签发采集密钥并展示 PV、估算 UV 和爬虫记录。[SDK 接入文档](https://citegauge.liushurui0606.workers.dev/docs/sdk/) · [供 AI 读取的 SDK 全文](https://citegauge.liushurui0606.workers.dev/docs/sdk/llms-full.txt)
 
 在工作台「网站流量 → 文件检查」输入任意公开官网 URL，可直接查询，无需创建监测项。系统读取该来源根目录的 robots.txt，提取 Sitemap 声明并检查前五个地址；缺少声明时尝试 /sitemap.xml。也可指定一个绝对或相对 Sitemap 地址。每个结果展示本次请求的 HTTP 状态、跳转地址和近 30 天日志中的历史请求数。历史统计匹配请求主机和路径，同路径的查询参数合并，展示的合计只覆盖本次列出的资源。没有日志时显示未知。可在结果下为对应域名导入访问日志。
 

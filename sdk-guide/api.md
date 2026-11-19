@@ -1,3 +1,7 @@
+---
+description: 配置字段、TypeScript 类型签名、init、flush 和 close 的调用时机与错误处理。
+---
+
 # 配置与生命周期
 
 ## citegauge.ts
@@ -8,6 +12,29 @@
 | token | 可选，默认读取服务端环境变量 CITEGAUGE_TOKEN。 |
 | endpoint | 可选，默认使用 CiteGauge 线上采集地址。私有部署可填写自己的 HTTPS /collect/v1 地址。 |
 | visitorId | 可选，从 Node IncomingMessage 读取站点已有的匿名访客 ID。返回值会在本地哈希后上报。请使用随机匿名 ID。 |
+
+## TypeScript 类型
+
+以下为 `citegauge` v0.1.0 导出的类型与函数签名。只使用配置文件时，调用无参数的 `init()` 即可。
+
+```ts
+import type { IncomingMessage } from 'node:http'
+
+export interface CiteGaugeConfig {
+  domain: string
+  token?: string
+  endpoint?: string
+  visitorId?: (request: IncomingMessage) => string | undefined
+}
+
+export interface CiteGaugeClient {
+  flush(): Promise<void>
+  close(): Promise<void>
+}
+
+export declare function defineConfig(config: CiteGaugeConfig): CiteGaugeConfig
+export declare function init(config?: CiteGaugeConfig): Promise<CiteGaugeClient>
+```
 
 ## init()
 
