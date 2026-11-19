@@ -2,6 +2,7 @@ import { createAlibaba } from "@ai-sdk/alibaba";
 import { generateText } from "ai";
 import { createParser } from "eventsource-parser";
 import { qwenSearchModel } from "./qwen.ts";
+import { archiveStream, streamLimit } from "./search-archive.ts";
 import { rawEvidence, samplingSettings } from "./settings.ts";
 
 const endpoint = "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation";
@@ -17,32 +18,16 @@ interface SearchFrame {
 }
 
 async function readSearchStream(response: Response) {
-  const frames: SearchFrame[] = [];
+  const chunks: Uint8Array[] = [];
   const decoder = new TextDecoder();
   const reader = response.body?.getReader();
   if (!reader) throw Error("联网检索未返回响应流");
+  const sources = new Map<string,{index:number;url:string;title?:string}>();
+  let answer = "", finish = "", id = "", usage: SearchFrame["usage"];
   const parser = createParser({onEvent({data}) {
     if (data === "[DONE]") return;
     const frame: SearchFrame = JSON.parse(data);
     if (frame.code) throw Error("联网检索失败：" + String(frame.code).slice(0,100));
-    frames.push(frame);
-  }});
-  let size = 0;
-  try {
-    while (true) {
-      const {done,value} = await reader.read();
-      if (done) break;
-      size += value.byteLength;
-      if (size > 650_000) throw Error("响应超过单次证据容量");
-      parser.feed(decoder.decode(value,{stream:true}));
-    }
-    parser.feed(decoder.decode() + "\n\n");
-  } finally {
-    await reader.cancel();
-  }
-  const sources = new Map<string,{index:number;url:string;title?:string}>();
-  let answer = "", finish = "", id = "", usage: SearchFrame["usage"];
-  for (const frame of frames) {
     for (const row of frame.output?.search_info?.search_results || []) {
       if (Number.isInteger(row.index) && typeof row.url === "string")
         sources.set(JSON.stringify([row.index,row.url]),row);
@@ -53,11 +38,25 @@ async function readSearchStream(response: Response) {
     }
     id = frame.request_id || id;
     usage = frame.usage || usage;
+  }});
+  let size = 0;
+  try {
+    while (true) {
+      const {done,value} = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > streamLimit) throw Error("响应超过单次证据容量");
+      chunks.push(value);
+      parser.feed(decoder.decode(value,{stream:true}));
+    }
+    parser.feed(decoder.decode() + "\n\n");
+  } finally {
+    await reader.cancel();
   }
   if (!sources.size) throw Error("本次未取得联网搜索来源");
   if (finish !== "stop" || !answer.trim()) throw Error("未取得完整的联网回答");
   const results = [...sources.values()];
-  const raw = rawEvidence({request_id:id,output:{search_info:{search_results:results}},usage,frames});
+  const raw = rawEvidence({streamGzip:archiveStream(chunks),request_id:id,output:{search_info:{search_results:results}},usage});
   return {answer,id,usage,results,raw};
 }
 
@@ -82,9 +81,7 @@ export async function liveSearch(key: string, question: string, instruction: str
       usage:usage && {prompt_tokens:usage.input_tokens,completion_tokens:usage.output_tokens,total_tokens:usage.input_tokens+usage.output_tokens}});
   }});
   const result = await generateText({...samplingSettings, maxOutputTokens:maxTokens, model:provider.chatModel(qwenSearchModel),
-    system,
-
-    prompt:question});
+    system,prompt:question});
   if (!evidence || result.finishReason !== "stop") throw Error("未取得完整的联网回答");
   return {...evidence,searchedAt};
 }

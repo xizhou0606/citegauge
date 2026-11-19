@@ -1,4 +1,5 @@
 import { crawlerReport } from "./crawlers.ts";
+import { expandSearchEvidence } from "../collectors/ai/search-archive.ts";
 import { answerReferences } from "../domain/answer-references.ts";
 import { brandQuestionStats } from "./brand-question-stats.ts";
 import { destinations } from "../delivery/chat.ts";
@@ -105,6 +106,7 @@ export async function readWorkspace(
     const {candidates,...run} = rows[0];
     if (answerOnly && candidates && run.detail?.answer)
       run.detail.references = answerReferences(run.detail.answer,JSON.parse(candidates));
+    if (!answerOnly && typeof run.raw === "string") run.raw = expandSearchEvidence(run.raw);
     return json(run);
   }
   return json({ error: "路径无效" }, 404);
