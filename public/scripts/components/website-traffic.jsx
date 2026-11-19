@@ -17,20 +17,26 @@ function TrafficOverview({monitor}) {
       .catch(e => { if (active) setError(e.message); });
     return () => { active=false; };
   },[monitor.id,refresh]);
-  const observed = stats?.lastSeen >= Date.now()-30*86400000;
+  const sources = [
+    ...(stats?.browser?.enabled ? [["浏览器页面访问",stats.browser]] : []),
+    ...(!stats?.browser?.enabled || stats?.lastSeen ? [["服务端页面请求",stats]] : []),
+  ];
   return <>
     <Panel className="grid gap-3 p-5">
       <header className="flex flex-wrap items-center justify-between gap-2">
         <h2>{monitor.domain} · 近 30 天</h2><SmallButton onClick={()=>setRefresh(n=>n+1)}>刷新统计</SmallButton>
       </header>
       {error && <p role="alert">{error}</p>}
+      {sources.map(([source,data])=><section className="grid gap-2" key={source}>
+      <h3>{source}</h3>
       <div className="grid gap-3 sm:grid-cols-2">
         {[["pv","页面浏览量（PV）"],["uv","估算访客数（UV）"]].map(([key,label])=>
           <div key={key} className="rounded-lg border p-3"><p>{label}</p>
-            <strong className="block text-2xl">{observed ? stats[key].toLocaleString() : "—"}</strong></div>)}
+            <strong className="block text-2xl">{data?.lastSeen >= Date.now()-30*86400000 ? data[key].toLocaleString() : "—"}</strong></div>)}
       </div>
-      {stats && <p>{stats.lastSeen ? "SDK 最近上报 "+new Date(stats.lastSeen).toLocaleString() :
-        stats.configured ? "等待 SDK 首次上报。" : <a className="underline" href="#traffic?section=sdk">接入 SDK 后查看 PV 和 UV</a>}</p>}
+      {data && <p>{data.lastSeen ? "最近上报 "+new Date(data.lastSeen).toLocaleString() :
+        data.enabled || data.configured ? "等待 SDK 首次上报。" : <a className="underline" href="#traffic?section=sdk">接入 SDK 后查看 PV 和 UV</a>}</p>}</section>)}
+      {stats?.browser?.enabled && <p>浏览器统计页面加载与站内路径切换。AI 爬虫和 XML、TXT 请求由服务端或访问日志统计。</p>}
     </Panel>
     <CrawlerVisits key={refresh} monitor={monitor} />
   </>;

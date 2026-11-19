@@ -1,14 +1,22 @@
 {
   "name": "citegauge",
-  "version": "0.1.0",
-  "description": "Website traffic and AI crawler analytics for Node.js",
+  "version": "0.2.0",
+  "description": "Browser page views, unique visitors and server-side AI crawler analytics",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "browser": {
+        "types": "./dist/browser.d.ts",
+        "default": "./dist/browser.js"
+      },
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "default": "./dist/browser.js"
     }
   },
   "files": [

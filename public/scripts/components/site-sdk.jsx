@@ -37,7 +37,20 @@ export function SiteSdk({monitor}) {
       </div>
     </header>
     {error && <p role="alert">{error}</p>}
+    {stats?.browser && <section className="grid gap-2">
+      <h3>浏览器接入 · 页面访问</h3>
+      {stats.browser.enabled ? <>
+        <p>在网站前端入口调用一次。发布后打开网站，即可在流量概览查看浏览器 PV 和 UV。</p>
+        <pre><code>{'import citegauge from "citegauge/browser";\n' +
+          (stats.browser.workspace ? 'citegauge.init({ workspace: "' + stats.browser.workspace + '" });' : 'citegauge.init();')}</code></pre>
+      </> : <SmallButton disabled={busy} onClick={async ()=>{
+        setBusy(true);
+        try { await api(path+"&browser=1",{}); setRefresh(n=>n+1); }
+        catch(e) { setError(e.message); } finally { setBusy(false); }
+      }}>启用本站浏览器统计</SmallButton>}
+    </section>}
     {stats && <>
+      <h3>Node 服务端接入 · 请求与爬虫</h3>
       <p>{stats.lastSeen ? "最近上报 "+new Date(stats.lastSeen).toLocaleString() :
         stats.configured ? "等待官网首次上报" : "创建本站密钥后，按接入文档安装 SDK。"}</p>
       <div>{stats.configured ? <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>

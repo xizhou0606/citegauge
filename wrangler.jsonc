@@ -19,6 +19,7 @@
     "database_id": "61364f88-c5f1-4c18-bab5-eb9e6b55714d",
     "migrations_dir": "migrations/d1"
   }],
+  "ratelimits": [{"name":"BROWSER_VISIT_LIMIT","namespace_id":"8471","simple":{"limit":600,"period":60}}],
   "browser": { "binding": "BROWSER" },
   "assets": { "directory": "./public", "binding": "ASSETS" },
   "durable_objects": {

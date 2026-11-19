@@ -23,6 +23,7 @@ export interface Env extends ModelCredentials {
   WORKSPACE: DurableObjectNamespace;
   ASSETS: Fetcher;
   BROWSER: BrowserRun;
+  BROWSER_VISIT_LIMIT: RateLimit;
   DB: D1Database;
   BETTER_AUTH_SECRET: string;
   BETTER_AUTH_URL: string;

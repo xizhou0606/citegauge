@@ -1,5 +1,6 @@
 import {
   Activity,
+  Building2,
   Menu,
   ChartNoAxesCombined,
   AudioLines,
@@ -77,7 +78,6 @@ export function WorkspaceShell({tenant,operator}: {tenant?:string;operator?:bool
           ))}
         </nav>
         <div className="rail-foot" id="rail-tools">
-          {operator && <a href="/admin/projects"><Layers />平台管理 · 项目接入</a>}
           <a href="/methodology">
             <BookOpen />
             监测方法
@@ -101,11 +101,16 @@ export function WorkspaceShell({tenant,operator}: {tenant?:string;operator?:bool
           <div>
             {tenant || "工作台"} <span>/</span> <strong id="crumb">官网分析</strong>
           </div>
-          <div id="tools" hidden>
-            <Button id="add" size="sm">
-              <Plus />
-              添加监测网站
-            </Button>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {operator && <Button asChild variant="outline" size="sm">
+              <a href="/admin/projects"><Building2 />租户管理</a>
+            </Button>}
+            <div id="tools" hidden>
+              <Button id="add" size="sm">
+                <Plus />
+                添加监测网站
+              </Button>
+            </div>
           </div>
         </header>
         <div className="content">

@@ -85,16 +85,16 @@ function Console() {
   },[page,version]);
   const refresh = ()=>setVersion(v=>v+1);
   return <div className="grid gap-5">
-    <header className="project-heading"><div><h1 className="text-3xl font-bold">项目接入</h1>
-      <p>按企业查看监测的网站、SDK 接入状态和最近上报时间。</p></div>
+    <header className="project-heading"><div><h1 className="text-3xl font-bold">租户管理</h1>
+      <p>{data ? `1 个自营工作区 · ${data.customerCount} 个客户租户` : "正在读取租户数量…"}</p></div>
       <Button variant="outline" onClick={refresh}><RefreshCw size={15} />刷新</Button></header>
     {error && <p role="alert">{error}</p>}
     {!data && !error && <p role="status">正在读取企业项目…</p>}
+    {data && <Accounts slots={data.available} tenants={data.tenants} refresh={refresh}/>}
     {data?.tenants.map(t=><Tenant key={t.id} tenant={t}/>)}
     {data && (page>1 || data.more) && <div className="flex gap-3">
       <Button variant="outline" disabled={page===1} onClick={()=>setPage(page-1)}>上一页</Button>
       <Button variant="outline" disabled={!data.more} onClick={()=>setPage(page+1)}>下一页</Button></div>}
-    {data && <Accounts slots={data.available} tenants={data.tenants} refresh={refresh}/>}
   </div>;
 }
 

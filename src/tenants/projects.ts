@@ -7,11 +7,11 @@ export async function projects(db: D1Database) {
   const rows = await db.prepare(`WITH monitored AS (
     SELECT config->>'domain' AS domain, count(*) AS monitors FROM monitors GROUP BY 1
   ), domains AS (
-    SELECT domain FROM monitored UNION SELECT domain FROM website_reports UNION SELECT domain FROM sdk_sites
-  ) SELECT d.domain,coalesce(m.monitors,0) AS monitors,s.last_seen AS lastSeen,
-    CASE WHEN s.last_seen IS NOT NULL THEN 'reporting' WHEN s.domain IS NOT NULL THEN 'issued' ELSE 'unconfigured' END AS state
-    FROM domains d LEFT JOIN monitored m USING(domain) LEFT JOIN sdk_sites s USING(domain)
-    ORDER BY s.last_seen DESC,d.domain`).all();
+    SELECT domain FROM monitored UNION SELECT domain FROM website_reports UNION SELECT domain FROM sdk_sites UNION SELECT domain FROM browser_sites
+  ) SELECT d.domain,coalesce(m.monitors,0) AS monitors,nullif(max(coalesce(s.last_seen,0),coalesce(b.last_seen,0)),0) AS lastSeen,
+    CASE WHEN s.last_seen IS NOT NULL OR b.last_seen IS NOT NULL THEN 'reporting' WHEN s.domain IS NOT NULL OR b.domain IS NOT NULL THEN 'issued' ELSE 'unconfigured' END AS state
+    FROM domains d LEFT JOIN monitored m USING(domain) LEFT JOIN sdk_sites s USING(domain) LEFT JOIN browser_sites b USING(domain)
+    ORDER BY lastSeen DESC,d.domain`).all();
   return rows.results;
 }
 
@@ -34,5 +34,5 @@ export async function inventory(req: Request, env: Env) {
   const used = new Set(registered.results.map(t => t.id));
   const available = Object.keys(env).filter(k=>k.startsWith("TENANT_")).map(k=>k.slice(7).toLowerCase())
     .filter(k=>tenantKey.test(k) && !used.has(k)).sort();
-  return json({tenants, available, page, more:rows.results.length>size});
+  return json({tenants, customerCount:used.size, available, page, more:rows.results.length>size});
 }

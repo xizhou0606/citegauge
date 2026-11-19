@@ -1,3 +1,4 @@
+import { browserVisit } from "./site-sdk/browser.ts";
 import { collect } from "./site-sdk/ingest.ts";
 import { privateApi, workspaceAccess } from "./auth/server.ts";
 import { page } from "./web/pages.tsx";
@@ -15,6 +16,7 @@ export default {
   async fetch(req: Request, env: Env) {
     const url = new URL(req.url),
       path = url.pathname;
+    if (path === "/collect/browser/v1") return browserVisit(req,env);
     if (path === "/collect/v1") return collect(req,env);
     if (path.startsWith("/api/")) return privateApi(req, env);
     if (!["GET", "HEAD"].includes(req.method))

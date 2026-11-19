@@ -15,7 +15,7 @@ description: 配置字段、TypeScript 类型签名、init、flush 和 close 的
 
 ## TypeScript 类型
 
-以下为 `citegauge` v0.1.0 导出的类型与函数签名。只使用配置文件时，调用无参数的 `init()` 即可。
+以下为 `citegauge` v0.2.0 导出的类型与函数签名。只使用配置文件时，调用无参数的 `init()` 即可。
 
 ```ts
 import type { IncomingMessage } from 'node:http'

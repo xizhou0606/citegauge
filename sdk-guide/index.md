@@ -1,24 +1,31 @@
 ---
-description: 安装 citegauge v0.1.0，在 Node.js HTTP/1 服务启动时加载配置，验证首次上报并排查常见错误。
+description: 安装 citegauge v0.2.0，在 Node.js HTTP/1 服务启动时加载配置，验证首次上报并排查常见错误。
 ---
 
 # TypeScript SDK 快速接入
 
-在网站的 Node.js **服务端启动入口**调用一次 `citegauge.init()`。SDK 会读取当前工作目录的 `citegauge.ts`，订阅 Node HTTP/1 服务端请求完成事件，将访问数据发送到该官网的 CiteGauge 工作台。
-
-## 运行条件
-
-先确认服务通过 Node.js HTTP/1 接收请求，并能在启动时执行服务端代码。配置文件随应用一起部署。只提供静态资源或 Fetch 事件的项目，可以先阅读[覆盖范围](./metrics.md)。
+静态网站与单页应用可直接从浏览器上报 PV、UV。Node HTTP/1 服务还可以记录 AI 爬虫及 XML、TXT 请求。
 
 ## 安装
 
-需要 Node.js 22.18 或更高版本。在网站项目中从公共 npm registry 安装 v0.1.0。
+在网站项目中安装 SDK。使用 Node 服务端入口时，运行环境需要 Node.js 22.18 或更高版本。
 
 ```sh
-npm install citegauge@0.1.0
+npm install citegauge@0.2.0
 ```
 
-## 绑定官网
+## 浏览器接入
+
+在工作台选择官网，在「网站流量 → SDK 接入」启用浏览器统计。把页面上显示的调用放进前端入口。自营网站使用下列代码，客户网站使用工作台给出的公开 workspace 参数。域名从浏览器的 HTTPS Origin 识别。
+
+```ts
+import citegauge from 'citegauge/browser'
+citegauge.init()
+```
+
+发布后打开官网，在「网站流量 → 流量概览」查看浏览器最近上报时间。启用了 CSP 的网站需要在 connect-src 中允许 https://citegauge.liushurui0606.workers.dev 。
+
+## Node 服务端接入
 
 在工作台选择官网，打开「网站流量 → SDK 接入」，创建采集密钥，将它保存为网站服务端环境变量 `CITEGAUGE_TOKEN`。同一密钥只能写入对应网站。将密钥保存在部署平台的服务端 Secret 中。代码示例、客户端环境变量和提交记录均应省略真实值。
 

@@ -10,7 +10,7 @@ export function page(path: string, origin: string, access?: {tenant:string; oper
     admin = path === "/admin/projects",
     login = path === "/login";
   const title =
-    (admin ? "项目接入 · 平台管理" : login ? "登录工作台" : workspace ? "监测工作台" : (a?.title ?? "开源 GEO 品牌监测平台")) +
+    (admin ? "租户管理" : login ? "登录工作台" : workspace ? "监测工作台" : (a?.title ?? "开源 GEO 品牌监测平台")) +
     " | 引迹 CiteGauge";
   const description =
     a?.summary ??

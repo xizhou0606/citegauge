@@ -12,14 +12,22 @@ export async function manageSdk(req: Request, db: D1Database, tenant?: string) {
   if (!monitor) return json({error:"请选择已有官网监测项"},404);
   const domain = monitor.domain;
   if (req.method === "GET") {
-    const [site,stats] = await db.batch<Record<string,number|null>>([
+    const since = Date.now()-30*86400000;
+    const [site,stats,browser,browserStats] = await db.batch<Record<string,number|null>>([
       db.prepare("SELECT last_seen FROM sdk_sites WHERE domain=?").bind(domain),
       db.prepare("SELECT count(*) AS pv,count(DISTINCT visitor) AS uv FROM sdk_pageviews WHERE domain=? AND at>=?")
-        .bind(domain,Date.now()-30*86400000),
+        .bind(domain,since),
+      db.prepare("SELECT last_seen FROM browser_sites WHERE domain=?").bind(domain),
+      db.prepare("SELECT count(*) AS pv,count(DISTINCT visitor) AS uv FROM browser_pageviews WHERE domain=? AND at>=?").bind(domain,since),
     ]);
-    return json({domain,configured:site.results.length>0,lastSeen:site.results[0]?.last_seen ?? null,...stats.results[0]});
+    return json({domain,configured:site.results.length>0,lastSeen:site.results[0]?.last_seen ?? null,...stats.results[0],
+      browser:{enabled:browser.results.length>0,lastSeen:browser.results[0]?.last_seen ?? null,workspace:tenant ?? "",...browserStats.results[0]}});
   }
   if (req.method !== "POST") return json({error:"需要 GET 或 POST"},405);
+  if (url.searchParams.get("browser") === "1") {
+    await db.prepare("INSERT OR IGNORE INTO browser_sites(domain) VALUES(?)").bind(domain).run();
+    return json({enabled:true});
+  }
   const token = "cg_" + crypto.randomUUID().replaceAll("-","") + crypto.randomUUID().replaceAll("-","");
   const credential = tenant ? token + "." + tenant : token;
   const hash = await tokenHash(credential);

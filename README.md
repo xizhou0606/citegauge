@@ -1,6 +1,6 @@
 # 引迹 CiteGauge
 
-引迹是部署在 Cloudflare Workers 上的开源 GEO（生成式引擎优化）监测工具。用同一道问题持续采样，把 AI 回答里的品牌提及、竞品和官网引用关联到可复核的证据。支持多家企业使用同一部署。企业账号登录各自的工作台，平台管理员在「平台管理 · 项目接入」查看各企业的网站和 SDK 上报状态。
+引迹是部署在 Cloudflare Workers 上的开源 GEO（生成式引擎优化）监测工具。用同一道问题持续采样，把 AI 回答里的品牌提及、竞品和官网引用关联到可复核的证据。支持多家企业使用同一部署。企业账号登录各自的工作台，平台管理员在「租户管理」查看各企业的网站和 SDK 上报状态。
 
 CiteGauge is an MIT-licensed, self-hosted GEO monitor for Chinese and international AI answer engines. Track a fixed question over time, distinguish API responses from consumer-web observations, and inspect the evidence behind every mention and citation.
 
