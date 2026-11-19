@@ -71,8 +71,9 @@ test("千问检索复用账号密钥，启用联网并校验候选网址", async
   t.mock.method(globalThis, "fetch", async (url, init) => {
     assert.equal(String(url), "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions");
     const payload = JSON.parse(init.body);
+    assert.equal(payload.model,"qwen-flash");
     assert.ok(payload.enable_search && payload.search_options.forced_search);
-    return Response.json({id:"fixture", model:"qwen-plus", created:1, choices:[
+    return Response.json({id:"fixture", model:"qwen-flash", created:1, choices:[
       {index:0, finish_reason:"stop", message:{role:"assistant",
         content:"https://example.com\nhttps://example.com\nhttp://127.0.0.1/"}},
     ]});

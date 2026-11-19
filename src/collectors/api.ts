@@ -1,3 +1,4 @@
+import { qwenSearchModel } from "./ai/qwen.ts";
 import { collectBrandQuestion } from "./ai/qwen-citations.ts";
 import { APICallError } from "ai";
 import type { Channel, Monitor } from "../domain/monitor.ts";
@@ -12,7 +13,7 @@ export async function collect(env: ModelCredentials, monitor: Monitor) {
   if (!run) throw Error("请先配置该渠道密钥和模型");
   try {
     if (monitor.brandPrompt && monitor.channel === "通义千问 API" && env.DASHSCOPE_API_KEY)
-      return await collectBrandQuestion(env.DASHSCOPE_API_KEY, monitor.model || "qwen-plus", monitor.question);
+      return await collectBrandQuestion(env.DASHSCOPE_API_KEY, monitor.model || qwenSearchModel, monitor.question);
     return await run(monitor.question);
   } catch (error) {
     if (APICallError.isInstance(error)) {

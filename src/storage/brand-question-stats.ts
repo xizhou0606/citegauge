@@ -1,3 +1,4 @@
+import { qwenSearchModel } from "../collectors/ai/qwen.ts";
 import { brandQuestionIntents, customerQuestionVersion } from "../domain/brand-question-intents.ts";
 import { json } from "../runtime/response.ts";
 
@@ -14,6 +15,8 @@ export async function brandQuestionStats(db: D1Database, params: URLSearchParams
       (SELECT MAX(config->>'$.brandPrompt.at') FROM monitors WHERE config->>'domain'=?1)))
     SELECT m.id,m.config->>'question' AS question,m.config->>'$.brandPrompt.intent' AS intent,
       m.config->>'$.brandPrompt.mode' AS mode,m.config->>'$.brandPrompt.section' AS section,m.config->>'$.brandPrompt.quote' AS quote,
+      (SELECT id FROM runs WHERE monitor=m.config->>'$.brandPrompt.previousMonitor' AND state='ok'
+        ORDER BY at DESC,id DESC LIMIT 1) AS previousSample,
       count(*) FILTER(WHERE r.state='ok') AS valid,
       count(*) FILTER(WHERE r.state='ok' AND r.detail->>'cited' IS NOT NULL) AS observable,
       count(*) FILTER(WHERE r.state='ok' AND r.detail->>'cited'=1) AS citations,
@@ -25,5 +28,5 @@ export async function brandQuestionStats(db: D1Database, params: URLSearchParams
   const totals = rows.reduce((t,r) => ({valid:t.valid+r.valid,observable:t.observable+r.observable,citations:t.citations+r.citations}),
     {valid:0,observable:0,citations:0});
   const job = await db.prepare("SELECT due FROM website_question_jobs WHERE domain=?1 AND revision=?2").bind(domain,at).first<{due:number}>();
-  return json({queued:!!job?.due,failed:job?.due===0,rows,totals,start,end,targetCount:brandQuestionIntents.length,canStartAt: latest?.at === at ? at : null});
+  return json({model:qwenSearchModel,queued:!!job?.due,failed:job?.due===0,rows,totals,start,end,targetCount:brandQuestionIntents.length,canStartAt: latest?.at === at ? at : null});
 }

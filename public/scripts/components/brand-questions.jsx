@@ -21,9 +21,9 @@ function Question({row, reload}) {
     } catch (e) { setError(e.message); }
     finally { setBusy(false); }
   }
-  async function show() {
-    if (answer) { setAnswer(null); return; }
-    try { setAnswer(await api("evidence/"+encodeURIComponent(row.sample)+"?view=answer")); setError(""); }
+  async function show(sample) {
+    if (answer?.id === sample) { setAnswer(null); return; }
+    try { setAnswer(await api("evidence/"+encodeURIComponent(sample)+"?view=answer")); setError(""); }
     catch (e) {setError(e.message);}
   }
   const pending = ["queued","pending"].includes(row.state);
@@ -32,12 +32,16 @@ function Question({row, reload}) {
     <p>{row.question}</p>
     <details className="caption"><summary>出题依据 · {row.section}</summary><p>{row.quote}</p></details>
     <div className="probe-actions">
-      {row.sample && !pending && <SmallButton aria-expanded={!!answer} onClick={show}>{answer ? "收起回答" : "阅读最近回答"}</SmallButton>}
+      {row.sample && !pending && <SmallButton aria-expanded={answer?.id === row.sample} onClick={() => show(row.sample)}>{answer?.id === row.sample ? "收起回答" : "阅读最近回答"}</SmallButton>}
+      {row.previousSample && <SmallButton aria-expanded={answer?.id === row.previousSample} onClick={() => show(row.previousSample)}>
+        {answer?.id === row.previousSample ? "收起历史回答" : "查看换模型前的回答"}
+      </SmallButton>}
       <SmallButton disabled={busy || pending} onClick={ask}>{busy || pending ? "正在提问…" : "再问一次"}</SmallButton>
       <small>{{queued:"已排队",pending:"采集中",failed:"最近采样失败",empty:"近 30 天没有回答"}[row.state]}</small>
     </div>
     {answer && <div className="probe-answer">
-      {answer.state === "ok" ? <FormattedAnswer detail={answer.detail} /> : <p>{answer.detail.error || "尚未取得回答"}</p>}
+      {answer.detail?.model && <p className="caption">回答模型 · {answer.detail.model}</p>}
+      {answer.state === "ok" ? <FormattedAnswer detail={answer.detail} /> : <p>{answer.detail?.error || "尚未取得回答"}</p>}
     </div>}
     {error && <p role="alert">{error}</p>}
   </li>;
@@ -82,7 +86,7 @@ export function BrandQuestions({domain, at}) {
   const missing = data?.targetCount - (data?.rows?.length || 0);
   return <Panel className="brand-questions">
     <h2>客户搜索问题与官网引用率</h2>
-    <p className="caption">{domain} · 通义千问 qwen-plus 联网提问 · 最近 30 天</p>
+    <p className="caption">{domain} · 通义千问 {data?.model} 联网提问 · 最近 30 天</p>
     {data?.rows?.length ? <>
       <p>{data.rows.length} 道客户选型问题。每题请 AI 按该场景的适配程度列出具体平台和推荐理由。</p>
       <strong className="probe-rate">{percent(data.totals.citations,data.totals.observable)}</strong>

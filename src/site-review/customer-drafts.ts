@@ -1,6 +1,6 @@
 import { generateText, Output } from "ai";
 import pLimit from "p-limit";
-import { qwen, qwenOptions } from "../collectors/ai/qwen.ts";
+import { qwen, qwenModel, qwenOptions } from "../collectors/ai/qwen.ts";
 import { questionAnchors, type Profile } from "./grounded-probes.ts";
 
 type Slot = {intent:string; index:number};
@@ -26,7 +26,7 @@ export async function customerDrafts(key: string, profile: Profile, slots: Slot[
     groups.push(limit(async () => {
       try {
         const {text} = await generateText({
-          model:qwen(key).chatModel("qwen-plus"),output:Output.json(),providerOptions:qwenOptions,
+          model:qwen(key).chatModel(qwenModel),output:Output.json(),providerOptions:qwenOptions,
           system:instructions,prompt:JSON.stringify({category:profile.identity.category,
             audience:profile.impression,tasks:group}),
           maxOutputTokens:1400,maxRetries:1,abortSignal:AbortSignal.timeout(45000),

@@ -1,3 +1,4 @@
+import { qwenSearchModel } from "../collectors/ai/qwen.ts";
 import type { Monitor } from "../domain/monitor.ts";
 import type { Env } from "../runtime/env.ts";
 import { json } from "../runtime/response.ts";
@@ -37,7 +38,7 @@ export async function prepareQuestions(env: Env, at: number, domain: string) {
     const dailyIntents = new Set(schedules.results.map(row => row.intent));
     const now = Date.now();
     const inserted = await env.DB.batch(probes.map(({question,mode,section,quote,id,intent}) => {
-      const probe: Monitor = {...m, id, model:"qwen-plus", daily:dailyIntents.has(intent), question, brandPrompt:{at,intent,mode,section,quote,version:customerQuestionVersion}};
+      const probe: Monitor = {...m, id, model:qwenSearchModel, daily:dailyIntents.has(intent), question, brandPrompt:{at,intent,mode,section,quote,version:customerQuestionVersion}};
       return env.DB.prepare(`INSERT INTO monitors(id,config,due) SELECT ?1,?2,?3 WHERE EXISTS
         (SELECT 1 FROM website_reports WHERE domain=?5 AND report->>'at'=?4) ON CONFLICT(id) DO NOTHING`)
         .bind(probe.id,JSON.stringify(probe),now,at,domain);

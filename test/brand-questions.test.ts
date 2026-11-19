@@ -11,13 +11,13 @@ import { brandQuestionIntents, customerQuestionVersion } from "../src/domain/bra
 import { fixture } from "./d1-fixture.ts";
 
 const source = [{index:1,url:"https://example.com"}, {index:2,url:"https://other.com/path"}];
-const monitor = {id:"demo",brand:"例子",domain:"example.com",model:"qwen-plus",aliases:[],rivals:[],
+const monitor = {id:"demo",brand:"例子",domain:"example.com",model:"qwen-flash",aliases:[],rivals:[],
   question:"有哪些适合零售团队的系统？",channel:"通义千问 API",daily:false};
 test("联网采集保存原始响应，只把答案实际角标映射到来源，不把搜索候选计入",async t => {
   const raw = {request_id:"req",output:{choices:[{finish_reason:"stop",message:{role:"assistant",content:"答复[ref_2]"}}],
     search_info:{search_results:source}},usage:{input_tokens:10,output_tokens:10}};
   t.mock.method(globalThis,"fetch",async (_url,init) => {
-    const body=JSON.parse(init.body);assert.equal(body.parameters.search_options.enable_citation,true);
+    const body=JSON.parse(init.body);assert.equal(body.model,"qwen-flash");assert.equal(body.parameters.search_options.enable_citation,true);
     assert.deepEqual(body.input.messages,[{role:"user",content:monitor.question}]);
     return Response.json(raw);
   });
@@ -41,6 +41,7 @@ for (const previous of [0,3]) {
       let calls=0;
       t.mock.method(globalThis,"fetch",async(_url,init)=>{
         calls++;
+        assert.equal(JSON.parse(init.body).model,"qwen3.7-flash");
         const message=JSON.parse(init.body).messages.at(-1).content;
         const tasks=JSON.parse(typeof message === "string" ? message : message[0].text).tasks;
         return Response.json({id:"req",model:"qwen3.7-flash",choices:[{index:0,finish_reason:"stop",
