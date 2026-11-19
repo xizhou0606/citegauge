@@ -71,7 +71,7 @@ export function SiteReport({ report, actions, onAnalyze, onExpand, onIndustry })
               官网诊断
             </Tabs.Trigger>
             {!report.monitor && <Tabs.Trigger value="industry"><Layers size={16} />竞品对比</Tabs.Trigger>}
-            {report.monitor && <Tabs.Trigger value="questions">品牌提问</Tabs.Trigger>}
+            {report.monitor && <Tabs.Trigger value="questions">客户搜索问题</Tabs.Trigger>}
             <Tabs.Trigger value="prompt" data-reader="prompt">
               <CodeXml size={16} />
               AI 修改提示词

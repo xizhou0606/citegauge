@@ -35,7 +35,8 @@ export async function readWorkspace(
     return json({
       platforms,
       monitors,
-      sites: (await db.query(`SELECT domain,report->>'url' AS url,report->>'$.identity.brand' AS brand
+      sites: (await db.query(`SELECT domain,report->>'url' AS url,report->>'$.identity.brand' AS brand,
+        CASE WHEN json_type(report,'$.monitor')='object' THEN report->>'at' END AS questionsAt
         FROM website_reports ORDER BY started DESC`)).rows,
       runs,
       models: Object.fromEntries(models),

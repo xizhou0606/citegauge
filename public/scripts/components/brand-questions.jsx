@@ -30,7 +30,7 @@ function Question({row, reload}) {
   return <li className="brand-probe">
     <header><strong>{row.intent}</strong><span>{percent(row.citations,row.observable)} · 官网被引 {row.citations} / 可判定 {row.observable}</span></header>
     <p>{row.question}</p>
-    <p className="caption">官网依据 · {row.section} · {row.quote}</p>
+    <details className="caption"><summary>出题依据 · {row.section}</summary><p>{row.quote}</p></details>
     <div className="probe-actions">
       {row.sample && !pending && <SmallButton aria-expanded={!!answer} onClick={show}>{answer ? "收起回答" : "阅读最近回答"}</SmallButton>}
       <SmallButton disabled={busy || pending} onClick={ask}>{busy || pending ? "正在提问…" : "再问一次"}</SmallButton>
@@ -81,20 +81,13 @@ export function BrandQuestions({domain, at}) {
   if (!data?.rows?.length && !data?.canStartAt && !error) return null;
   const missing = data?.targetCount - (data?.rows?.length || 0);
   return <Panel className="brand-questions">
-    <h2>品牌提问与官网引用率</h2>
+    <h2>客户搜索问题与官网引用率</h2>
     <p className="caption">{domain} · 通义千问 qwen-plus 联网提问 · 最近 30 天</p>
     {data?.rows?.length ? <>
-      {["官网定向","同类选型"].map(mode => {
-        const rows = data.rows.filter(r => r.mode === mode);
-        const sum = key => rows.reduce((total,row) => total + row[key],0);
-        return <section className="mt-6 border-t pt-4" key={mode}>
-          <h3>{mode} · {rows.length} 道</h3>
-          <p>{mode === "官网定向" ? "问题给出品牌和网址，衡量回答引用官网的频率。" : "问题保留官网描述的使用场景，衡量未点名时官网被引用的频率。"}</p>
-          <strong className="probe-rate">{percent(sum("citations"),sum("observable"))}</strong>
-          <p>官网被引 {sum("citations")} 份 / 可判定 {sum("observable")} 份 · 来源不可判定 {sum("valid")-sum("observable")} 份</p>
-          <ol>{rows.map(row => <Question key={row.id + (row.sample || "")} row={row} reload={reload} />)}</ol>
-        </section>;
-      })}
+      <p>模拟潜在客户在 AI 中搜索。以下 {data.rows.length} 道问题均根据网站定位和客户需求生成。</p>
+      <strong className="probe-rate">{percent(data.totals.citations,data.totals.observable)}</strong>
+      <p>官网被引 {data.totals.citations} 份 / 可判定 {data.totals.observable} 份 · 来源不可判定 {data.totals.valid-data.totals.observable} 份</p>
+      <ol>{data.rows.map(row => <Question key={row.id + (row.sample || "")} row={row} reload={reload} />)}</ol>
     </> : null}
     {(busy || data?.queued) && missing > 0 && <p role="status">正在根据官网模块生成 {missing} 道问题并安排提问…</p>}
     {error && <p role="alert">{error} <SmallButton onClick={reload}>重试</SmallButton></p>}

@@ -1,4 +1,4 @@
-import { brandQuestionIntents } from "../domain/brand-question-intents.ts";
+import { brandQuestionIntents, customerQuestionVersion } from "../domain/brand-question-intents.ts";
 import { json } from "../runtime/response.ts";
 
 export async function brandQuestionStats(db: D1Database, params: URLSearchParams) {
@@ -10,7 +10,7 @@ export async function brandQuestionStats(db: D1Database, params: URLSearchParams
   if (at !== null && !Number.isSafeInteger(at)) return json({error:"报告时间无效"},400);
   const end = Date.now(), start = Math.floor(end/86400000)*86400000-29*86400000;
   const {results: rows} = await db.prepare(`WITH probes AS (
-    SELECT id,config,due,sequence FROM monitors WHERE config->>'domain'=?1 AND config->>'$.brandPrompt.version'=2 AND config->>'$.brandPrompt.at'=COALESCE(?2,
+    SELECT id,config,due,sequence FROM monitors WHERE config->>'domain'=?1 AND config->>'$.brandPrompt.version'=?5 AND config->>'$.brandPrompt.at'=COALESCE(?2,
       (SELECT MAX(config->>'$.brandPrompt.at') FROM monitors WHERE config->>'domain'=?1)))
     SELECT m.id,m.config->>'question' AS question,m.config->>'$.brandPrompt.intent' AS intent,
       m.config->>'$.brandPrompt.mode' AS mode,m.config->>'$.brandPrompt.section' AS section,m.config->>'$.brandPrompt.quote' AS quote,
@@ -21,7 +21,7 @@ export async function brandQuestionStats(db: D1Database, params: URLSearchParams
       COALESCE((SELECT state FROM runs WHERE monitor=m.id AND at BETWEEN ?3 AND ?4 ORDER BY at DESC,id DESC LIMIT 1),
         CASE WHEN m.due>0 THEN 'queued' ELSE 'empty' END) AS state
     FROM probes m LEFT JOIN runs r ON r.monitor=m.id AND r.at BETWEEN ?3 AND ?4 GROUP BY m.id ORDER BY m.sequence`)
-    .bind(domain,at,start,end).all<{id:string;question:string;intent:string;valid:number;observable:number;citations:number;sample:string|null;state:string}>();
+    .bind(domain,at,start,end,customerQuestionVersion).all<{id:string;question:string;intent:string;valid:number;observable:number;citations:number;sample:string|null;state:string}>();
   const totals = rows.reduce((t,r) => ({valid:t.valid+r.valid,observable:t.observable+r.observable,citations:t.citations+r.citations}),
     {valid:0,observable:0,citations:0});
   const job = await db.prepare("SELECT due FROM website_question_jobs WHERE domain=?1 AND revision=?2").bind(domain,at).first<{due:number}>();

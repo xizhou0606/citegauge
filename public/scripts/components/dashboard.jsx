@@ -42,8 +42,8 @@ function Dashboard({ view, m, report, industry, ready, refresh, onCreate, route 
         } : undefined} />}
       {view === "competitors" && mentions && <Competitors m={m} report={report} filter={filter} />}
       {view === "sources" && <>
-        <CurrentAnswer key={report.latestAnswer || m.id} sample={report.latestAnswer} question={m.question} />
         {m.channel === "通义千问 API" && <BrandQuestions domain={m.domain} />}
+        <CurrentAnswer key={report.latestAnswer || m.id} sample={report.latestAnswer} question={m.question} />
         <Sources report={report} filter={filter} />
       </>}
       {view === "evidence" && (
@@ -75,10 +75,11 @@ function EmptyMonitor({ create, domain }) {
     </Panel>
   );
 }
-export async function renderDashboard(view, m, ready, refresh, onCreate, domain) {
+export async function renderDashboard(view, m, ready, refresh, onCreate, domain, questionsAt) {
   const request = ++sequence;
   if (view === "website") return panel.render(null);
   if (view === "crawlers") return panel.render(<CrawlerInspection key={domain || "custom"} domain={domain} monitor={m} />);
+  if (!m && questionsAt) return panel.render(<BrandQuestions key={domain} domain={domain} at={questionsAt} />);
   if (!m) return panel.render(<EmptyMonitor create={onCreate} domain={domain} />);
   panel.render(
     <p className="empty" role="status">

@@ -1,3 +1,4 @@
+import { customerQuestionVersion } from "../../../src/domain/brand-question-intents.ts";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { WorkspaceSelect } from "./workspace-select.jsx";
@@ -36,7 +37,7 @@ export function Scope({
     return <div className="scope-title"><div><h1 tabIndex={-1}>{title}</h1><p>{descriptions.crawlers}</p></div></div>;
   }
   const items = monitors.filter((m) => m.channel === channel);
-  const label = (m) => [m.brandPrompt && !m.brandPrompt.version ? "历史问题" : m.brandPrompt?.mode, m.model, m.question].filter(Boolean).join(" · ");
+  const label = (m) => [m.brandPrompt && m.brandPrompt.version !== customerQuestionVersion ? "历史问题" : m.brandPrompt?.mode, m.model, m.question].filter(Boolean).join(" · ");
   const frequencies = new Map();
   for (const m of items) frequencies.set(label(m), (frequencies.get(label(m)) || 0) + 1);
   return (

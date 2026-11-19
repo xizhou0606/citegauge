@@ -1,4 +1,5 @@
 import { importCrawlerLogs } from "./crawlers.ts";
+import { historicalProbe } from "../domain/brand-question-intents.ts";
 import pLimit from "p-limit";
 import { runQuestionJob } from "../site-review/question-queue.ts";
 import { sendReport } from "../delivery/report.ts";
@@ -32,6 +33,10 @@ export class Workspace {
     );
     const limit = pLimit(3);
     const samples = rows.map(r => limit(async () => {
+      if (historicalProbe(r.config)) {
+        await db.query("UPDATE monitors SET due=0 WHERE id=?1 AND due=?2",[r.id,r.due]);
+        return;
+      }
       await collectOnce(
         db,
         this.env,
@@ -101,6 +106,8 @@ export class Workspace {
     );
     if (!rows.length) return json({ error: "监测项不存在" }, 404);
     const m: Monitor = rows[0].config;
+    if (historicalProbe(m) && (path === "/api/sample" || (path === "/api/schedule" && b.daily === true)))
+      return json({error:"此题已归档，请在回答与引用中选择客户搜索问题。"},409);
     if (path === "/api/crawler-logs") return importCrawlerLogs(db, m.domain, b.log);
     if (path === "/api/send-report") return sendReport(db, this.env, m, b);
     if (path === "/api/schedule" && m.channel.endsWith("API")) {

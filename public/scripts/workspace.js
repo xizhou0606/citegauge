@@ -5,6 +5,7 @@ import { api, requestJSON } from "./core/api.js";
 import { createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { readEvidenceRoute } from "./core/evidence-route.js";
+import { customerQuestionVersion } from "../../src/domain/brand-question-intents.ts";
 import { Scope } from "./components/scope.jsx";
 import { renderDashboard } from "./components/dashboard.jsx";
 
@@ -67,7 +68,9 @@ async function refreshView() {
     chooseSite(value).catch(e => status(e.message))}));
   websiteReview.scope(domain, view === "website");
   const monitors = siteMonitors();
-  const selected = monitors.find(m => m.id === active);
+  const questionsAt = view === "sources" && channel === "通义千问 API" && sites.find(s => s.domain === domain)?.questionsAt;
+  const choices = questionsAt ? monitors.filter(m => m.brandPrompt?.version === customerQuestionVersion && m.brandPrompt.at === questionsAt) : monitors;
+  const selected = choices.find(m => m.id === active) || (questionsAt ? choices[0] : undefined);
   const siteView = view === "crawlers" || (view === "competitors" && !location.hash.includes("section=mentions"));
   const monitor = selected || (siteView ? monitors[0] : undefined);
   scope.render(
@@ -82,8 +85,8 @@ async function refreshView() {
         select(next, first?.channel || next.channels[0], first?.id).catch((e) => status(e.message));
       },
       channel,
-      active,
-      monitors,
+      active:selected?.id,
+      monitors:choices,
       onChannel: (c) => select(platform, c).catch((e) => status(e.message)),
       onMonitor: (id) => select(platform, channel, id).catch((e) => status(e.message)),
     }),
@@ -95,6 +98,7 @@ async function refreshView() {
     () => load(active),
     create,
     domain,
+    questionsAt,
   );
 }
 async function load(id, requestedDomain) {

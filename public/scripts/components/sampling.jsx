@@ -1,3 +1,4 @@
+import { historicalProbe } from "../../../src/domain/brand-question-intents.ts";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +26,7 @@ export function Sampling({ m, ready, refresh }) {
     const run = await api("evidence/" + id + "?view=answer");
     status(run.state === "failed" ? run.detail.error : "样本已记录");
   }
+  if (historicalProbe(m)) return <small>历史问题已归档，原始回答可在样本复核中查看。</small>;
   if (!m.channel.endsWith("网页"))
     return (
       <>

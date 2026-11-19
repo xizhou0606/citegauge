@@ -38,10 +38,10 @@ for (const previous of [0,3]) {
         modules:[{name:"工单",evidence:"跨门店分派工单"}]};
       const fallback=brandQuestionIntents.map((_,i)=>fallbackProbe(profile,i));
       assert.equal(new Set(fallback.map(p=>p.question)).size,12);
-      assert.ok(fallback.every(p=>p.question.includes("跨门店分派工单")&&p.question.includes("客服工具")));
+      assert.ok(fallback.every(p=>!p.question.includes("跨门店分派工单")&&p.question.includes("客服工具")));
       const drafts=questions.map(question=>({anchor:0,question}));
-      assert.throws(()=>groundedProbe(profile,0,{...drafts[0],anchor:42}));
-      assert.throws(()=>groundedProbe(profile,1,{...drafts[0],question:"例子这个产品好用吗？"}));
+      assert.throws(()=>groundedProbe(profile,{...drafts[0],anchor:42}));
+      assert.throws(()=>groundedProbe(profile,{...drafts[0],question:"例子这个产品好用吗？"}));
       let calls=0;
       t.mock.method(globalThis,"fetch",async()=>{
         calls++;
@@ -53,10 +53,13 @@ for (const previous of [0,3]) {
       const workspace=new Workspace(ctx,env);
       env.WORKSPACE={idFromName:()=>1,get:()=>({fetch:(url,init)=>workspace.fetch(new Request(url,init))})};
       await f.pool.query("INSERT INTO website_reports VALUES('example.com',1,?1)",[profile]);
+      const legacy={...monitor,id:"legacy",question:"请分析例子官网",brandPrompt:{at:1,intent:"历史",version:2}};
+      await f.pool.query("INSERT INTO monitors(id,config,due) VALUES(?1,?2,0)",[legacy.id,legacy]);
+      await f.pool.query("INSERT INTO runs(id,monitor,at,state,detail) VALUES('legacy-hit',?1,?2,'ok',?3)",[legacy.id,Date.now(),{cited:true}]);
       for (let i=0;i<previous;i++) {
-        const id="demo-probe-1-v2-"+i;
-        const {question,...basis}=groundedProbe(profile,i,drafts[i]);
-        const config={...monitor,id,question,brandPrompt:{at:1,intent:brandQuestionIntents[i],version:2,...basis}};
+        const id="demo-probe-1-v3-"+i;
+        const {question,...basis}=groundedProbe(profile,drafts[i]);
+        const config={...monitor,id,question,brandPrompt:{at:1,intent:brandQuestionIntents[i],version:3,...basis}};
         await f.pool.query("INSERT INTO monitors(id,config,due) VALUES(?1,?2,0)",[id,config]);
         await f.pool.query("INSERT INTO runs(id,monitor,at,state,detail) VALUES(?1,?2,?3,'ok',?4)",
           ["r"+i,id,Date.now(),{cited:[true,false,null][i]}]);
@@ -69,12 +72,12 @@ for (const previous of [0,3]) {
       await runQuestionJob(env);
       assert.equal(calls,1);
       const probes=(await f.pool.query("SELECT due FROM monitors ORDER BY sequence")).rows;
-      assert.equal(probes.length,12);
+      assert.equal(probes.length,13);
       assert.equal(probes.filter(r=>r.due>0).length,12-previous);
       const stats=await (await brandQuestionStats(f.binding,new URLSearchParams({domain:monitor.domain}))).json();
       assert.deepEqual(stats.totals,previous ? {valid:3,observable:2,citations:1} : {valid:0,observable:0,citations:0});
       assert.equal(stats.targetCount,12);
-      assert.deepEqual(stats.rows.map(r=>r.question),drafts.map((d,i)=>groundedProbe(profile,i,d).question));
+      assert.deepEqual(stats.rows.map(r=>r.question),drafts.map((d,i)=>groundedProbe(profile,d).question));
     } finally {await f.close();}
   });
 }
@@ -111,7 +114,7 @@ test("采样批次并行执行三项，同样的首次任务不会产生第二�
       return Response.json({request_id:"sample",output:{choices:[{finish_reason:"stop",message:{role:"assistant",content:"答案"}}],search_info:{search_results:[]}}});
     });
     for (let i=0;i<6;i++) {
-      const m={...monitor,id:"test-"+i,brandPrompt:{intent:"测试",at:1}};
+      const m={...monitor,id:"test-"+i,brandPrompt:{intent:"测试",at:1,version:3}};
       await f.pool.query("INSERT INTO monitors(id,config,due) VALUES(?1,?2,1)",[m.id,m]);
     }
     const ctx={blockConcurrencyWhile:fn=>fn(),storage:{setAlarm:async()=>{},deleteAlarm:async()=>{}}};
@@ -120,4 +123,18 @@ test("采样批次并行执行三项，同样的首次任务不会产生第二�
     assert.equal(peak,3); assert.equal(calls,6);
     assert.equal((await f.pool.query("SELECT count(*) AS n FROM runs WHERE state='ok'")).rows[0].n,6);
   } finally {await f.close();}
+});
+
+test("官网材料可含品牌，客户实发问题拒绝品牌、域名和官网标语",() => {
+  const profile={url:"https://example.com",at:1,identity:{category:"招聘筛选工具"},impression:"招聘团队",
+    monitor:{...monitor,aliases:["Demo HR"],rivals:["HireVue"]},competitors:["Northwind"],
+    modules:[{name:"招聘",evidence:"例子让每一份简历都有可追溯的评估记录。"}]};
+  for(const question of ["Demo-HR 和别家差异是什么？","该平台适合谁使用？","去 example.com 看哪种产品？",
+    "HireVue 能评估简历吗？","Northwind 是否支持招聘评估？","请参考 jobs.other.org 来比较工具？",
+    "例子让每一份简历都有可追溯的评估记录。这句话对吗？"]) {
+    assert.throws(()=>groundedProbe(profile,{anchor:0,question}));
+  }
+  const question="招聘团队每天收到很多简历，怎样快速筛出符合岗位要求的人？";
+  assert.equal(groundedProbe(profile,{anchor:0,question}).question,question);
+  assert.ok(fallbackProbe(profile,6).quote.includes("例子"));
 });
