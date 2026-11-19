@@ -51,12 +51,18 @@ export function PublicFooter() {
     </footer>
   );
 }
-const views = [
-  ["website", Globe, "官网分析"],
-  ["competitors", ChartColumn, "竞品对比"],
-  ["monitoring", Activity, "可见度概览"],
-  ["sources", Link2, "回答与引用"],
-  ["traffic", ChartNoAxesCombined, "网站流量"],
+const viewGroups = [
+  { id: "seo", label: "SEO · 官网优化", views: [
+    ["website", Globe, "官网分析"],
+    ["competitors", ChartColumn, "竞品对比"],
+  ] },
+  { id: "geo", label: "GEO · AI 可见度", views: [
+    ["monitoring", Activity, "可见度概览"],
+    ["sources", Link2, "回答与引用"],
+  ] },
+  { id: "traffic", label: "PV / UV", views: [
+    ["traffic", ChartNoAxesCombined, "网站流量"],
+  ] },
 ] as const;
 export function WorkspaceShell({tenant,operator}: {tenant?:string;operator?:boolean} = {}) {
   return (
@@ -66,15 +72,21 @@ export function WorkspaceShell({tenant,operator}: {tenant?:string;operator?:bool
         <Button className="rail-menu-toggle" id="rail-menu-toggle" variant="ghost" aria-expanded="false" aria-controls="rail-tools">
           <Menu size={17} />更多
         </Button>
-        <div className="rail-section">工作台</div>
         <nav className="feature-nav" aria-label="工作台功能">
-          {views.map(([id, Icon, label]) => (
-            <Button asChild variant="ghost" key={id}>
-              <a className="feature-link" href={"#" + id}>
-                <Icon />
-                {label}
-              </a>
-            </Button>
+          {viewGroups.map(({ id, label, views }) => (
+            <section className="feature-group" key={id} aria-labelledby={`nav-${id}`}>
+              <h2 className="feature-heading" id={`nav-${id}`}>{label}</h2>
+              <div className="feature-items">
+                {views.map(([view, Icon, name]) => (
+                  <Button asChild variant="ghost" key={view}>
+                    <a className="feature-link" href={"#" + view}>
+                      <Icon aria-hidden="true" />
+                      {name}
+                    </a>
+                  </Button>
+                ))}
+              </div>
+            </section>
           ))}
         </nav>
         <div className="rail-foot" id="rail-tools">

@@ -29,7 +29,7 @@
 .module-select { display: none; }
 .reader-module { padding: clamp(16px,2vw,28px); }
 .reader-module header { padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-.reader-module h3 { margin-top: 3px; font-size: clamp(20px,2vw,26px); font-weight: 650; }
+.reader-module h3 { margin-top: 3px; font-size: var(--type-section); font-weight: 650; }
 .module-findings { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-block: 18px; }
 .finding { padding: 15px; border-radius: 8px; }
 .finding h4 { display: flex; gap: 7px; align-items: center; font-weight: 650; margin-bottom: 7px; }

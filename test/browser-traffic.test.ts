@@ -13,7 +13,7 @@ test("浏览器 PV 按站点与租户隔离，重复投递去重，且不会增�
   await manage(tenant,"POST");
   const env = {DB:central.binding,TENANT_ALPHA:tenant.binding,BROWSER_VISIT_LIMIT:{limit:async()=>({success:true})}};
   const request = (suffix="",id="1",domain="pm.example.com") => new Request("https://cg.example/collect/browser/v1"+suffix,{
-    method:"POST", headers:{origin:"https://"+domain,"content-type":"text/plain","user-agent":"Mozilla/5.0 Chrome/130.0.0.0 Safari/537.36"},
+    method:"POST", headers:{origin:"https://"+domain,"content-type":"text/plain","user-agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1"},
     body:id.repeat(32)+"."+"a".repeat(32)
   });
   for (const req of [request(),request("?workspace=alpha"),request("?workspace=alpha"),
@@ -25,6 +25,8 @@ test("浏览器 PV 按站点与租户隔离，重复投递去重，且不会增�
   assert.equal(stats.browser.pv,2);
   assert.equal(stats.browser.uv,1);
   assert.ok(stats.browser.lastSeen);
+  const devices = await tenant.binding.prepare("SELECT DISTINCT device FROM browser_pageviews").all();
+  assert.deepEqual(devices.results,[{device:"phone"}]);
   assert.equal(stats.pv,0);
   assert.equal(stats.lastSeen,null);
   assert.equal((await (await manage(central)).json()).browser.pv,0);

@@ -58,7 +58,7 @@
   margin: 20px 0 16px;
 }
 .monitor-head h2 {
-  font-size: clamp(19px, 1.65vw, 26px);
+  font-size: var(--type-section);
   margin: 4px 0 6px;
 }
 .brand-domain {
@@ -105,7 +105,7 @@
 }
 .empty-platform h2 {
   margin: 0 0 12px;
-  font-size: clamp(22px, 2.3vw, 32px);
+  font-size: var(--type-section);
 }
 .empty-platform p { color: var(--muted-foreground); font-size: 14px; max-width: 26em; }
 .empty-platform button { margin-top: 6px; }

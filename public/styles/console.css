@@ -3,6 +3,7 @@
 @import url("./monitor-views.css");
 @import url("./reports.css");
 @import url("./forms.css");
+@import url("./traffic.css");
 .console {
   display: grid;
   grid-template-columns: 216px minmax(0, 1fr);
@@ -45,7 +46,7 @@
   justify-content: flex-start;
 }
 .feature-nav .feature-link {
-  font-size: 15px;
+  font-size: var(--type-body);
   margin-bottom: 5px;
 }
 .feature-nav .feature-link[aria-current="page"] {

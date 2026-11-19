@@ -43,7 +43,7 @@ export function CrawlerVisits({ monitor }) {
   const total = query.detail === "bots" ? botTotal : totals[query.detail].requests;
   return <Panel className="grid gap-4 p-5">
     <header className="flex flex-wrap items-center justify-between gap-3">
-      <h2 className="break-all">爬虫与文件请求</h2>
+      <h2 className="break-all">爬虫与文件请求 · 近 30 天</h2>
       <LogImport monitor={monitor} imported={text => { setMessage(text); setQuery({ page: 1, detail: query.detail }); }} />
     </header>
     <p>按请求的 User-Agent 识别爬虫，来源身份未经验证。次数包含抓取失败的请求。</p>

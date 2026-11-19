@@ -1,3 +1,4 @@
+import { trafficReport } from "./traffic.ts";
 import { json } from "../runtime/response.ts";
 
 export async function tokenHash(token: string) {
@@ -12,6 +13,7 @@ export async function manageSdk(req: Request, db: D1Database, tenant?: string) {
   if (!monitor) return json({error:"请选择已有官网监测项"},404);
   const domain = monitor.domain;
   if (req.method === "GET") {
+    if (url.searchParams.has("days")) return trafficReport(db,domain,Number(url.searchParams.get("days")));
     const since = Date.now()-30*86400000;
     const [site,stats,browser,browserStats] = await db.batch<Record<string,number|null>>([
       db.prepare("SELECT last_seen FROM sdk_sites WHERE domain=?").bind(domain),

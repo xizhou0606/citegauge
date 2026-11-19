@@ -26,7 +26,7 @@ body > .login-page {
 .login-content a { color: var(--muted-foreground); text-decoration: none; }
 .login-content a:hover { color: var(--primary); text-decoration: underline; }
 .login-box { width: min(100%, 390px); padding-block: 60px; }
-.login-box h1 { font-size: clamp(32px, 3.2vw, 48px); line-height: 1.2; letter-spacing: -.055em; }
+.login-box h1 { font-size: var(--type-page-title); line-height: 1.2; letter-spacing: -.055em; }
 .login-intro { margin: 14px 0 36px; font-size: 14px; color: var(--muted-foreground); }
 #login-form, .login-field { display: grid; }
 #login-form { gap: 22px; }

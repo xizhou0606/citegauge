@@ -20,6 +20,14 @@ async function payload(req: Request) {
   } finally { await reader.cancel(); }
 }
 
+function deviceType(headers: Headers, agent: string) {
+  if (/iPad|Tablet|Kindle|Silk\//i.test(agent)) return "tablet";
+  if (headers.get("sec-ch-ua-mobile") === "?1" || /Mobile|iPhone|iPod|Windows Phone/i.test(agent)) return "phone";
+  if (/Android/i.test(agent)) return "tablet";
+  if (/Windows NT|Macintosh|X11|CrOS/i.test(agent)) return "desktop";
+  return "unknown";
+}
+
 export async function browserVisit(req: Request, env: Env) {
   const origin = req.headers.get("origin") ?? "";
   const match = /^https:\/\/([a-z0-9.-]+)$/.exec(origin);
@@ -30,7 +38,8 @@ export async function browserVisit(req: Request, env: Env) {
   if (!match || !req.headers.get("content-type")?.startsWith("text/plain")) return ack(400);
   const key = req.headers.get("cf-connecting-ip") ?? "unknown";
   if (!(await env.BROWSER_VISIT_LIMIT.limit({key})).success) return ack(429);
-  if (isbot(req.headers.get("user-agent") ?? "")) return ack(204);
+  const agent = req.headers.get("user-agent") ?? "";
+  if (isbot(agent)) return ack(204);
   const tenant = new URL(req.url).searchParams.get("workspace");
   if (tenant !== null && !tenantKey.test(tenant)) return ack(400);
   const ids = await payload(req);
@@ -40,8 +49,8 @@ export async function browserVisit(req: Request, env: Env) {
   const domain = match[1].replace(/^www\./,"");
   const now = Date.now();
   await db.batch([
-    db.prepare(`INSERT OR IGNORE INTO browser_pageviews(domain,event_id,visitor,at)
-      SELECT domain,?,?,? FROM browser_sites WHERE domain=?`).bind(ids[1],ids[2],now,domain),
+    db.prepare(`INSERT OR IGNORE INTO browser_pageviews(domain,event_id,visitor,at,device)
+      SELECT domain,?,?,?,? FROM browser_sites WHERE domain=?`).bind(ids[1],ids[2],now,deviceType(req.headers,agent),domain),
     db.prepare("UPDATE browser_sites SET last_seen=? WHERE domain=?").bind(now,domain),
   ]);
   return ack(204);

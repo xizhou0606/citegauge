@@ -15,7 +15,7 @@
 .industry-intro, .industry-block > header, .industry-shot figcaption {
   justify-content: space-between;
 }
-.industry-report .industry-intro h2 { font-size: clamp(21px, 2vw, 28px); font-weight: 700; }
+.industry-report .industry-intro h2 { font-size: var(--type-section); font-weight: 700; }
 .industry-intro p, .industry-block > p, .industry-queries, .industry-source, .industry-shot a {
   font-size: 14px;
   color: var(--muted-foreground);

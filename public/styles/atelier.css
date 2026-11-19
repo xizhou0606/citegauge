@@ -11,10 +11,10 @@ a.brand:not([data-slot="button"]) { color: var(--foreground); }
 .public-main .hero { display: grid; grid-template-columns: minmax(0,.96fr) minmax(0,1fr);
   align-items: center; gap: clamp(28px,6vw,96px); padding-block: clamp(40px,5vw,82px); }
 .intro { min-width: 0; }
-.hero h1 { font: 750 clamp(43px,5.1vw,78px)/1.12 var(--display); letter-spacing: -.065em; }
+.hero h1 { font: 750 clamp(2.25rem,4vw,3.75rem)/1.12 var(--display); letter-spacing: -.065em; }
 .hero h1 em { font: inherit; color: var(--primary); background: linear-gradient(108deg,#244ada 25%,#7944cc 95%);
   background-clip: text; -webkit-text-fill-color: transparent; }
-.intro p { font-size: clamp(15px,1.2vw,18px); color: var(--muted-foreground); }
+.intro p { font-size: clamp(.875rem,1.1vw,1rem); color: var(--muted-foreground); }
 .site-input { align-items: center; padding: 5px; background: white; border: 1px solid #c8cee0; border-radius: 12px; box-shadow: 0 3px 10px #273a6c09; }
 .site-input:focus-within { box-shadow: 0 0 0 3px #5260ef21; border-color: var(--ring); }
 .site-input input { background: transparent; border: 0; box-shadow: none; outline: none; height: 40px; }
@@ -25,7 +25,7 @@ a.brand:not([data-slot="button"]) { color: var(--foreground); }
 .text-action:hover { text-decoration: underline; }
 .actions .text-action:last-child { color: var(--muted-foreground); }
 .resources { padding: 25px 0 40px; }
-.resources h2 { font-size: 24px; margin: 0 0 16px; }
+.resources h2 { font-size: var(--type-section); margin: 0 0 16px; }
 .guides { gap: 14px; }
 .guides .guide-card { align-items: start; padding: 18px; border: 1px solid var(--border); border-radius: 12px; background: white; }
 .guide-card h3 { margin: 0 0 4px; }
@@ -48,7 +48,7 @@ body > .login-page { background: white; }
 #login-submit:hover { background: #283dbf; }
 @media(max-width:780px) {
   .public-main .hero { grid-template-columns: minmax(0,1fr); padding-block: 32px; gap: 28px; }
-  .hero h1 { font-size: clamp(43px,8vw,60px); margin-bottom: 15px; }
+  .hero h1 { font-size: clamp(2.125rem,7vw,3rem); margin-bottom: 15px; }
   .actions { gap: 16px; }
   .public-header { min-height: 62px; }
   .guides { gap: 8px; }

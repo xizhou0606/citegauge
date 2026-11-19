@@ -35,7 +35,7 @@
 .kpi strong {
   display: block;
   font:
-    500 clamp(26px, 2.5vw, 39px)/1.16 "Inter",
+    500 var(--type-metric)/1.16 "Inter",
     system-ui,
     sans-serif;
   letter-spacing: -0.05em;

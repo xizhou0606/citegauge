@@ -1,6 +1,6 @@
 #website-panel { max-width: 1260px; margin-inline: auto; }
 #website-entry { max-width: 760px; margin-bottom: 28px; }
-#website-entry h1 { font-size: clamp(26px, 3vw, 38px); }
+#website-entry h1 { font-size: var(--type-page-title); }
 .site-input { display: flex; gap: 8px; max-width: 680px; }
 .site-input input { min-width: 0; }
 .site-input button { flex: none; }
@@ -16,7 +16,7 @@
 .reader-heading, .reader-toolbar { justify-content: space-between; }
 .reader-heading { padding: 6px 0 25px; align-items: flex-start; }
 .reader-kicker { margin-bottom: 6px; color: var(--signal); font-size: 13px; font-weight: 650; }
-.reader-heading h1 { font-size: clamp(30px, 3vw, 46px); line-height: 1.15; letter-spacing: -.035em; }
+.reader-heading h1 { font-size: var(--type-page-title); line-height: 1.15; letter-spacing: -.035em; }
 .reader-meta { margin-top: 12px; flex-wrap: wrap; font-size: 13px; color: var(--muted-foreground); }
 .reader-meta a, .review-shot span { display: inline-flex; align-items: center; gap: 4px; }
 .reader-meta time { border-left: 1px solid var(--border); padding-left: 12px; }
@@ -44,7 +44,7 @@
   background: color-mix(in srgb, var(--signal) 5%, var(--card));
 }
 .reader-summary:not(:has(.review-shot)) { grid-template-columns: 1fr; }
-.reader-summary h2, .module-review-title h2 { font-size: clamp(20px, 2vw, 26px); }
+.reader-summary h2, .module-review-title h2 { font-size: var(--type-section); }
 .reader-summary p { margin-top: 10px; max-width: 54em; line-height: 1.85; white-space: pre-line; }
 .review-shot {
   position: relative;

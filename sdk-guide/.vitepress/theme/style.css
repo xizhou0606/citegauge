@@ -16,6 +16,10 @@
   --vp-c-bg-alt: #14151e;
   --vp-c-text-1: #e6e8f1;
 }
+.vp-doc { font-size: .9375rem; }
+.vp-doc h1 { font-size: clamp(1.5rem, 2.3vw, 1.875rem); line-height: 1.25; }
+.vp-doc h2 { font-size: 1.25rem; }
+.vp-doc h3 { font-size: 1.0625rem; }
 .vp-doc h1, .vp-doc h2 { font-family: var(--vp-font-family-base); }
 @media(prefers-reduced-motion:no-preference) {
   .VPDoc .content-container { animation: doc-arrive .3s ease-out; }
