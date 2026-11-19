@@ -12,10 +12,10 @@ description: 安装 citegauge v0.1.0，在 Node.js HTTP/1 服务启动时加载�
 
 ## 安装
 
-需要 Node.js 22.18 或更高版本。在网站项目中用 npm 安装 v0.1.0 正式构建包。
+需要 Node.js 22.18 或更高版本。在网站项目中从公共 npm registry 安装 v0.1.0。
 
 ```sh
-npm install https://citegauge.liushurui0606.workers.dev/sdk/citegauge-0.1.0.tgz
+npm install citegauge@0.1.0
 ```
 
 ## 绑定官网
