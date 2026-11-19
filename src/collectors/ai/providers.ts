@@ -1,4 +1,4 @@
-import { qwen, qwenModel, qwenOptions, qwenSearchModel } from "./qwen.ts";
+import { qwen, qwenModel, qwenOptions } from "./qwen.ts";
 import { createMoonshotAI } from "@ai-sdk/moonshotai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
@@ -26,7 +26,7 @@ export const adapters: Record<ApiChannel, Adapter> = {
   },
   "通义千问 API": {
     vendor: "DASHSCOPE",
-    defaults: [qwenModel, qwenSearchModel, "qwen-plus"],
+    defaults: [qwenModel, "qwen-flash", "qwen-plus"],
     collect(key, model, question) {
       return textSample(qwen(key).chatModel(model), question,
         model === qwenModel ? { providerOptions: qwenOptions } : {});

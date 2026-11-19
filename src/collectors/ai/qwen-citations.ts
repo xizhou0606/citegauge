@@ -1,5 +1,7 @@
 import { createAlibaba } from "@ai-sdk/alibaba";
 import { generateText } from "ai";
+import { qwenSearchModel } from "./qwen.ts";
+import { liveSearch } from "./qwen-live-search.ts";
 import { z } from "zod";
 import { httpURL } from "../../domain/url.ts";
 import { rawEvidence, samplingSettings } from "./settings.ts";
@@ -24,6 +26,10 @@ export function markedSources(answer: string, candidates: unknown) {
 }
 
 export async function collectBrandQuestion(key: string, model: string, question: string) {
+  if (model === qwenSearchModel) {
+    const {answer,results,raw,searchedAt} = await liveSearch(key,question,"在用到来源的陈述后注明对应的 [ref_编号]。");
+    return {answer,urls:markedSources(answer,results),page:"",model,raw,searchedAt};
+  }
   let raw = "", sources: unknown;
   // The native DashScope protocol exposes the mapping from inline refs to search results.
   const provider = createAlibaba({apiKey: key, fetch: async (_url, init) => {

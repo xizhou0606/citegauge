@@ -29,7 +29,9 @@
 | Gemini | GOOGLE_GENERATIVE_AI_API_KEY | GOOGLE_GENERATIVE_AI_MODEL |
 | Perplexity | PERPLEXITY_API_KEY | PERPLEXITY_MODEL |
 
-官网形象分析使用 Wrangler 的 BROWSER 绑定抓取公开页面的桌面首屏和正文，并用 DASHSCOPE_API_KEY 调用北京地域的 qwen3.7-flash。工作台按官网域名保存报告、截图和行业竞品分析。迁移 0009 将现存官网报告关联到对应网站，创建后台出题队列。行业检索默认复用千问密钥，通过 qwen-flash 联网检索五组查询，再读取候选网页核对证据。也可设置 `BRAVE_SEARCH_API_KEY` 选用 Brave Web Search 摘要。
+官网形象分析使用 Wrangler 的 BROWSER 绑定抓取公开页面的桌面首屏和正文，并用 DASHSCOPE_API_KEY 调用北京地域的 qwen3.7-flash。工作台按官网域名保存报告、截图和行业竞品分析。迁移 0009 将现存官网报告关联到对应网站，创建后台出题队列。行业检索默认复用千问密钥，通过 qwen3.7-flash 联网检索五组查询，再读取候选网页核对证据。也可设置 `BRAVE_SEARCH_API_KEY` 选用 Brave Web Search 摘要。
+
+自动品牌提问使用同一模型的多模态联网接口，记录查询时间、搜索结果和原始响应。缺少搜索结果的请求记为采样失败。检索时间仅说明系统何时发起查询，网页发布时间以原文为准。迁移 0011 为已有问题建立独立的模型记录。
 
 ## 报告发送
 

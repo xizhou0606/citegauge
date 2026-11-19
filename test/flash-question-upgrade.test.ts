@@ -25,8 +25,14 @@ test("Flash 复用已验证的问题及计划，只为新回答计算引用率",
     assert.equal(cloned[0].config.question,prior.question);
     assert.equal(cloned[0].due,0);
     assert.equal(cloned[1].due,now+60000);
+    await f.pool.query("INSERT INTO runs(id,monitor,at,state,detail) VALUES('flash-hit',?1,?2,'ok',?3)",
+      [cloned[1].id,now,{model:"qwen-flash",cited:false}]);
+    const current=await readFile(new URL("../migrations/d1/0011_current_search.sql",import.meta.url),"utf8");
+    for (let i=0;i<2;i++) await f.binding.prepare(current).run();
     const stats=await (await brandQuestionStats(f.binding,new URLSearchParams({domain}))).json();
-    assert.equal(stats.model,"qwen-flash");
+    assert.equal(stats.model,"qwen3.7-flash");
+    assert.equal(stats.rows.length,2);
+    assert.equal(stats.rows[1].previousSample,"flash-hit");
     assert.equal(stats.rows[0].previousSample,"prior-hit");
     assert.deepEqual(stats.totals,{valid:0,observable:0,citations:0});
   } finally {await f.close();}

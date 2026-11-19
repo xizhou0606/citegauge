@@ -8,7 +8,8 @@ export function FormattedAnswer({detail}) {
   const other = (detail.urls || []).filter(url => !refs.some(ref => ref.url === url));
   return <div className="formatted-answer">
     <div className="sample-markdown" dangerouslySetInnerHTML={{__html:markdown(detail.answer,refs)}} />
-    <footer><h3>回答引用的网页</h3>
+    <footer>{detail.searchedAt && <p>联网检索于 {new Date(detail.searchedAt).toLocaleString("zh-CN")}。网页的更新时间请以来源页为准。</p>}
+      <h3>回答引用的网页</h3>
       {refs.map(ref => <p key={ref.index}><a href={ref.url} target="_blank" rel="noreferrer">[{ref.index}] {ref.title}</a></p>)}
       {other.map(url => <p key={url}><a href={url} target="_blank" rel="noreferrer">{url}</a></p>)}
       {detail.urls == null && <p>{refs.length ? "部分标记缺少可核对的网址，本条未计入引用率。" : "本条回答的来源无法判定。"}</p>}

@@ -1,7 +1,7 @@
 import { createAlibaba } from "@ai-sdk/alibaba";
 
 export const qwenModel = "qwen3.7-flash";
-export const qwenSearchModel = "qwen-flash";
+export const qwenSearchModel = qwenModel;
 export const qwenOptions = { alibaba: { enableThinking: false } };
 
 export function qwen(key: string) {

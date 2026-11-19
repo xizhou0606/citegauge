@@ -69,14 +69,13 @@ test("官网分析通过检索与模型生成行业报告，可按域名回读�
 test("千问检索复用账号密钥，启用联网并校验候选网址", async t => {
   const {discoverUrls} = await import("../src/site-review/qwen-search.ts");
   t.mock.method(globalThis, "fetch", async (url, init) => {
-    assert.equal(String(url), "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions");
+    assert.ok(String(url).includes("/multimodal-generation/"));
     const payload = JSON.parse(init.body);
-    assert.equal(payload.model,"qwen-flash");
-    assert.ok(payload.enable_search && payload.search_options.forced_search);
-    return Response.json({id:"fixture", model:"qwen-flash", created:1, choices:[
-      {index:0, finish_reason:"stop", message:{role:"assistant",
-        content:"https://example.com\nhttps://example.com\nhttp://127.0.0.1/"}},
-    ]});
+    assert.equal(payload.model,"qwen3.7-flash");
+    assert.ok(payload.parameters.enable_search && payload.parameters.search_options.forced_search);
+    const frame={request_id:"fixture",output:{search_info:{search_results:[{index:1,url:"https://example.com/"}]},
+      choices:[{finish_reason:"stop",message:{content:[{text:"https://example.com\nhttps://example.com\nhttp://127.0.0.1/"}]}}]}};
+    return new Response("data: " + JSON.stringify(frame) + "\n\n");
   });
   assert.deepEqual(await discoverUrls("演示行业", "demo"), ["https://example.com/"]);
 });
