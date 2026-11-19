@@ -6,10 +6,6 @@
   from { opacity: .65; }
   to { opacity: 1; }
 }
-@keyframes cell-enter {
-  from { transform: scale(.82); opacity: .55; }
-  to { transform: scale(1); opacity: 1; }
-}
 @media (prefers-reduced-motion: no-preference) {
   .public-main, .article, .login-page, .scope-title, .monitor-head,
   .empty-platform, .kpi-grid, .plot-grid, .history, .sample-row,
@@ -20,9 +16,6 @@
   .scope-filters, #history > .empty, #history > button, #login-error:not([hidden]) {
     animation: control-enter 150ms ease-out;
   }
-  .sample-grid i { animation: cell-enter 360ms ease-out backwards; }
-  .sample-grid i:nth-child(n+5) { animation-delay: 55ms; }
-  .sample-grid i:nth-child(n+9) { animation-delay: 110ms; }
 
   .guide-card, .rail .feature-link, .rail-foot a, .rail-foot button {
     transition: color 150ms ease, background-color 150ms ease;

@@ -1,60 +1,58 @@
 @import url("./atelier-workspace.css");
 @import url("./atelier-interaction.css");
 
-:root { --display: "Iowan Old Style", "Songti SC", "Noto Serif CJK SC", "STSong", Georgia, serif; }
-::selection { color: #183b2e; background: #d4e7b9; }
-.brand i { width: 34px; height: 34px; border-radius: 11px; background: var(--primary); color: #fcf7db; }
+::selection { color: #1f2293; background: #dfe3ff; }
+.brand i { width: 34px; height: 34px; border-radius: 10px; background: var(--primary); color: white; }
 .brand i svg { width: 22px; }
+a.brand:not([data-slot="button"]) { color: var(--foreground); }
 .brand b { font-size: 21px; letter-spacing: -.055em; }
-.public-header, .public-footer, body > .public-main { width: min(1512px, 94%); }
-.public-header { border: 0; min-height: 74px; }
-.public-main .hero {
-  display: grid; grid-template-columns: 1fr; position: relative; isolation: isolate; overflow: hidden;
-  margin: 0; padding: clamp(36px, 5vw, 78px); min-height: clamp(430px, 39vw, 635px);
-  background: #e6ebda; border: 1px solid var(--border); border-radius: 26px;
-}
-.coast-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; z-index: -2; }
-.hero::after { content: ""; position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(90deg,#faf7e9 0%,#fbf7e9e8 25%,#f9f5e7a6 44%,transparent 66%); }
-.intro { max-width: min(49%, 36rem); }
-.hero h1 { font-family: var(--display); font-size: clamp(46px,5.3vw,84px); line-height: 1.12; letter-spacing: -.065em; }
-.hero h1 em { font: inherit; color: #2e614c; }
-.intro p { font-size: clamp(15px,1.2vw,18px); color: #344c40; }
-.site-input { align-items: center; padding: 5px; background: #fffef9; border: 1px solid #bac6b5; border-radius: 13px; box-shadow: 0 5px 18px #2136250c; }
-.site-input:focus-within { box-shadow: 0 0 0 3px #6f966533; border-color: var(--ring); }
+.public-header, .public-footer, body > .public-main { width: min(1270px, 92%); }
+.public-header { min-height: 74px; }
+.public-main .hero { display: grid; grid-template-columns: minmax(0,.96fr) minmax(0,1fr);
+  align-items: center; gap: clamp(28px,6vw,96px); padding-block: clamp(40px,5vw,82px); }
+.intro { min-width: 0; }
+.hero h1 { font: 750 clamp(43px,5.1vw,78px)/1.12 var(--display); letter-spacing: -.065em; }
+.hero h1 em { font: inherit; color: var(--primary); background: linear-gradient(108deg,#244ada 25%,#7944cc 95%);
+  background-clip: text; -webkit-text-fill-color: transparent; }
+.intro p { font-size: clamp(15px,1.2vw,18px); color: var(--muted-foreground); }
+.site-input { align-items: center; padding: 5px; background: white; border: 1px solid #c8cee0; border-radius: 12px; box-shadow: 0 3px 10px #273a6c09; }
+.site-input:focus-within { box-shadow: 0 0 0 3px #5260ef21; border-color: var(--ring); }
 .site-input input { background: transparent; border: 0; box-shadow: none; outline: none; height: 40px; }
 .site-input input:focus-visible { box-shadow: none; }
 .site-input button { height: 40px; }
 .actions { margin-top: 18px; }
-.text-action { text-decoration: underline; text-underline-offset: 5px; }
-.public-lower { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(16px,3vw,46px); padding-block: clamp(24px,3.4vw,56px); }
-.report-preview { background: #f0f3e9; padding: clamp(22px,2.5vw,38px); }
-.report-question { margin-block: 14px; }
-.report-reading strong { font-family: var(--display); }
-.resources { border: 0; padding: 5px 0; }
-.resources h2 { font-family: var(--display); font-size: 29px; margin: 0 0 15px; }
-.guides { display: grid; grid-template-columns: 1fr; gap: 9px; }
-.guides .guide-card { align-items: center; padding: 16px; border: 1px solid var(--border); border-radius: 13px; background: var(--card); }
-.guide-card h3 { margin: 0 0 2px; }
-.guide-card > svg { width: 17px; height: 17px; }
+.text-action { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.text-action:hover { text-decoration: underline; }
+.actions .text-action:last-child { color: var(--muted-foreground); }
+.resources { padding: 25px 0 40px; }
+.resources h2 { font-size: 24px; margin: 0 0 16px; }
+.guides { gap: 14px; }
+.guides .guide-card { align-items: start; padding: 18px; border: 1px solid var(--border); border-radius: 12px; background: white; }
+.guide-card h3 { margin: 0 0 4px; }
+.guide-card > svg { width: 16px; height: 16px; color: var(--muted-foreground); }
+.guide-card:nth-child(2) .guide-icon { color: #6742b3; background: #f3edff; }
+.guide-card:nth-child(3) .guide-icon { color: #925126; background: #fff3e9; }
 .article h1, .article h2, .login-box h1, .signal-title { font-family: var(--display); }
-.article section { border-color: #c5cfc1; }
-body > .login-page { background: var(--background); }
-.signal-panel {
-  background: linear-gradient(145deg,#102e29f5 16%,#1f4537bb 55%,#14342cd6),url("/art/citegauge-coast.webp") 72% center/cover;
-}
-.signal-panel .login-brand svg, .signal-title em { color: #e8e2a4; stroke: currentColor; }
-.login-control:focus-within > svg { color: var(--signal); }
-.login-control input:focus-visible { border-color: var(--ring); box-shadow: 0 0 0 3px #789b682d; }
+body > .login-page { background: white; }
+.signal-panel { background: radial-gradient(ellipse at 75% 68%,#ece7ff,transparent 63%),linear-gradient(145deg,#f8faff,#edf1ff);
+  color: var(--foreground); border: 1px solid var(--border); }
+.signal-panel::before { background-image: radial-gradient(#757bad5c .8px,transparent .9px); }
+.signal-panel .login-brand svg, .signal-title em, .login-control:focus-within > svg { color: var(--primary); stroke: currentColor; }
+.login-brand span, .signal-caption span { color: var(--muted-foreground); }
+.signal-caption { border-color: var(--border); }
+.signal-caption i { border-color: var(--primary); }
+#signal-motion { background: white; border-color: #c2c9e3; color: var(--primary); }
+#signal-motion:hover { background: var(--secondary); }
+.login-control input:focus-visible { border-color: var(--ring); box-shadow: 0 0 0 3px #5260ef21; }
 #login-submit { background: var(--primary); }
-#login-submit:hover { background: #183e32; }
+#login-submit:hover { background: #283dbf; }
 @media(max-width:780px) {
-  .public-main .hero { min-height: 0; padding: 30px 22px max(190px,33vw); }
-  .hero::after { background: linear-gradient(180deg,#faf7eb 0%,#faf7ebf0 45%,#faf7eb68 68%,transparent 82%); }
-  .coast-art { object-position: 76% bottom; height: 45%; top: auto; }
-  .intro { max-width: 100%; }
-  .hero h1 { font-size: clamp(43px,8vw,66px); margin-bottom: 15px; }
-  .public-lower { grid-template-columns: minmax(0,1fr); }
-  .actions { gap: 12px; }
+  .public-main .hero { grid-template-columns: minmax(0,1fr); padding-block: 32px; gap: 28px; }
+  .hero h1 { font-size: clamp(43px,8vw,60px); margin-bottom: 15px; }
+  .actions { gap: 16px; }
   .public-header { min-height: 62px; }
+  .guides { gap: 8px; }
+}
+@media(forced-colors:active) {
+  .hero h1 em { background: none; -webkit-text-fill-color: CanvasText; }
 }

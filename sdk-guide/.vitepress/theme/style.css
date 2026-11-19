@@ -1,22 +1,22 @@
 :root {
-  --vp-c-brand-1: #2a634b;
-  --vp-c-brand-2: #356e55;
-  --vp-c-brand-3: #234e3f;
-  --vp-c-brand-soft: #e5efdc;
-  --vp-c-bg: #fffef9;
-  --vp-c-bg-alt: #eff3e9;
-  --vp-c-text-1: #20372c;
+  --vp-c-brand-1: #3546bf;
+  --vp-c-brand-2: #465de0;
+  --vp-c-brand-3: #354ee6;
+  --vp-c-brand-soft: #edf0ff;
+  --vp-c-bg: #fff;
+  --vp-c-bg-alt: #f7f8fc;
+  --vp-c-text-1: #171b2e;
 }
 .dark {
-  --vp-c-brand-1: #aad3ad;
-  --vp-c-brand-2: #89ba95;
-  --vp-c-brand-3: #417351;
-  --vp-c-brand-soft: #233f30;
-  --vp-c-bg: #19251f;
-  --vp-c-bg-alt: #121d17;
-  --vp-c-text-1: #e6eee2;
+  --vp-c-brand-1: #bac2ff;
+  --vp-c-brand-2: #9caaff;
+  --vp-c-brand-3: #4656c6;
+  --vp-c-brand-soft: #2a2e53;
+  --vp-c-bg: #1a1b25;
+  --vp-c-bg-alt: #14151e;
+  --vp-c-text-1: #e6e8f1;
 }
-.vp-doc h1, .vp-doc h2 { font-family: "Iowan Old Style","Songti SC",Georgia,serif; }
+.vp-doc h1, .vp-doc h2 { font-family: var(--vp-font-family-base); }
 @media(prefers-reduced-motion:no-preference) {
   .VPDoc .content-container { animation: doc-arrive .3s ease-out; }
   @keyframes doc-arrive { from { opacity: .4; transform: translateY(5px); } }

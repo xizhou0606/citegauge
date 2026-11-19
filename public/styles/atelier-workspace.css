@@ -1,61 +1,51 @@
-.console { --surface-shadow: 0 3px 15px #1f36250a; background: #163b32; }
-.rail { background: linear-gradient(160deg,#14372e,#224b3c 70%,#173d35); color: #f7f7e8; }
+.console { --surface-shadow: 0 2px 8px #212c5e07; background: white; }
+.rail { background: white; color: var(--foreground); border-right: 1px solid var(--border); }
 .rail .brand { color: inherit; }
-.rail .brand i { background: #d6e5ba; color: #214734; }
-.rail .brand span, .rail-section { color: #bcd0bd; }
-.rail .feature-link, .rail .rail-foot a, .rail .rail-foot button { color: #d1e0d3; }
-.rail .feature-link:hover, .rail-foot a:hover, .rail-foot button:hover { background: #ffffff12; color: white; }
-.rail .feature-link[aria-current="page"] { background: #dceaca; color: #193e2f; box-shadow: inset 3px 0 #93b372; }
-.rail .rail-foot { border-color: #ffffff26; }
-.console-main { background: var(--background); border-color: transparent; overflow-wrap: anywhere; }
-.topbar { background: #fffef8; }
-.platform-mark { background: #fffefa; border: 1px solid #c4d4bb; }
+.rail .brand span, .rail-section { color: var(--muted-foreground); }
+.rail .feature-link, .rail .rail-foot a, .rail .rail-foot button { color: var(--muted-foreground); }
+.rail .feature-link:hover, .rail-foot a:hover, .rail-foot button:hover { background: #f5f6fc; color: var(--foreground); }
+.rail .feature-link[aria-current="page"] { background: var(--secondary); color: var(--primary); box-shadow: inset 3px 0 var(--primary); }
+.console-main { background: #fafbfe; border: 0; border-radius: 0; margin: 0; overflow-wrap: anywhere; }
+.topbar { background: white; border-radius: 0; }
+.platform-mark { background: white; border: 1px solid var(--border); }
 .scope-title, #website-entry, .project-heading {
-  position: relative; isolation: isolate; overflow: hidden;
-  border: 1px solid #c9d4bf; border-radius: 17px; background: #e9efdf;
+  background: white; border: 1px solid var(--border); border-radius: 15px;
   padding: clamp(18px,2.2vw,36px);
 }
-.scope-title::before, #website-entry::before, .project-heading::before {
-  content: ""; position: absolute; z-index: -1; inset: 0 0 0 52%; pointer-events: none;
-  background: url("/art/citegauge-coast.webp") 77% 14%/cover;
-  mask-image: linear-gradient(90deg,transparent,#000b 70%,black);
-}
 .scope-title h1, .reader-heading h1, #website-entry h1, .project-heading h1 {
-  font-family: var(--display); font-size: clamp(26px,2.8vw,46px); line-height: 1.2; color: #1a3f31;
+  font-family: var(--display); font-size: clamp(26px,2.8vw,46px); line-height: 1.2; color: var(--foreground);
 }
-.scope-title p, #website-entry p { color: #3d5747; max-width: 50ch; margin-top: .45rem; }
-.scope-title > :last-child { max-width: 64%; }
+.scope-title p, #website-entry p { color: var(--muted-foreground); max-width: 50ch; margin-top: .45rem; }
+.scope-title > :last-child { max-width: 100%; }
 #website-entry { max-width: none; }
 #website-entry form { max-width: min(610px,64%); margin-top: 20px; }
 .scope-filters { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 15px; margin-block: 13px; }
 .reader-heading { border-bottom: 1px solid var(--border); }
-.reader-summary { background: #edf2e7; }
+.reader-summary { background: #f4f5ff; }
 .surface, .reader-module, .industry-block, .tenant-card { background: var(--card); box-shadow: var(--surface-shadow); }
 .kpi-grid > *, .citation-status button { background-color: var(--card); }
 .reader-tabs button, .view-switch a { transition: color .2s, border-color .2s; }
 .platform-console nav { font-size: 14px; color: var(--muted-foreground); }
-.project-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; min-height: 140px; }
+.project-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; min-height: 110px; }
 .project-heading p { margin-top: 10px; max-width: 32em; }
 .project-heading > div { max-width: 70%; }
-.project-heading button { background: #fffdf4; }
+.project-heading button { background: white; }
 .tenant-card h2, .project-domain { display: flex; align-items: center; gap: 10px; }
 .tenant-card h2 { font: 700 21px/1.3 var(--display); }
 .tenant-card h2 svg { width: 24px; color: var(--signal); }
 .project-domain { overflow-wrap: anywhere; }
 .project-domain svg { width: 17px; flex: none; color: var(--signal); }
 .tenant-card li > div:first-child p { padding-left: 27px; }
-.sdk-state { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; padding: 3px 10px; border-radius: 30px; background: #edece4; color: #565b50; }
+.sdk-state { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; padding: 3px 10px; border-radius: 30px; background: #f0f1f6; color: #525b73; }
 .sdk-state::before { content: ""; width: 7px; height: 7px; border-radius: 100%; background: currentColor; }
 .sdk-state[data-state="issued"] { color: #80571d; background: #f7ecd1; }
-.sdk-state[data-state="reporting"] { color: #255c40; background: #e1efdb; }
+.sdk-state[data-state="reporting"] { color: #4f37a7; background: #ede9ff; }
 @media(max-width:680px) {
   .rail { border-radius: 0; gap: 5px; }
   .rail .rail-foot { flex-wrap: wrap; }
   .console-main { border-radius: 0; }
   .scope-title > :last-child, #website-entry form { max-width: none; }
-  .scope-title::before, #website-entry::before { opacity: .14; }
   .project-heading { min-height: 0; }
-  .project-heading::before { opacity: .3; }
   .project-heading > div { max-width: none; }
 }
 
@@ -63,10 +53,10 @@
 @media(max-width:680px) {
   .console { display: flex; flex-direction: column; }
   .console-main { flex: 1; }
-  .rail .rail-menu-toggle { display: inline-flex; color: #f2f5e9; justify-self: end; }
+  .rail .rail-menu-toggle { display: inline-flex; color: var(--foreground); justify-self: end; }
   .rail .feature-nav { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); overflow: visible; }
   .rail .feature-nav .feature-link { flex-direction: column; gap: 3px; padding: 6px 0; margin: 0; min-height: 42px; font-size: 11px; }
-  .rail .feature-link[aria-current="page"] { box-shadow: inset 0 -2px #aac38f; }
+  .rail .feature-link[aria-current="page"] { box-shadow: inset 0 -2px var(--primary); }
   .rail .rail-foot { display: none; }
   .rail:has(.rail-menu-toggle[aria-expanded="true"]) .rail-foot { display: flex; }
   .rail .rail-foot a, .rail .rail-foot button { min-height: 36px; font-size: 12px; }

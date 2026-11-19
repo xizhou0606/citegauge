@@ -33,8 +33,8 @@
 .module-findings { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-block: 18px; }
 .finding { padding: 15px; border-radius: 8px; }
 .finding h4 { display: flex; gap: 7px; align-items: center; font-weight: 650; margin-bottom: 7px; }
-.finding.strength { background: color-mix(in srgb, #38806c 8%, var(--card)); }
-.finding.strength h4 { color: #28674e; }
+.finding.strength { background: color-mix(in srgb, var(--primary) 8%, var(--card)); }
+.finding.strength h4 { color: var(--primary); }
 .finding.weakness { background: color-mix(in srgb, #b87c3b 10%, var(--card)); }
 .finding.weakness h4 { color: #825225; }
 .finding p, .reader-module blockquote, .module-impact, .module-steps p { white-space: pre-line; font-size: 15px; line-height: 1.75; }
