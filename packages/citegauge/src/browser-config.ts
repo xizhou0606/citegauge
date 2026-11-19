@@ -2,6 +2,8 @@ export const browserDefaults = {
   pageviews:true, devices:true, pages:true, referrers:true, campaigns:true, sessions:true,
   countries:true, environment:true, engagement:true, scrollDepth:true, outboundLinks:true, downloads:true,
   forms:true, siteSearch:true, errors:true, customEvents:true, webVitals:true,
+  journeys:true, clicks:true, formStarts:true, media:true, goals:true, funnels:true,
+  resourceErrors:true, navigationTiming:true,
 } as const;
 
 export type BrowserFeatures = Record<keyof typeof browserDefaults, boolean>;
@@ -13,13 +15,20 @@ export interface BrowserOptions {
   routes?: readonly string[];
   /** Business event names accepted by track(). No custom payload is collected. */
   events?: readonly string[];
+  /** Public names mapped to existing CSS selectors. Only the configured name is sent. */
+  controls?: Readonly<Record<string,string>>;
+  /** Named goals reached by opening a route template or clicking a selector. */
+  goals?: readonly ({name:string;route:string} | {name:string;selector:string})[];
+  /** Ordered route templates within one tab session. */
+  funnels?: readonly {name:string;steps:readonly string[]}[];
   searchKeys?: readonly string[];
 }
 export function defineConfig(config: BrowserOptions) { return config; }
 
 export const metricKinds = ["page","referrer","channel","utm_source","utm_medium","utm_campaign",
   "session","country","screen","device","browser","os","language","engagement","scroll","outbound","download","form",
-  "search","error","custom","LCP","INP","CLS"] as const;
+  "search","error","custom","LCP","INP","CLS","FCP","TTFB","entry","transition","navigation",
+  "click","form_start","media","goal","funnel","resource_error"] as const;
 export type MetricKind = typeof metricKinds[number];
 export type Metric = {kind:MetricKind;label:string;value:number};
 export type Emit = (kind:MetricKind,label:string,value?:number)=>void;

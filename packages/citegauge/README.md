@@ -21,6 +21,8 @@ import config from '../citegauge'
 citegauge.init(config)
 ```
 
+Use routes, controls, goals and funnels in this file to measure navigation, clicks and ordered steps without changing individual pages.
+
 Built-in measurements default to enabled. Set individual flags to false or use enabled: false to disable all tracking. See the [full TypeScript configuration and metric definitions](https://citegauge.liushurui0606.workers.dev/docs/sdk/collection.html).
 
 ## Node HTTP/1

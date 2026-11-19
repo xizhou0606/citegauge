@@ -1,13 +1,17 @@
 import type { BrowserFeatures, BrowserOptions, Emit } from "./browser-config.ts";
 
-export function pageLabel(templates: readonly string[] = []) {
+export function matchRoute(templates: readonly string[] = []) {
   if (location.pathname === "/") return "/";
   const parts = location.pathname.split("/").filter(Boolean);
   return templates.find(template=>{
     if (!template.startsWith("/") || template.length>100) return false;
     const pattern=template.split("/").filter(Boolean);
     return pattern.length===parts.length && pattern.every((part,i)=>part.startsWith(":") || part===parts[i]);
-  }) ?? "其他页面";
+  });
+}
+
+export function pageLabel(templates?: readonly string[]) {
+  return matchRoute(templates) ?? "其他页面";
 }
 
 export function visitorId(workspace: string) {

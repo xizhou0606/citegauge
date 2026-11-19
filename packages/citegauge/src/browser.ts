@@ -2,6 +2,8 @@ import { browserDefaults, defineConfig } from "./browser-config.ts";
 import type { BrowserOptions, Metric, Emit } from "./browser-config.ts";
 import { dimensions, pageLabel, visitorId, onNavigation, sessionStart } from "./browser-page.ts";
 import { interactions } from "./browser-interactions.ts";
+import { autoCapture } from "./browser-autocapture.ts";
+import { journeys } from "./browser-journeys.ts";
 export { defineConfig, browserDefaults };
 export type { BrowserOptions, BrowserFeatures } from "./browser-config.ts";
 
@@ -33,20 +35,33 @@ export function init(config: BrowserOptions = {}) {
       redirect:"error"}).catch(()=>{});
   }
   let currentGroup="全部页面";
-  const emit: Emit=(kind,label,value=1)=>send([{kind,label:kind==="engagement" ? currentGroup : label,value}]);
+  let pending: Metric[] | undefined;
+  const emit: Emit=(kind,label,value=1)=>{
+    const metric={kind,label:kind==="engagement" ? currentGroup : label,value};
+    if (pending) pending.push(metric);
+    else send([metric]);
+  };
+  const visitJourney=journeys(config,flags,emit);
   let path: string | undefined;
   let nextPage: (()=>void) | undefined;
   function view() {
     if ((document as Document & {prerendering?:boolean}).prerendering || path===location.pathname) return;
     const first=nextPage===undefined;
-    if (!nextPage) nextPage=interactions(flags,emit,signal);
+    pending=[];
+    if (!nextPage) {
+      nextPage=interactions(flags,emit,signal);
+      autoCapture(config,flags,emit,signal);
+    }
     else nextPage();
     path=location.pathname;
     if (flags.pages) currentGroup=pageLabel(config.routes);
-    const metrics: Metric[]=[];
-    dimensions(flags,config,first,(kind,label,value=1)=>metrics.push({kind,label,value}));
-    if (startSession?.()) metrics.push({kind:"session",label:"标签页会话",value:1});
-    send(metrics,flags.pageviews);
+    dimensions(flags,config,first,emit);
+    if (startSession?.()) emit("session","标签页会话");
+    visitJourney();
+    const metrics=pending;
+    pending=undefined;
+    send(metrics.splice(0,16),flags.pageviews);
+    while (metrics.length) send(metrics.splice(0,16));
   }
   if (flags.customEvents) custom=name=>{
     if (path!==undefined && config.events?.includes(name) && name.length<=100 && name.trim()) emit("custom",name);

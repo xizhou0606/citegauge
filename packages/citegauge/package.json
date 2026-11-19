@@ -1,6 +1,6 @@
 {
   "name": "citegauge",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Browser page views, unique visitors and server-side AI crawler analytics",
   "type": "module",
   "main": "./dist/index.js",

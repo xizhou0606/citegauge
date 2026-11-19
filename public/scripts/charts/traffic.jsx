@@ -1,14 +1,15 @@
 import { useEffect, useRef } from "react";
 
-export function TrafficTrend({rows,format}) {
+const visits=[{key:"pv",label:"PV"},{key:"uv",label:"UV"}];
+export function TrafficTrend({rows,format,series=visits,description="PV 与 UV 趋势，详细数值见时段明细"}) {
   const ref = useRef(null);
   useEffect(()=>{
     if (!window.Chart) return;
     const theme = getComputedStyle(document.documentElement);
     const chart = new window.Chart(ref.current,{
       type:"bar",
-      data:{labels:rows.map(row=>format(row.at)),datasets:["pv","uv"].map((key,i)=>({
-        label:key.toUpperCase(),data:rows.map(row=>row[key]),
+      data:{labels:rows.map(row=>format(row.at)),datasets:series.map(({key,label},i)=>({
+        label,data:rows.map(row=>row[key]),
         backgroundColor:theme.getPropertyValue("--chart-"+(i+1)).trim(),borderRadius:3,maxBarThickness:22,
       }))},
       options:{responsive:true,maintainAspectRatio:false,
@@ -19,6 +20,6 @@ export function TrafficTrend({rows,format}) {
       },
     });
     return ()=>chart.destroy();
-  },[rows,format]);
-  return <div className="traffic-plot"><canvas ref={ref} role="img" aria-label="PV 与 UV 趋势，详细数值见时段明细" /></div>;
+  },[rows,format,series]);
+  return <div className="traffic-plot"><canvas ref={ref} role="img" aria-label={description} /></div>;
 }

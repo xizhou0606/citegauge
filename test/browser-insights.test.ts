@@ -21,8 +21,22 @@ test("分项浏览器数据可独立采集，重试去重，按网站汇总业�
   assert.equal(await post(6,[fact("custom","其他网站事件")],undefined,"other.example.com"),204);
   assert.equal(await post(7,[fact("privateField","x")]),400);
   const report=await(await insights(f.binding,domain,7)).json();
+  assert.equal(report.trend.filter(r=>r.kind==="custom").reduce((n,r)=>n+r.samples,0),4);
   assert.deepEqual(report.visitors,{visitors:1,returningVisitors:0});
   assert.deepEqual(report.vitals,[{kind:"LCP",samples:4,p75:300}]);
   assert.deepEqual(report.groups.map(x=>[x.kind,x.samples]),[["custom",4],["page",1]]);
   assert.deepEqual((await f.binding.prepare("SELECT device,device_sampled FROM browser_pageviews").all()).results,[{device:null,device_sampled:0}]);
+});
+
+test("留存只纳入已经过完整观察日的新增访客，并隔离网站",async t=>{
+  const f=await fixture();t.after(()=>f.close());
+  const day=86400000;
+  const today=Math.floor((Date.now()+28800000)/day)*day-28800000;
+  let id=0;
+  for(const [domain,visitor,offset] of [
+    ["a.test","a",3],["a.test","a",2],["a.test","b",3],["a.test","c",1],["b.test","b",2],
+  ]) await f.pool.query("INSERT INTO browser_pageviews(domain,event_id,visitor,at) VALUES(?,?,?,?)",
+    [domain,String(++id),visitor,today-day*offset]);
+  const report=await(await insights(f.binding,"a.test",7)).json();
+  assert.deepEqual(report.retention,[{days:1,eligible:2,retained:1}]);
 });

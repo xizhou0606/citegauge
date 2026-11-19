@@ -4,8 +4,8 @@ import { metricKinds } from "../../packages/citegauge/src/browser-config.ts";
 const id=z.string().regex(/^[0-9a-f]{32}$/);
 const event=z.object({
   id,visitor:id.optional(),
-  metrics:z.array(z.object({kind:z.enum(metricKinds),label:z.string().trim().min(1).max(100)
-    .regex(/^[^\u0000-\u001f\u007f]+$/),value:z.number().finite().nonnegative().max(1e12)}).strict()).max(24),
+  metrics:z.array(z.object({kind:z.enum(metricKinds),label:z.string().trim().min(1).max(204)
+    .regex(/^[^\u0000-\u001f\u007f]+$/),value:z.number().finite().nonnegative().max(1e12)}).strict().refine(m=>m.label.length<=100 || m.kind==="transition" || m.kind==="funnel")).max(24),
 }).strict().refine(e=>e.visitor || e.metrics.length);
 async function read(req: Request) {
   const reader=req.body?.getReader();

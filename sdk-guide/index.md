@@ -1,5 +1,5 @@
 ---
-description: 安装 citegauge v0.3.0，在 Node.js HTTP/1 服务启动时加载配置，验证首次上报并排查常见错误。
+description: 安装 citegauge v0.4.0，在 Node.js HTTP/1 服务启动时加载配置，验证首次上报并排查常见错误。
 ---
 
 # TypeScript SDK 快速接入
@@ -11,7 +11,7 @@ description: 安装 citegauge v0.3.0，在 Node.js HTTP/1 服务启动时加载�
 在网站项目中安装 SDK。使用 Node 服务端入口时，运行环境需要 Node.js 22.18 或更高版本。
 
 ```sh
-npm install citegauge@0.3.0
+npm install citegauge@0.4.0
 ```
 
 ## 浏览器接入
