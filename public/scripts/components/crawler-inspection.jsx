@@ -1,10 +1,9 @@
-import { SiteSdk } from "./site-sdk.jsx";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Panel } from "./controls.jsx";
-import { CrawlerVisits, LogImport } from "./crawler-visits.jsx";
+import { LogImport } from "./crawler-visits.jsx";
 import { api } from "../core/api.js";
 
 function ResourceResults({ result }) {
@@ -58,7 +57,7 @@ function ResourceResults({ result }) {
   </section>;
 }
 
-export function CrawlerInspection({ domain, monitor }) {
+export function CrawlerInspection({ domain }) {
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -74,7 +73,6 @@ export function CrawlerInspection({ domain, monitor }) {
     finally { setBusy(false); }
   }
   return <div className="grid gap-4">
-    {monitor && <SiteSdk key={monitor.domain} monitor={monitor} />}
     <Panel className="grid min-w-0 gap-4 p-5">
       <form onSubmit={submit} className="grid gap-3">
         <Label htmlFor="inspect-site">目标官网 URL</Label>
@@ -87,8 +85,5 @@ export function CrawlerInspection({ domain, monitor }) {
       {error && <p role="alert">{error}</p>}
       {result && <ResourceResults key={result.checked} result={result} />}
     </Panel>
-    {monitor && <details><summary>{monitor.domain} · 全部 XML / TXT 与 AI 爬虫日志</summary>
-      <CrawlerVisits monitor={monitor} />
-    </details>}
   </div>;
 }

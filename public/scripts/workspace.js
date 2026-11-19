@@ -16,8 +16,10 @@ const scope = createRoot($("scope"));
 let catalog, platform, channel, active, domain, sites = [], generation = 0;
 function showView() {
   const links = [...document.querySelectorAll(".feature-nav a")];
-  const current = links.find((link) => link.hash === location.hash.split("?")[0]) || links[0];
-  const view = current.hash.slice(1);
+  const hash = location.hash.split("?")[0];
+  const parent = hash === "#evidence" ? "#sources" : hash === "#crawlers" ? "#traffic" : hash;
+  const current = links.find(link => link.hash === parent) || links[0];
+  const view = hash === "#evidence" ? "evidence" : current.hash.slice(1);
   const monitoring = view !== "website";
   $("website-panel").hidden = monitoring;
   $("app").hidden = !monitoring || !catalog;
@@ -71,7 +73,7 @@ async function refreshView() {
   const questionsAt = view === "sources" && channel === "通义千问 API" && sites.find(s => s.domain === domain)?.questionsAt;
   const choices = questionsAt ? monitors.filter(m => m.brandPrompt?.version === customerQuestionVersion && m.brandPrompt.at === questionsAt) : monitors;
   const selected = choices.find(m => m.id === active) || (questionsAt ? choices[0] : undefined);
-  const siteView = view === "crawlers" || (view === "competitors" && !location.hash.includes("section=mentions"));
+  const siteView = view === "traffic" || (view === "competitors" && !location.hash.includes("section=mentions"));
   const monitor = selected || (siteView ? monitors[0] : undefined);
   scope.render(
     createElement(Scope, {

@@ -4,7 +4,7 @@
 
 ## 本地
 
-使用 Node.js 24，运行 `npm ci`、`npm run db:local`、`npm run auth:admin`、`npm run dev`。本地管理员凭据位于 .local-admin.txt，复用已有账号时凭据保持有效。
+Node.js 版本由 .nvmrc 指定，npm 版本由 package.json 的 packageManager 指定。更新锁文件时使用同版 npm，运行 `npm ci`、`npm run db:local`、`npm run auth:admin`、`npm run dev`。本地管理员凭据位于 .local-admin.txt，复用已有账号时凭据保持有效。
 
 ## 生产
 

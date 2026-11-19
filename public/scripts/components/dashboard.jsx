@@ -1,4 +1,4 @@
-import { CrawlerInspection } from "./crawler-inspection.jsx";
+import { WebsiteTraffic } from "./website-traffic.jsx";
 import { CurrentAnswer } from "./formatted-answer.jsx";
 import { BrandQuestions } from "./brand-questions.jsx";
 import { Industry } from "./industry.jsx";
@@ -78,7 +78,7 @@ function EmptyMonitor({ create, domain }) {
 export async function renderDashboard(view, m, ready, refresh, onCreate, domain, questionsAt) {
   const request = ++sequence;
   if (view === "website") return panel.render(null);
-  if (view === "crawlers") return panel.render(<CrawlerInspection key={domain || "custom"} domain={domain} monitor={m} />);
+  if (view === "traffic") return panel.render(<WebsiteTraffic key={domain || "custom"} domain={domain} monitor={m} />);
   if (!m && questionsAt) return panel.render(<BrandQuestions key={domain} domain={domain} at={questionsAt} />);
   if (!m) return panel.render(<EmptyMonitor create={onCreate} domain={domain} />);
   panel.render(

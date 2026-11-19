@@ -43,7 +43,7 @@ export function CrawlerVisits({ monitor }) {
   const total = query.detail === "bots" ? botTotal : totals[query.detail].requests;
   return <Panel className="grid gap-4 p-5">
     <header className="flex flex-wrap items-center justify-between gap-3">
-      <h2 className="break-all">{monitor.domain} · 近 30 天</h2>
+      <h2 className="break-all">爬虫与文件请求</h2>
       <LogImport monitor={monitor} imported={text => { setMessage(text); setQuery({ page: 1, detail: query.detail }); }} />
     </header>
     <p>按请求的 User-Agent 识别爬虫，来源身份未经验证。次数包含抓取失败的请求。</p>
@@ -51,7 +51,7 @@ export function CrawlerVisits({ monitor }) {
     {error && <p role="alert">{error} <SmallButton onClick={() => setQuery({ ...query })}>重试</SmallButton></p>}
     {!data && !error && <p role="status">正在读取访问日志…</p>}
     {data && <>
-      <CrawlerFiles totals={totals} hasData={data.observed || totals.files.requests > 0}
+      <CrawlerFiles botTotal={botTotal} totals={totals} hasData={data.observed || totals.files.requests > 0 || botTotal > 0}
         detail={query.detail} select={detail => setQuery({ page: 1, detail, end: data.end })} />
       {query.detail === "bots" && botTotal > 0 && <>
       <h3>爬虫访问 · {total} 次请求</h3>
@@ -63,7 +63,7 @@ export function CrawlerVisits({ monitor }) {
       </DataTable>
       </>}
       <h3>请求明细 · {total} 条</h3>
-      {total === 0 ? <p>近 30 天已导入的日志中暂无此类请求。</p> : <>
+      {total === 0 ? <p>{data.observed ? "近 30 天未记录此类请求。" : "近 30 天暂无请求记录，次数未知。"}</p> : <>
       <DataTable headings={["请求路径", "爬虫", "HTTP 状态", "访问时间"]}>
         {data.records.map(row => <TableRow key={JSON.stringify([row.request_id, row.at, row.host, row.path])}>
           <TableCell className="whitespace-normal break-all"><details>

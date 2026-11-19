@@ -16,11 +16,13 @@ export function fileTotals(rows) {
   return totals;
 }
 
-export function CrawlerFiles({ totals, hasData, detail, select }) {
+export function CrawlerFiles({ botTotal, totals, hasData, detail, select }) {
   return <section className="grid gap-3" aria-label="全渠道文件请求统计">
-    <h3>全渠道文件请求</h3>
     <p>按官网汇总 SDK 和导入日志中的请求，包含所有 HTTP 状态。XML 含 .xml.gz，TXT 含 robots.txt 和其他 .txt 文件。</p>
-    <div className="grid gap-3 sm:grid-cols-3">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="rounded-lg border p-3"><p>AI 爬虫请求</p>
+        <strong className="block text-2xl">{hasData ? botTotal.toLocaleString() : "—"}</strong>
+        <p>所有路径</p></div>
       {files.map(([key, label]) => <div key={key} className="rounded-lg border p-3">
         <p>{label}</p>
         <strong className="block text-2xl">{hasData ? totals[key].requests.toLocaleString() : "—"}</strong>

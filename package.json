@@ -2,6 +2,7 @@
   "name": "citegauge",
   "version": "0.1.0",
   "description": "Evidence-first GEO monitoring on Cloudflare Workers",
+  "packageManager": "npm@10.9.2",
   "scripts": {
     "test": "node --env-file-if-exists=.env --test test/*.test.ts",
     "dev": "wrangler dev",

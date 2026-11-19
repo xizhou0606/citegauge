@@ -1,10 +1,9 @@
 import {
   Activity,
-  Bot,
+  ChartNoAxesCombined,
   AudioLines,
   BookOpen,
   ChartColumn,
-  FolderOpen,
   Globe,
   Layers,
   Link2,
@@ -52,11 +51,10 @@ export function PublicFooter() {
 }
 const views = [
   ["website", Globe, "官网分析"],
-  ["monitoring", Activity, "可见度概览"],
   ["competitors", ChartColumn, "竞品对比"],
+  ["monitoring", Activity, "可见度概览"],
   ["sources", Link2, "回答与引用"],
-  ["crawlers", Bot, "AI 爬虫"],
-  ["evidence", FolderOpen, "样本复核"],
+  ["traffic", ChartNoAxesCombined, "网站流量"],
 ] as const;
 export function WorkspaceShell() {
   return (
