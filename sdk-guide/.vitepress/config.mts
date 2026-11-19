@@ -8,7 +8,7 @@ export default defineConfig({
   base: "/docs/sdk/", outDir: "../public/docs/sdk",
   vite: { plugins: [llmstxt({domain:origin,excludeIndexPage:false})] },
   transformHead({pageData,siteData}) {
-    if (!pageData.relativePath.endsWith(".md")) return [];
+    if (pageData.isNotFound || pageData.relativePath === "404.md" || !pageData.relativePath.endsWith(".md")) return [];
     return [["link",{rel:"alternate",type:"text/markdown",href:siteData.base + pageData.relativePath}]];
   },
   themeConfig: {
